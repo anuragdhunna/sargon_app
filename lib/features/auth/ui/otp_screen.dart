@@ -5,7 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/buttons/primary_button.dart';
 import 'package:hotel_manager/component/buttons/secondary_button.dart';
-import 'package:hotel_manager/component/inputs/custom_text_field.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/core/auth/role_guard.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
@@ -33,9 +33,9 @@ class OtpScreen extends StatelessWidget {
               Text(
                 'Verify OTP',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).primaryColor,
+                ),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -45,7 +45,7 @@ class OtpScreen extends StatelessWidget {
               const SizedBox(height: 48),
               FormBuilder(
                 key: formKey,
-                child: CustomTextField(
+                child: AppTextField(
                   name: 'otp',
                   label: 'Enter OTP',
                   hint: '123456',
@@ -69,19 +69,23 @@ class OtpScreen extends StatelessWidget {
                     final defaultRoute = RoleGuard.getDefaultRoute(state.role);
                     context.go(defaultRoute);
                   } else if (state is AuthError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text(state.message)));
                   }
                 },
                 builder: (context, state) {
                   return PrimaryButton(
-                    label: state is AuthLoading ? 'Verifying...' : 'Verify & Login',
+                    label: state is AuthLoading
+                        ? 'Verifying...'
+                        : 'Verify & Login',
                     onPressed: state is AuthLoading
                         ? null
                         : () {
-                            if (formKey.currentState?.saveAndValidate() ?? false) {
-                              final otp = formKey.currentState!.value['otp'] as String;
+                            if (formKey.currentState?.saveAndValidate() ??
+                                false) {
+                              final otp =
+                                  formKey.currentState!.value['otp'] as String;
                               context.read<AuthCubit>().verifyOtp(otp);
                             }
                           },

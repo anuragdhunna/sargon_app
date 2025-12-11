@@ -5,7 +5,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/buttons/primary_button.dart';
-import 'package:hotel_manager/component/inputs/custom_text_field.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
@@ -44,7 +44,7 @@ class LoginScreen extends StatelessWidget {
                 key: formKey,
                 child: Column(
                   children: [
-                    CustomTextField(
+                    AppTextField(
                       name: 'phone',
                       label: 'Phone Number',
                       hint: '9876543210',

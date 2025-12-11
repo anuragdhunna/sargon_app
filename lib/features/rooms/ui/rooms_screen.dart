@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/component/buttons/action_button.dart';
+import 'package:hotel_manager/component/cards/app_card.dart';
+import 'package:hotel_manager/component/dialogs/confirmation_dialog.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/rooms/data/room_model.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
 import 'package:hotel_manager/features/rooms/ui/create_booking_dialog.dart';
 import 'package:hotel_manager/features/rooms/ui/guest_details_dialog.dart';
+import 'package:hotel_manager/theme/app_design.dart';
 
 class RoomsScreen extends StatefulWidget {
   const RoomsScreen({super.key});
@@ -19,7 +22,7 @@ class RoomsScreen extends StatefulWidget {
 
 class _RoomsScreenState extends State<RoomsScreen> {
   RoomType? _selectedCategory;
-  
+
   @override
   void initState() {
     super.initState();
@@ -30,18 +33,21 @@ class _RoomsScreenState extends State<RoomsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppDesign.neutral50,
       appBar: AppBar(
         title: const Text('Room Management'),
         actions: [
           BlocBuilder<RoomCubit, RoomState>(
             builder: (context, state) {
               if (state is! RoomLoaded) return const SizedBox.shrink();
-              
+
               return ActionButton.add(
                 tooltip: 'Quick Booking',
                 onPressed: () {
                   final filteredRooms = _filterRooms(state.rooms);
-                  final availableRooms = filteredRooms.where((r) => r.status == RoomStatus.available).toList();
+                  final availableRooms = filteredRooms
+                      .where((r) => r.status == RoomStatus.available)
+                      .toList();
                   if (availableRooms.isNotEmpty) {
                     showDialog(
                       context: context,
@@ -52,7 +58,11 @@ class _RoomsScreenState extends State<RoomsScreen> {
                     );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('No available rooms in selected category')),
+                      const SnackBar(
+                        content: Text(
+                          'No available rooms in selected category',
+                        ),
+                      ),
                     );
                   }
                 },
@@ -66,7 +76,10 @@ class _RoomsScreenState extends State<RoomsScreen> {
         listener: (context, state) {
           if (state is RoomError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -106,26 +119,27 @@ class _RoomsScreenState extends State<RoomsScreen> {
               // Category Filter Bar
               _buildCategoryFilter(allRooms),
               const Divider(height: 1),
-              
-              // Room Status Legend  
+
+              // Room Status Legend
               _buildStatusLegend(filteredRooms),
-              
+
               // Room Grid
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 6,
-                      childAspectRatio: 1.0,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 6,
+                          childAspectRatio: 1.0,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     itemCount: filteredRooms.length,
                     itemBuilder: (context, index) {
                       final room = filteredRooms[index];
                       final booking = bookings[room.id];
-                      
+
                       return _RoomCard(
                         room: room,
                         booking: booking,
@@ -159,10 +173,11 @@ class _RoomsScreenState extends State<RoomsScreen> {
             FilterChip(
               label: Text('All Rooms (${allRooms.length})'),
               selected: _selectedCategory == null,
-              onSelected: (selected) => setState(() => _selectedCategory = null),
+              onSelected: (selected) =>
+                  setState(() => _selectedCategory = null),
             ),
             const SizedBox(width: 8),
-            
+
             ...RoomType.values.map((type) {
               final count = allRooms.where((r) => r.type == type).length;
               return Padding(
@@ -171,7 +186,9 @@ class _RoomsScreenState extends State<RoomsScreen> {
                   avatar: Icon(type.icon, size: 18),
                   label: Text('${type.displayName} ($count)'),
                   selected: _selectedCategory == type,
-                  onSelected: (selected) => setState(() => _selectedCategory = selected ? type : null),
+                  onSelected: (selected) => setState(
+                    () => _selectedCategory = selected ? type : null,
+                  ),
                 ),
               );
             }),
@@ -242,48 +259,52 @@ class _RoomsScreenState extends State<RoomsScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Room ${room.roomNumber} is currently ${room.status.displayName}'),
+          content: Text(
+            'Room ${room.roomNumber} is currently ${room.status.displayName}',
+          ),
         ),
       );
     }
   }
 
-  void _showCleaningConfirmation(Room room) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Mark Room ${room.roomNumber} as Cleaned?'),
-        content: const Text('This will make the room available for new bookings.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+  void _showCleaningConfirmation(Room room) async {
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (context) => ConfirmationDialog(
+            title: 'Mark Room as Cleaned?',
+            message:
+                'Room ${room.roomNumber} will be marked as available for new bookings.',
+            confirmText: 'Mark as Cleaned',
+            icon: const Icon(
+              Icons.cleaning_services,
+              size: 48,
+              color: Colors.green,
+            ),
           ),
-          FilledButton(
-            onPressed: () {
-              final authState = context.read<AuthCubit>().state;
-              if (authState is AuthVerified) {
-                context.read<RoomCubit>().updateRoomStatus(
-                  roomId: room.id,
-                  newStatus: RoomStatus.available,
-                  userId: authState.userId,
-                  userName: authState.userName,
-                  userRole: authState.role.name,
-                );
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Room ${room.roomNumber} marked as Available'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              }
-            },
-            child: const Text('Mark as Cleaned'),
-          ),
-        ],
-      ),
-    );
+        ) ??
+        false;
+
+    if (confirmed && mounted) {
+      final authState = context.read<AuthCubit>().state;
+      if (authState is AuthVerified) {
+        context.read<RoomCubit>().updateRoomStatus(
+          roomId: room.id,
+          newStatus: RoomStatus.available,
+          userId: authState.userId,
+          userName: authState.userName,
+          userRole: authState.role.name,
+        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Room ${room.roomNumber} marked as Available'),
+              backgroundColor: AppDesign.success,
+            ),
+          );
+        }
+      }
+    }
   }
 }
 
@@ -300,30 +321,25 @@ class _RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(AppDesign.radiusMd),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppDesign.radiusMd),
             border: Border.all(color: room.status.color, width: 2),
           ),
+          padding: const EdgeInsets.all(12),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                room.type.icon,
-                size: 24,
-                color: room.status.color,
-              ),
+              Icon(room.type.icon, size: 24, color: room.status.color),
               const SizedBox(height: 6),
               Text(
                 room.roomNumber,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: AppDesign.titleMedium.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -332,17 +348,16 @@ class _RoomCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: room.status.color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppDesign.radiusSm),
                   border: Border.all(color: room.status.color, width: 1),
                 ),
                 child: Text(
                   room.status == RoomStatus.available
                       ? room.type.displayName.substring(0, 1)
                       : room.status.displayName.substring(0, 3).toUpperCase(),
-                  style: TextStyle(
+                  style: AppDesign.labelSmall.copyWith(
                     color: room.status.color,
                     fontWeight: FontWeight.bold,
-                    fontSize: 10,
                   ),
                 ),
               ),
@@ -350,7 +365,7 @@ class _RoomCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   booking!.guestName.split(' ').first,
-                  style: const TextStyle(fontSize: 10),
+                  style: AppDesign.bodySmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

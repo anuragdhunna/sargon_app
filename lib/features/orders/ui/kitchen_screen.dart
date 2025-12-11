@@ -107,11 +107,35 @@ class _OrderCard extends StatelessWidget {
                 ...order.items.map(
                   (item) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.circle, size: 8, color: Colors.grey),
-                        const SizedBox(width: 8),
-                        Text(item.name, style: const TextStyle(fontSize: 16)),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.circle,
+                              size: 8,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              item.name,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        if (item.notes != null && item.notes!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 16, top: 2),
+                            child: Text(
+                              'Note: ${item.notes}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.red.shade400,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

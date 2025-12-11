@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_manager/component/cards/app_card.dart';
+import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 class ImageCaptureCardWidget extends StatelessWidget {
@@ -14,35 +16,39 @@ class ImageCaptureCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: AppDesign.space2),
-            Text(label, style: const TextStyle(fontSize: 12)),
-            const SizedBox(height: AppDesign.space2),
-            ElevatedButton.icon(
-              onPressed: onCapture,
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('Capture'),
-            ),
-            if (imagePath != null)
-              const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'Captured ✓',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            label,
+            style: AppDesign.labelLarge.copyWith(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: AppDesign.space3),
+          PremiumButton.secondary(
+            label: 'Capture',
+            icon: Icons.camera_alt,
+            onPressed: onCapture,
+          ),
+          if (imagePath != null)
+            Padding(
+              padding: const EdgeInsets.only(top: AppDesign.space2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle, color: AppDesign.success, size: 16),
+                  const SizedBox(width: AppDesign.space1),
+                  Text(
+                    'Captured',
+                    style: AppDesign.labelSmall.copyWith(
+                      color: AppDesign.success,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                ],
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }

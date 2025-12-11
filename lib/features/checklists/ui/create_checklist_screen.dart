@@ -4,7 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/buttons/primary_button.dart';
-import 'package:hotel_manager/component/inputs/custom_text_field.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/checklists/data/checklist_model.dart';
 import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
 import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
@@ -34,14 +34,14 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomTextField(
+              AppTextField(
                 name: 'title',
                 label: 'Checklist Title',
                 hint: 'e.g., Kitchen Closing Protocol',
                 validator: FormBuilderValidators.required(),
               ),
               const SizedBox(height: 16),
-              CustomTextField(
+              AppTextField(
                 name: 'description',
                 label: 'Description',
                 hint: 'Brief instructions...',
@@ -54,9 +54,17 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                     child: FormBuilderDropdown<UserRole>(
                       name: 'role',
                       initialValue: UserRole.housekeeping,
-                      decoration: const InputDecoration(labelText: 'Assign To Role', border: OutlineInputBorder()),
+                      decoration: const InputDecoration(
+                        labelText: 'Assign To Role',
+                        border: OutlineInputBorder(),
+                      ),
                       items: UserRole.values
-                          .map((role) => DropdownMenuItem(value: role, child: Text(role.name.toUpperCase())))
+                          .map(
+                            (role) => DropdownMenuItem(
+                              value: role,
+                              child: Text(role.name.toUpperCase()),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
@@ -65,16 +73,24 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                     child: FormBuilderDropdown<ChecklistType>(
                       name: 'type',
                       initialValue: ChecklistType.general,
-                      decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
+                      decoration: const InputDecoration(
+                        labelText: 'Category',
+                        border: OutlineInputBorder(),
+                      ),
                       items: ChecklistType.values
-                          .map((type) => DropdownMenuItem(value: type, child: Text(type.name.toUpperCase())))
+                          .map(
+                            (type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(type.name.toUpperCase()),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Time-bound toggle
               SwitchListTile(
                 title: const Text('Time-Bound Task'),
@@ -82,9 +98,9 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                 value: _isTimeBound,
                 onChanged: (val) => setState(() => _isTimeBound = val),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Recurrence pattern
               FormBuilderDropdown<RecurrencePattern>(
                 name: 'recurrence',
@@ -95,22 +111,30 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                   helperText: 'How often should this checklist repeat?',
                 ),
                 items: RecurrencePattern.values
-                    .map((pattern) => DropdownMenuItem(
-                          value: pattern,
-                          child: Text(_getRecurrenceLabel(pattern)),
-                        ))
+                    .map(
+                      (pattern) => DropdownMenuItem(
+                        value: pattern,
+                        child: Text(_getRecurrenceLabel(pattern)),
+                      ),
+                    )
                     .toList(),
               ),
-              
+
               const SizedBox(height: 24),
-              const Text('Tasks', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text(
+                'Tasks',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _taskController,
-                      decoration: const InputDecoration(hintText: 'Enter task item', border: OutlineInputBorder()),
+                      decoration: const InputDecoration(
+                        hintText: 'Enter task item',
+                        border: OutlineInputBorder(),
+                      ),
                       onSubmitted: (_) => _addTask(),
                     ),
                   ),
@@ -123,7 +147,10 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
               ),
               const SizedBox(height: 16),
               if (_tasks.isEmpty)
-                const Text('No tasks added yet.', style: TextStyle(color: Colors.grey))
+                const Text(
+                  'No tasks added yet.',
+                  style: TextStyle(color: Colors.grey),
+                )
               else
                 ListView.builder(
                   shrinkWrap: true,
@@ -151,7 +178,9 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                   if (_formKey.currentState?.saveAndValidate() ?? false) {
                     if (_tasks.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please add at least one task.')),
+                        const SnackBar(
+                          content: Text('Please add at least one task.'),
+                        ),
                       );
                       return;
                     }
@@ -165,7 +194,12 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                       status: ChecklistStatus.pending,
                       assignedRole: data['role'],
                       dueDate: DateTime.now().add(const Duration(hours: 24)),
-                      items: _tasks.map((t) => ChecklistItem(id: const Uuid().v4(), task: t)).toList(),
+                      items: _tasks
+                          .map(
+                            (t) =>
+                                ChecklistItem(id: const Uuid().v4(), task: t),
+                          )
+                          .toList(),
                       isTimeBound: _isTimeBound,
                       recurrence: data['recurrence'] ?? RecurrencePattern.none,
                     );
@@ -179,7 +213,6 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                 },
               ),
             ],
-
           ),
         ),
       ),

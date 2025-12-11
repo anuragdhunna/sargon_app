@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hotel_manager/component/buttons/primary_button.dart';
-import 'package:hotel_manager/component/inputs/custom_text_field.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/incidents/data/incident_model.dart';
@@ -73,14 +73,14 @@ class IncidentManagementScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 24),
-                  CustomTextField(
+                  AppTextField(
                     name: 'title',
                     label: 'Incident Title',
                     hint: 'e.g., WiFi not working',
                     validator: FormBuilderValidators.required(),
                   ),
                   const SizedBox(height: 16),
-                  CustomTextField(
+                  AppTextField(
                     name: 'location',
                     label: 'Location',
                     hint: 'e.g., Room 101',
@@ -104,7 +104,7 @@ class IncidentManagementScreen extends StatelessWidget {
                         .toList(),
                   ),
                   const SizedBox(height: 16),
-                  CustomTextField(
+                  AppTextField(
                     name: 'description',
                     label: 'Description',
                     hint: 'Details...',

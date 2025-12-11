@@ -9,6 +9,8 @@ class Order extends Equatable {
   final List<MenuItem> items;
   final OrderStatus status;
   final DateTime timestamp;
+  final String?
+  orderNotes; // Overall order notes (e.g., "Birthday celebration", "Rush order")
 
   const Order({
     required this.id,
@@ -16,18 +18,34 @@ class Order extends Equatable {
     required this.items,
     required this.status,
     required this.timestamp,
+    this.orderNotes,
   });
 
-  Order copyWith({OrderStatus? status}) {
+  Order copyWith({
+    String? id,
+    String? tableNumber,
+    List<MenuItem>? items,
+    OrderStatus? status,
+    DateTime? timestamp,
+    String? orderNotes,
+  }) {
     return Order(
-      id: id,
-      tableNumber: tableNumber,
-      items: items,
+      id: id ?? this.id,
+      tableNumber: tableNumber ?? this.tableNumber,
+      items: items ?? this.items,
       status: status ?? this.status,
-      timestamp: timestamp,
+      timestamp: timestamp ?? this.timestamp,
+      orderNotes: orderNotes ?? this.orderNotes,
     );
   }
 
   @override
-  List<Object?> get props => [id, tableNumber, items, status, timestamp];
+  List<Object?> get props => [
+    id,
+    tableNumber,
+    items,
+    status,
+    timestamp,
+    orderNotes,
+  ];
 }

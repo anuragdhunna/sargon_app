@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/component/cards/app_card.dart';
+import 'package:hotel_manager/component/states/empty_state.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/checklists/data/checklist_model.dart';
 import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
 import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
+import 'package:hotel_manager/theme/app_design.dart';
 import 'package:intl/intl.dart';
 
 class ChecklistListScreen extends StatelessWidget {
@@ -38,7 +42,11 @@ class ChecklistListScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (state is ChecklistLoaded) {
             if (state.checklists.isEmpty) {
-              return const Center(child: Text('No tasks assigned! 🎉'));
+              return const EmptyState(
+                icon: Icons.task_alt,
+                title: 'No Tasks Assigned',
+                message: 'You have no pending tasks. Great job! 🎉',
+              );
             }
             return ListView.separated(
               padding: const EdgeInsets.all(16),
@@ -69,17 +77,15 @@ class _ChecklistCard extends StatelessWidget {
         checklist.items.length;
     final isCompleted = progress == 1.0;
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 2,
+    return AppCard(
+      padding: EdgeInsets.zero,
       child: ExpansionTile(
         title: Text(
           checklist.title,
-          style: TextStyle(
+          style: AppDesign.titleMedium.copyWith(
             fontWeight: FontWeight.bold,
             decoration: isCompleted ? TextDecoration.lineThrough : null,
-            color: isCompleted ? Colors.grey : Colors.black,
+            color: isCompleted ? AppDesign.neutral500 : AppDesign.neutral900,
           ),
         ),
         subtitle: Column(
@@ -88,7 +94,7 @@ class _ChecklistCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               checklist.description,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+              style: AppDesign.bodySmall.copyWith(color: AppDesign.neutral600),
             ),
             const SizedBox(height: 8),
             Row(
@@ -96,17 +102,17 @@ class _ChecklistCard extends StatelessWidget {
                 Chip(
                   label: Text(
                     checklist.assignedRole.name.toUpperCase(),
-                    style: const TextStyle(fontSize: 10),
+                    style: AppDesign.labelSmall,
                   ),
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
+                  backgroundColor: AppDesign.primaryStart.withOpacity(0.1),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'Due: ${DateFormat('MMM d, h:mm a').format(checklist.dueDate)}',
-                  style: TextStyle(
-                    color: Colors.red.shade700,
-                    fontSize: 12,
+                  style: AppDesign.bodySmall.copyWith(
+                    color: AppDesign.error,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -115,8 +121,8 @@ class _ChecklistCard extends StatelessWidget {
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: progress,
-              backgroundColor: Colors.grey.shade200,
-              color: isCompleted ? Colors.green : Colors.blue,
+              backgroundColor: AppDesign.neutral200,
+              color: isCompleted ? AppDesign.success : AppDesign.info,
             ),
           ],
         ),
@@ -124,11 +130,13 @@ class _ChecklistCard extends StatelessWidget {
           return CheckboxListTile(
             title: Text(
               item.task,
-              style: TextStyle(
+              style: AppDesign.bodyMedium.copyWith(
                 decoration: item.isCompleted
                     ? TextDecoration.lineThrough
                     : null,
-                color: item.isCompleted ? Colors.grey : Colors.black,
+                color: item.isCompleted
+                    ? AppDesign.neutral500
+                    : AppDesign.neutral900,
               ),
             ),
             value: item.isCompleted,
@@ -155,20 +163,36 @@ class _ChecklistCard extends StatelessWidget {
                   builder: (context) {
                     String reason = '';
                     return AlertDialog(
-                      title: const Text('Cross-Role Completion'),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppDesign.radiusLg),
+                      ),
+                      title: Text(
+                        'Cross-Role Completion',
+                        style: AppDesign.titleLarge,
+                      ),
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             'You are completing a task assigned to ${checklist.assignedRole.name}. Please provide a reason.',
+                            style: AppDesign.bodyMedium,
                           ),
                           const SizedBox(height: 16),
                           TextField(
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Reason',
-                              border: OutlineInputBorder(),
+                              hintText:
+                                  'Enter reason for cross-role completion',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppDesign.radiusMd,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: AppDesign.neutral50,
                             ),
                             onChanged: (value) => reason = value,
+                            maxLines: 2,
                           ),
                         ],
                       ),
@@ -177,12 +201,14 @@ class _ChecklistCard extends StatelessWidget {
                           onPressed: () => Navigator.pop(context),
                           child: const Text('Cancel'),
                         ),
-                        FilledButton(
+                        PremiumButton.primary(
+                          label: 'Complete',
                           onPressed: () {
                             if (reason.trim().isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Reason is required'),
+                                  backgroundColor: Colors.red,
                                 ),
                               );
                               return;
@@ -197,7 +223,6 @@ class _ChecklistCard extends StatelessWidget {
                             );
                             Navigator.pop(context);
                           },
-                          child: const Text('Complete'),
                         ),
                       ],
                     );

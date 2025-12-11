@@ -7,7 +7,7 @@ import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/component/feedback/custom_snackbar.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
-import 'package:hotel_manager/component/inputs/custom_text_field.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/inventory/stock/data/inventory_model.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
 import 'package:flutter/services.dart';
@@ -41,7 +41,7 @@ class AddInventoryItemDialog extends StatelessWidget {
                 key: formKey,
                 child: Column(
                   children: [
-                    CustomTextField(
+                    AppTextField(
                       name: 'name',
                       label: 'Item Name',
                       hint: 'e.g., Basmati Rice',
@@ -93,7 +93,7 @@ class AddInventoryItemDialog extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: CustomTextField(
+                          child: AppTextField(
                             name: 'quantity',
                             label: 'Current Stock',
                             hint: '0',
@@ -109,7 +109,7 @@ class AddInventoryItemDialog extends StatelessWidget {
                         ),
                         const SizedBox(width: 16),
                         Expanded(
-                          child: CustomTextField(
+                          child: AppTextField(
                             name: 'minQuantity',
                             label: 'Min Level (Par)',
                             hint: '10',
@@ -126,7 +126,7 @@ class AddInventoryItemDialog extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    CustomTextField(
+                    AppTextField(
                       name: 'price',
                       label: 'Price Per Unit (₹)',
                       hint: '50.0',

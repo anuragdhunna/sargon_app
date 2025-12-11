@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 class DeliveryDetailsWidget extends StatelessWidget {
@@ -17,25 +18,23 @@ class DeliveryDetailsWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: AppDesign.space2),
-        const Text('Delivery Details', style: AppDesign.bodyMedium),
-        const SizedBox(height: AppDesign.space2),
-        TextFormField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Delivery Person Name',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.person),
-          ),
+        Text(
+          'Delivery Details',
+          style: AppDesign.titleMedium.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: AppDesign.space2),
-        TextFormField(
+        const SizedBox(height: AppDesign.space3),
+        AppTextField(
+          controller: nameController,
+          labelText: 'Delivery Person Name',
+          hintText: 'Enter name',
+          prefixIcon: Icons.person,
+        ),
+        const SizedBox(height: AppDesign.space3),
+        AppTextField(
           controller: phoneController,
-          decoration: const InputDecoration(
-            labelText: 'Delivery Person Phone',
-            border: OutlineInputBorder(),
-            prefixIcon: Icon(Icons.phone),
-            hintText: '10‑digit phone number',
-          ),
+          labelText: 'Delivery Person Phone',
+          hintText: '10-digit phone number',
+          prefixIcon: Icons.phone,
           keyboardType: TextInputType.phone,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,

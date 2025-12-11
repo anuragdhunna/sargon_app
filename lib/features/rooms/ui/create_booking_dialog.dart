@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hotel_manager/component/buttons/primary_button.dart';
-import 'package:hotel_manager/component/inputs/custom_text_field.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/rooms/data/room_model.dart';
@@ -88,7 +88,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                       ),
                       const SizedBox(height: 12),
 
-                      CustomTextField(
+                      AppTextField(
                         name: 'guestName',
                         label: 'Primary Guest Name',
                         hint: 'John Doe',
@@ -99,7 +99,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                       Row(
                         children: [
                           Expanded(
-                            child: CustomTextField(
+                            child: AppTextField(
                               name: 'guestPhone',
                               label: 'Phone Number',
                               hint: '+91 9876543210',
@@ -109,7 +109,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: CustomTextField(
+                            child: AppTextField(
                               name: 'guestEmail',
                               label: 'Email (Optional)',
                               hint: 'john@example.com',
@@ -157,7 +157,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                           ),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: CustomTextField(
+                            child: AppTextField(
                               name: 'idProofNumber',
                               label: 'ID Proof Number',
                               hint: '1234 5678 9012',

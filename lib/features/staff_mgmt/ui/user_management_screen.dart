@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hotel_manager/component/buttons/icon_button_with_label.dart';
+import 'package:hotel_manager/component/cards/app_card.dart';
+import 'package:hotel_manager/component/states/empty_state.dart';
 import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/user_cubit.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/add_user_dialog.dart';
+import 'package:hotel_manager/theme/app_design.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -19,18 +23,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppDesign.neutral50,
       appBar: AppBar(
         title: const Text('Staff Directory'),
+        backgroundColor: Colors.white,
+        elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
+          IconButtonWithLabel(
+            icon: Icons.add,
+            label: 'Add',
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (context) => const AddUserDialog(),
               );
             },
+            isVertical: true,
+            iconSize: 20,
+            fontSize: 10,
           ),
+          const SizedBox(width: AppDesign.space2),
         ],
       ),
       body: Column(
@@ -78,7 +90,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is UserLoaded) {
                   if (state.users.isEmpty) {
-                    return const Center(child: Text('No staff found.'));
+                    return const EmptyState(
+                      icon: Icons.people_outline,
+                      title: 'No Staff Members',
+                      message: 'Add your first staff member to get started',
+                    );
                   }
                   return ListView.separated(
                     padding: const EdgeInsets.all(16),
@@ -87,86 +103,104 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final user = state.users[index];
-                      return Card(
-                        elevation: 0,
-                        color: Colors.grey.shade50,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: Colors.grey.shade200),
+                      return AppCard(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppDesign.space3,
+                          vertical: AppDesign.space3,
                         ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Colors.blue.shade100,
-                            child: Text(
-                              user.name[0],
-                              style: TextStyle(color: Colors.blue.shade800),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: AppDesign.primaryStart
+                                  .withOpacity(0.1),
+                              radius: 24,
+                              child: Text(
+                                user.name[0].toUpperCase(),
+                                style: AppDesign.titleMedium.copyWith(
+                                  color: AppDesign.primaryStart,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
-                          ),
-                          title: Text(
-                            user.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Row(
+                            const SizedBox(width: AppDesign.space3),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.work,
-                                    size: 14,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                  const SizedBox(width: 4),
                                   Text(
-                                    user.role.name.toUpperCase(),
-                                    style: const TextStyle(fontSize: 12),
+                                    user.name,
+                                    style: AppDesign.titleMedium.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  Icon(
-                                    Icons.phone,
-                                    size: 14,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    user.phoneNumber,
-                                    style: const TextStyle(fontSize: 12),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.work,
+                                        size: 14,
+                                        color: AppDesign.neutral600,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        user.role.name.toUpperCase(),
+                                        style: AppDesign.bodySmall.copyWith(
+                                          color: AppDesign.neutral600,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Icon(
+                                        Icons.phone,
+                                        size: 14,
+                                        color: AppDesign.neutral600,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Flexible(
+                                        child: Text(
+                                          user.phoneNumber,
+                                          style: AppDesign.bodySmall.copyWith(
+                                            color: AppDesign.neutral600,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                          trailing: PopupMenuButton(
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Text('Edit'),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
+                            ),
+                            PopupMenuButton(
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('Edit'),
                                 ),
-                              ),
-                            ],
-                            onSelected: (val) {
-                              if (val == 'delete') {
-                                context.read<UserCubit>().deleteUser(user.id);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('User Deleted')),
-                                );
-                              } else if (val == 'edit') {
-                                // TODO: Show Edit Dialog
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Edit Feature Coming Soon'),
+                                PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text(
+                                    'Delete',
+                                    style: TextStyle(color: AppDesign.error),
                                   ),
-                                );
-                              }
-                            },
-                          ),
+                                ),
+                              ],
+                              onSelected: (val) {
+                                if (val == 'delete') {
+                                  context.read<UserCubit>().deleteUser(user.id);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('User Deleted'),
+                                    ),
+                                  );
+                                } else if (val == 'edit') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Edit Feature Coming Soon'),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ],
                         ),
                       );
                     },
