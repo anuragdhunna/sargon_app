@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:hotel_manager/component/buttons/primary_button.dart';
+import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/component/inputs/app_dropdown.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
-import 'package:hotel_manager/features/rooms/data/room_model.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
+import 'package:hotel_manager/theme/app_design.dart';
+import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
+import 'package:hotel_manager/core/models/models.dart';
+import 'package:intl/intl.dart';
 
 /// Enhanced booking dialog with ID proofs and guest management
 class CreateBookingDialog extends StatefulWidget {
@@ -24,7 +28,15 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
   DateTime? _checkInDate;
   DateTime? _checkOutDate;
   final List<Map<String, String>> _accompanyingPersons = [];
-  final TextEditingController _personNameController = TextEditingController();
+  Customer? _selectedCustomer;
+  String? _idProofImageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkInDate = DateTime.now();
+    _checkOutDate = DateTime.now().add(const Duration(days: 1));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +44,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: const EdgeInsets.all(24),
-        constraints: const BoxConstraints(maxWidth: 700, maxHeight: 650),
+        constraints: const BoxConstraints(maxWidth: 700, maxHeight: 750),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +55,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                 Icon(
                   Icons.book_online,
                   size: 32,
-                  color: Theme.of(context).primaryColor,
+                  color: AppDesign.primaryStart,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -52,13 +64,14 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                     children: [
                       Text(
                         'New Booking',
-                        style: Theme.of(context).textTheme.headlineSmall
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: AppDesign.titleLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         'Room ${widget.room.roomNumber} - ${widget.room.type.displayName}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey.shade600,
+                        style: AppDesign.bodyMedium.copyWith(
+                          color: AppDesign.neutral500,
                         ),
                       ),
                     ],
@@ -77,16 +90,73 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
               child: SingleChildScrollView(
                 child: FormBuilder(
                   key: _formKey,
+                  initialValue: {
+                    'checkIn': _checkInDate,
+                    'checkOut': _checkOutDate,
+                  },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Guest Information Section
                       Text(
                         'Guest Information',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: AppDesign.titleMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 12),
+
+                      // Existing Customer Selection
+                      BlocBuilder<CustomerCubit, CustomerState>(
+                        builder: (context, state) {
+                          if (state is CustomerLoaded &&
+                              state.customers.isNotEmpty) {
+                            return Column(
+                              children: [
+                                AppDropdown<Customer>(
+                                  name: 'customer_select',
+                                  label: 'Select Existing Customer (Optional)',
+                                  items: state.customers.map((c) {
+                                    return DropdownMenuItem(
+                                      value: c,
+                                      child: Text('${c.name} (${c.phone})'),
+                                    );
+                                  }).toList(),
+                                  onChanged: (customer) {
+                                    if (customer != null) {
+                                      setState(() {
+                                        _selectedCustomer = customer;
+                                        _formKey
+                                            .currentState
+                                            ?.fields['guestName']
+                                            ?.didChange(customer.name);
+                                        _formKey
+                                            .currentState
+                                            ?.fields['guestPhone']
+                                            ?.didChange(customer.phone);
+                                        _formKey
+                                            .currentState
+                                            ?.fields['guestEmail']
+                                            ?.didChange(customer.email);
+                                        _formKey
+                                            .currentState
+                                            ?.fields['idProofType']
+                                            ?.didChange(customer.idProofType);
+                                        _formKey
+                                            .currentState
+                                            ?.fields['idProofNumber']
+                                            ?.didChange(customer.idProofNumber);
+                                      });
+                                    }
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
 
                       AppTextField(
                         name: 'guestName',
@@ -114,6 +184,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                               label: 'Email (Optional)',
                               hint: 'john@example.com',
                               keyboardType: TextInputType.emailAddress,
+                              validator: FormBuilderValidators.email(),
                             ),
                           ),
                         ],
@@ -124,12 +195,9 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                       Row(
                         children: [
                           Expanded(
-                            child: FormBuilderDropdown<String>(
+                            child: AppDropdown<String>(
                               name: 'idProofType',
-                              decoration: const InputDecoration(
-                                labelText: 'ID Proof Type',
-                                border: OutlineInputBorder(),
-                              ),
+                              label: 'ID Proof Type',
                               items: const [
                                 DropdownMenuItem(
                                   value: 'aadhar',
@@ -169,13 +237,11 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                       const SizedBox(height: 16),
 
                       // Number of Guests
-                      FormBuilderTextField(
+                      AppTextField(
                         name: 'numberOfGuests',
-                        decoration: const InputDecoration(
-                          labelText: 'Number of Guests',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.people),
-                        ),
+                        label: 'Number of Guests',
+                        hint: '1',
+                        prefixIcon: Icons.people,
                         keyboardType: TextInputType.number,
                         initialValue: '1',
                         validator: FormBuilderValidators.compose([
@@ -187,164 +253,170 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Accompanying Persons Section
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Accompanying Persons',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          TextButton.icon(
-                            onPressed: () => _showAddPersonDialog(),
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add Person'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-
-                      if (_accompanyingPersons.isEmpty)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'No accompanying persons added',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ),
-                        )
-                      else
-                        ...List.generate(_accompanyingPersons.length, (index) {
-                          final person = _accompanyingPersons[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: ListTile(
-                              leading: const CircleAvatar(
-                                child: Icon(Icons.person),
-                              ),
-                              title: Text(person['name'] ?? ''),
-                              subtitle: Text(
-                                '${person['idType']} - ${person['idNumber']}',
-                              ),
-                              trailing: IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () => setState(
-                                  () => _accompanyingPersons.removeAt(index),
-                                ),
-                              ),
-                            ),
-                          );
-                        }),
-
-                      const SizedBox(height: 24),
-
                       // Booking Dates Section
                       Text(
                         'Booking Period',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: AppDesign.titleMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 12),
 
-                      Row(
-                        children: [
-                          Expanded(
-                            child: FormBuilderDateTimePicker(
-                              name: 'checkIn',
-                              decoration: const InputDecoration(
-                                labelText: 'Check-In Date',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.calendar_today),
-                              ),
-                              inputType: InputType.date,
-                              initialValue: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime.now().add(
-                                const Duration(days: 365),
-                              ),
-                              onChanged: (date) =>
-                                  setState(() => _checkInDate = date),
-                              validator: FormBuilderValidators.required(),
+                      InkWell(
+                        onTap: () async {
+                          final range = await showDateRangePicker(
+                            context: context,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime.now().add(
+                              const Duration(days: 365),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: FormBuilderDateTimePicker(
-                              name: 'checkOut',
-                              decoration: const InputDecoration(
-                                labelText: 'Check-Out Date',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.calendar_today),
-                              ),
-                              inputType: InputType.date,
-                              initialValue: DateTime.now().add(
-                                const Duration(days: 1),
-                              ),
-                              firstDate: _checkInDate ?? DateTime.now(),
-                              lastDate: DateTime.now().add(
-                                const Duration(days: 365),
-                              ),
-                              onChanged: (date) =>
-                                  setState(() => _checkOutDate = date),
-                              validator: FormBuilderValidators.required(),
+                            initialDateRange: DateTimeRange(
+                              start: _checkInDate ?? DateTime.now(),
+                              end:
+                                  _checkOutDate ??
+                                  DateTime.now().add(const Duration(days: 1)),
                             ),
+                          );
+                          if (range != null) {
+                            setState(() {
+                              _checkInDate = range.start;
+                              _checkOutDate = range.end;
+                              _formKey.currentState?.fields['checkIn']
+                                  ?.didChange(range.start);
+                              _formKey.currentState?.fields['checkOut']
+                                  ?.didChange(range.end);
+                            });
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppDesign.neutral300),
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                        ],
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.calendar_today,
+                                color: AppDesign.primaryStart,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _checkInDate != null && _checkOutDate != null
+                                      ? '${DateFormat('MMM dd').format(_checkInDate!)} - ${DateFormat('MMM dd, yyyy').format(_checkOutDate!)}'
+                                      : 'Select Dates',
+                                  style: AppDesign.bodyMedium,
+                                ),
+                              ),
+                              const Icon(Icons.arrow_drop_down),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 24),
 
-                      // Price Summary
+                      // Advance Payment Section
+                      Text(
+                        'Payment Details',
+                        style: AppDesign.titleMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.blue.shade200),
+                          color: AppDesign.primaryStart.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppDesign.primaryStart.withOpacity(0.1),
+                          ),
                         ),
                         child: Column(
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Price per night'),
+                                const Text('Total Nights'),
                                 Text(
-                                  '₹${widget.room.pricePerNight}',
+                                  '${_getNights()}',
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ],
                             ),
-                            if (_checkInDate != null &&
-                                _checkOutDate != null) ...[
-                              const SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Nights: ${_getNights()}'),
-                                  Text(
-                                    'Total: ₹${_calculateTotal()}',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryColor,
-                                    ),
+                            const SizedBox(height: 8),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text('Booking Total'),
+                                Text(
+                                  '₹${_calculateTotal()}',
+                                  style: AppDesign.titleMedium.copyWith(
+                                    color: AppDesign.primaryStart,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ],
                         ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppTextField(
+                              name: 'paidAmount',
+                              label: 'Advance Paid',
+                              hint: '0.00',
+                              prefixIcon: Icons.currency_rupee,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: AppDropdown<PaymentMethod>(
+                              name: 'paymentMethod',
+                              label: 'Method',
+                              items: PaymentMethod.values.map((method) {
+                                return DropdownMenuItem(
+                                  value: method,
+                                  child: Text(method.displayName),
+                                );
+                              }).toList(),
+                              initialValue: PaymentMethod.cash,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      AppTextField(
+                        name: 'paymentReference',
+                        label: 'Reference (Optional)',
+                        hint: 'UPI ID, Card Transaction, etc.',
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Hidden redundant fields for validation
+                      const SizedBox.shrink(),
+                      FormBuilderField<DateTime>(
+                        name: 'checkIn',
+                        validator: FormBuilderValidators.required(),
+                        builder: (field) => const SizedBox.shrink(),
+                      ),
+                      FormBuilderField<DateTime>(
+                        name: 'checkOut',
+                        validator: FormBuilderValidators.required(),
+                        builder: (field) => const SizedBox.shrink(),
                       ),
                     ],
                   ),
@@ -360,89 +432,20 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                const SizedBox(width: 16),
-                SizedBox(
-                  width: 150,
-                  child: PrimaryButton(
-                    label: 'Confirm Booking',
-                    onPressed: _confirmBooking,
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: AppDesign.neutral500),
                   ),
                 ),
+                const SizedBox(width: 16),
+                PremiumButton.primary(
+                  label: 'Confirm Booking',
+                  onPressed: _confirmBooking,
+                ),
               ],
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showAddPersonDialog() {
-    final nameController = TextEditingController();
-    final idNumberController = TextEditingController();
-    String? selectedIdType;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Accompanying Person'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              decoration: const InputDecoration(
-                labelText: 'ID Type',
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Aadhar', child: Text('Aadhar Card')),
-                DropdownMenuItem(value: 'Passport', child: Text('Passport')),
-                DropdownMenuItem(value: 'DL', child: Text('Driving License')),
-              ],
-              onChanged: (value) => selectedIdType = value,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: idNumberController,
-              decoration: const InputDecoration(
-                labelText: 'ID Number',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty &&
-                  selectedIdType != null &&
-                  idNumberController.text.isNotEmpty) {
-                setState(() {
-                  _accompanyingPersons.add({
-                    'name': nameController.text,
-                    'idType': selectedIdType!,
-                    'idNumber': idNumberController.text,
-                  });
-                });
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
       ),
     );
   }
@@ -454,7 +457,9 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
 
       if (authState is! AuthVerified) return;
 
-      // Create booking with full metadata
+      final paidAmount =
+          double.tryParse(data['paidAmount']?.toString() ?? '0') ?? 0.0;
+
       await context.read<RoomCubit>().createBooking(
         roomId: widget.room.id,
         guestName: data['guestName'],
@@ -466,21 +471,23 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
         bookedByUserId: authState.userId,
         bookedByUserName: authState.userName,
         bookedByUserRole: authState.role.name,
-        metadata: {
-          'idProofType': data['idProofType'],
-          'idProofNumber': data['idProofNumber'],
-          'numberOfGuests': data['numberOfGuests'],
-          'accompanyingPersons': _accompanyingPersons,
-        },
+        idProofType: data['idProofType'],
+        idProofNumber: data['idProofNumber'],
+        numberOfGuests:
+            int.tryParse(data['numberOfGuests']?.toString() ?? '1') ?? 1,
+        accompanyingPersons: _accompanyingPersons,
+        customerId: _selectedCustomer?.id,
+        idProofImageUrl: _idProofImageUrl,
+        paidAmount: paidAmount,
+        paymentMethod: data['paymentMethod'],
+        paymentReference: data['paymentReference'],
       );
 
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Booking confirmed for ${data['guestName']} in Room ${widget.room.roomNumber}',
-            ),
+          const SnackBar(
+            content: Text('Booking confirmed!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -489,8 +496,9 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
   }
 
   int _getNights() {
-    if (_checkInDate == null || _checkOutDate == null) return 0;
-    return _checkOutDate!.difference(_checkInDate!).inDays;
+    if (_checkInDate == null || _checkOutDate == null) return 1;
+    final diff = _checkOutDate!.difference(_checkInDate!).inDays;
+    return diff > 0 ? diff : 1;
   }
 
   double _calculateTotal() {

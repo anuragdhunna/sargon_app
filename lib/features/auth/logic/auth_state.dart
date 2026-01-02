@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
+import 'package:hotel_manager/core/models/user_model.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();

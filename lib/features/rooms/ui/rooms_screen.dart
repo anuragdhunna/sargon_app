@@ -7,6 +7,8 @@ import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/rooms/data/room_model.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hotel_manager/features/rooms/ui/booking_history_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/create_booking_dialog.dart';
 import 'package:hotel_manager/features/rooms/ui/guest_details_dialog.dart';
 import 'package:hotel_manager/theme/app_design.dart';
@@ -69,6 +71,16 @@ class _RoomsScreenState extends State<RoomsScreen> {
               );
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.info_outline, color: AppDesign.primaryStart),
+            onPressed: () => _showRoomsGuide(context),
+            tooltip: 'How to use Rooms',
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            onPressed: () => context.push(BookingHistoryScreen.routeName),
+            tooltip: 'Booking History',
+          ),
           const SizedBox(width: 8),
         ],
       ),
@@ -111,11 +123,15 @@ class _RoomsScreenState extends State<RoomsScreen> {
           }
 
           final allRooms = state.rooms;
-          final bookings = state.bookings;
-          final filteredRooms = _filterRooms(allRooms);
+          final bookings = state.activeBookings;
+          final filteredRooms = context.read<RoomCubit>().getFilteredRooms();
 
           return Column(
             children: [
+              // Date Filters
+              _buildDateFilters(),
+              const Divider(height: 1),
+
               // Category Filter Bar
               _buildCategoryFilter(allRooms),
               const Divider(height: 1),
@@ -156,10 +172,104 @@ class _RoomsScreenState extends State<RoomsScreen> {
     );
   }
 
+  Widget _buildDateFilters() {
+    return BlocBuilder<RoomCubit, RoomState>(
+      builder: (context, state) {
+        if (state is! RoomLoaded) return const SizedBox.shrink();
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          color: Colors.white,
+          child: Row(
+            children: [
+              const Icon(
+                Icons.info_outline,
+                size: 16,
+                color: AppDesign.neutral500,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: InkWell(
+                  onTap: () async {
+                    final picked = await showDateRangePicker(
+                      context: context,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                      initialDateRange:
+                          state.filterFrom != null && state.filterTo != null
+                          ? DateTimeRange(
+                              start: state.filterFrom!,
+                              end: state.filterTo!,
+                            )
+                          : null,
+                      builder: (context, child) {
+                        return Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxWidth: 400,
+                              maxHeight: 550,
+                            ),
+                            child: child,
+                          ),
+                        );
+                      },
+                    );
+                    if (picked != null) {
+                      context.read<RoomCubit>().setFilters(
+                        from: picked.start,
+                        to: picked.end,
+                      );
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.date_range,
+                        size: 18,
+                        color: AppDesign.primaryStart,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        state.filterFrom == null
+                            ? 'Select Dates'
+                            : '${state.filterFrom!.day}/${state.filterFrom!.month} - ${state.filterTo!.day}/${state.filterTo!.month}',
+                        style: AppDesign.bodyMedium,
+                      ),
+                      const SizedBox(width: 4),
+                      Tooltip(
+                        message: 'Select dates to check availability',
+                        child: Icon(
+                          Icons.info_outline,
+                          size: 14,
+                          color: AppDesign.neutral400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Row(
+                children: [
+                  Text('Available Only', style: AppDesign.bodySmall),
+                  Switch(
+                    value: state.availableOnly,
+                    onChanged: (val) {
+                      context.read<RoomCubit>().setFilters(availableOnly: val);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   List<Room> _filterRooms(List<Room> rooms) {
-    return _selectedCategory == null
-        ? rooms
-        : rooms.where((r) => r.type == _selectedCategory).toList();
+    if (_selectedCategory == null) return rooms;
+    return rooms.where((r) => r.type == _selectedCategory).toList();
   }
 
   Widget _buildCategoryFilter(List<Room> allRooms) {
@@ -305,6 +415,89 @@ class _RoomsScreenState extends State<RoomsScreen> {
         }
       }
     }
+  }
+
+  void _showRoomsGuide(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Room Management Guide'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Status Legend:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              _buildGuideItem(RoomStatus.available, 'Ready for new guests.'),
+              _buildGuideItem(
+                RoomStatus.occupied,
+                'Guest stayed in, checking folio enabled.',
+              ),
+              _buildGuideItem(
+                RoomStatus.cleaning,
+                'Needs housekeeping attention.',
+              ),
+              _buildGuideItem(
+                RoomStatus.reserved,
+                'Booking confirmed, waiting for check-in.',
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Actions:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                '• Click an Available room to Create Booking.',
+                style: TextStyle(height: 1.5),
+              ),
+              const Text(
+                '• Click Occupied/Reserved to View Guest Details.',
+                style: TextStyle(height: 1.5),
+              ),
+              const Text(
+                '• Use the History icon to view old bookings.',
+                style: TextStyle(height: 1.5),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGuideItem(RoomStatus status, String description) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: status.color,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '${status.displayName}: $description',
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

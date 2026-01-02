@@ -1,60 +1,29 @@
-import 'package:hotel_manager/core/models/audit_log.dart';
+import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:uuid/uuid.dart';
 
 /// Service for managing audit logs
-/// Logs are stored locally and synced to backend (Firestore)
+/// Logs are stored in Firebase Realtime Database
 class AuditService {
-  static final AuditService _instance = AuditService._internal();
-  factory AuditService() => _instance;
-  AuditService._internal();
-
+  static AuditService? _instance;
+  final DatabaseService _databaseService;
   final _uuid = const Uuid();
-  final List<AuditLog> _localLogs = [
-    AuditLog(
-      id: 'log_1',
-      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-      userId: 'user_123',
-      userName: 'John Manager',
-      userRole: 'manager',
-      action: AuditAction.checkIn,
-      entity: 'booking',
-      entityId: 'bk_101',
-      description: 'Checked in guest Mr. Smith to Room 101',
-    ),
-    AuditLog(
-      id: 'log_2',
-      timestamp: DateTime.now().subtract(const Duration(hours: 5)),
-      userId: 'user_456',
-      userName: 'Alice Housekeeping',
-      userRole: 'housekeeping',
-      action: AuditAction.update,
-      entity: 'room',
-      entityId: 'rm_102',
-      description: 'Marked Room 102 as Cleaned',
-    ),
-    AuditLog(
-      id: 'log_3',
-      timestamp: DateTime.now().subtract(const Duration(days: 1)),
-      userId: 'user_789',
-      userName: 'Chef Gordon',
-      userRole: 'chef',
-      action: AuditAction.update,
-      entity: 'inventory',
-      entityId: 'inv_55',
-      description: 'Updated stock for Tomato Sauce: -2 bottles',
-    ),
-    AuditLog(
-      id: 'log_4',
-      timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-      userId: 'system',
-      userName: 'System',
-      userRole: 'system',
-      action: AuditAction.create,
-      entity: 'checklist',
-      entityId: 'chk_999',
-      description: 'Auto-created cleaning task for Room 105',
-    ),
-  ];
+
+  AuditService._internal({required DatabaseService databaseService})
+    : _databaseService = databaseService;
+
+  static void init(DatabaseService databaseService) {
+    _instance = AuditService._internal(databaseService: databaseService);
+  }
+
+  factory AuditService() {
+    if (_instance == null) {
+      // Return a temporary instance if not initialized (though it should be in main)
+      // This is to avoid hard crashes during initialization if some cubit calls it too early
+      return AuditService._internal(databaseService: DatabaseService());
+    }
+    return _instance!;
+  }
 
   /// Log an action with automatic timestamp
   Future<void> log({
@@ -80,43 +49,17 @@ class AuditService {
       metadata: metadata,
     );
 
-    // Store locally
-    _localLogs.add(log);
-
-    // TODO: Sync to Firestore
-    // await FirebaseFirestore.instance
-    //     .collection('audit_logs')
-    //     .doc(log.id)
-    //     .set(log.toJson());
-
+    await _databaseService.saveAuditLog(log);
     print('AUDIT LOG: ${log.description}');
   }
 
-  /// Get all logs (for admin view)
+  /// Stream all logs (for admin view)
+  Stream<List<AuditLog>> streamAllLogs() {
+    return _databaseService.streamAuditLogs();
+  }
+
+  /// Legacy method for backward compatibility - use streamAllLogs instead
   List<AuditLog> getAllLogs() {
-    return List.unmodifiable(_localLogs);
-  }
-
-  /// Get logs filtered by entity
-  List<AuditLog> getLogsByEntity(String entity) {
-    return _localLogs.where((log) => log.entity == entity).toList();
-  }
-
-  /// Get logs filtered by user
-  List<AuditLog> getLogsByUser(String userId) {
-    return _localLogs.where((log) => log.userId == userId).toList();
-  }
-
-  /// Get logs filtered by date range
-  List<AuditLog> getLogsByDateRange(DateTime start, DateTime end) {
-    return _localLogs
-        .where((log) =>
-            log.timestamp.isAfter(start) && log.timestamp.isBefore(end))
-        .toList();
-  }
-
-  /// Clear local cache (use with caution)
-  void clearLocalCache() {
-    _localLogs.clear();
+    return []; // Return empty list as logs are now reactive
   }
 }

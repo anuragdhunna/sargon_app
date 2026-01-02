@@ -1,31 +1,9 @@
-import 'package:equatable/equatable.dart';
+/// Legacy Inventory Model
+///
+/// This file now re-exports from the centralized models location.
+/// All new code should import from 'package:hotel_manager/core/models/models.dart'
+///
+/// @deprecated Use 'package:hotel_manager/core/models/inventory_item_model.dart' instead.
+library;
 
-enum ItemCategory { food, beverage, housekeeping, maintenance, other }
-enum UnitType { kg, liters, pieces, packs, bottles }
-
-class InventoryItem extends Equatable {
-  final String id;
-  final String name;
-  final ItemCategory category;
-  final double quantity;
-  final double minQuantity; // Par level
-  final UnitType unit;
-  final double pricePerUnit;
-  final String? imageUrl;
-
-  const InventoryItem({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.quantity,
-    required this.minQuantity,
-    required this.unit,
-    required this.pricePerUnit,
-    this.imageUrl,
-  });
-
-  bool get isLowStock => quantity <= minQuantity;
-
-  @override
-  List<Object?> get props => [id, name, category, quantity, minQuantity, unit, pricePerUnit, imageUrl];
-}
+export 'package:hotel_manager/core/models/inventory_item_model.dart';

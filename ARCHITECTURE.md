@@ -27,7 +27,9 @@ lib/
 │   └── ...
 ├── core/               # Global core functionality
 │   ├── auth/           # Authentication logic & guards
-│   ├── services/       # Global services (API, Storage, etc.)
+│   ├── models/         # ⭐ CENTRALIZED MODELS (all domain models)
+│   ├── navigation/     # App routing
+│   ├── services/       # Global services (Firebase, Auth, Database, etc.)
 │   ├── ui/             # Main layouts, global UI wrappers
 │   └── widgets/        # Global primitive widgets
 ├── features/           # Feature Modules (See Module Structure)
@@ -35,8 +37,10 @@ lib/
 │   ├── dashboard/
 │   ├── inventory/
 │   ├── orders/
+│   ├── table_mgmt/     # Table seating, status, groups, pax intelligence
 │   └── ...
 ├── theme/              # App Theme & Colors
+├── firebase_options.dart  # Firebase configuration (auto-generated)
 └── main.dart           # Entry point
 ```
 
@@ -83,13 +87,17 @@ Before creating a new file, check if the functionality belongs to an existing mo
 | **performance** | Staff performance metrics | Active |
 | **rooms** | Room management and status | Active |
 | **staff_mgmt** | Staff profiles and management | Active |
+| **table_mgmt** | Table seating, status, groups, pax intelligence | Active |
 
 ### Order Module Features (Production-Ready)
 - **Order Taking**: Responsive menu grid (2-3 columns), category filtering, search
 - **Order Merging**: Auto-merges items for pending orders on same table (industry standard)
 - **Order Notes**: Item-level notes + overall order-level notes (e.g., "Birthday", "Rush")
-- **Order History**: Complete history with KDS status tracking, timestamps, and notes display
-- **Cart Management**: Proper clearing after order placement, edit/remove items before submission
+- **Digital KDS**: Production-grade Kitchen Display System with course-wise firing, ticket-based view, and priority sorting.
+- **SLA Tracking**: Real-time monitoring of preparation times with delay alerts and progress bars.
+- **Order Merging**: Auto-merges items for pending orders on same table (industry standard).
+- **Course Intelligence**: Granular management of Starters, Mains, Desserts, and Drinks.
+- **Pax Intelligence**: Guest count tracking per order for analytics and seating optimization.
 
 ---
 
@@ -144,4 +152,10 @@ When modifying code, apply these expert-level practices:
 - **Update:** If you add a new module or significantly change the architecture, **UPDATE THIS FILE**.
 - **No Duplication:** Do not create `product_list.dart` if `inventory/stock/ui/stock_list.dart` already exists. Check the file tree first.
 - **Style:** Follow the "Premium Design" aesthetic. Use shadows, rounded corners, and smooth animations.
+
+### Table & KDS Intelligence (SARGON)
+- **Table Entity**: Physical tables are first-class citizens with seating capacities and joinable logic.
+- **Automated Lifecycle**: Tables transition automatically through states: `Available` -> `Occupied` -> `Billed` -> `Cleaning`.
+- **Pax-Based Table Suggestion**: Algorithmically suggests the best table fit based on guest count to maximize floor yield.
+- **Production KDS**: Item-level status tracking (Pending -> Fired -> Preparing -> Ready -> Served) with SLA enforcement.
 

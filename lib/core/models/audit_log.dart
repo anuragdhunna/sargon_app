@@ -28,17 +28,17 @@ class AuditLog extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        timestamp,
-        userId,
-        userName,
-        userRole,
-        action,
-        entity,
-        entityId,
-        description,
-        metadata,
-      ];
+    id,
+    timestamp,
+    userId,
+    userName,
+    userRole,
+    action,
+    entity,
+    entityId,
+    description,
+    metadata,
+  ];
 
   Map<String, dynamic> toJson() {
     return {
@@ -51,7 +51,7 @@ class AuditLog extends Equatable {
       'entity': entity,
       'entityId': entityId,
       'description': description,
-      'metadata': metadata,
+      if (metadata != null) 'metadata': metadata,
     };
   }
 

@@ -1,4 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/core/auth/role_guard.dart';
 import 'package:hotel_manager/core/ui/main_layout.dart';
@@ -20,15 +20,38 @@ import 'package:hotel_manager/features/orders/ui/kitchen_screen.dart';
 import 'package:hotel_manager/features/orders/ui/order_taking_screen.dart';
 import 'package:hotel_manager/features/orders/ui/order_history_screen.dart';
 import 'package:hotel_manager/features/performance/ui/employee_performance_screen.dart';
-import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
+import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
+import 'package:hotel_manager/features/rooms/ui/booking_history_screen.dart';
+import 'package:hotel_manager/features/table_mgmt/ui/table_dashboard_screen.dart';
+import 'package:hotel_manager/features/rooms/ui/room_folio_screen.dart';
+import 'package:hotel_manager/features/orders/ui/kds_analytics_screen.dart';
 
-GoRouter createRouter() {
+/// Auth state notifier for GoRouter refresh
+///
+/// This allows GoRouter to re-evaluate redirect when auth state changes.
+class AuthNotifier extends ChangeNotifier {
+  AuthNotifier(this._authCubit) {
+    _authCubit.stream.listen((state) {
+      notifyListeners();
+    });
+  }
+
+  final AuthCubit _authCubit;
+
+  AuthState get authState => _authCubit.state;
+  bool get isAuthenticated => _authCubit.state is AuthVerified;
+}
+
+/// Create the app router with auth state refresh support
+GoRouter createRouter(AuthCubit authCubit) {
+  final authNotifier = AuthNotifier(authCubit);
+
   return GoRouter(
     initialLocation: '/login',
+    refreshListenable: authNotifier,
     redirect: (context, state) {
-      final authCubit = context.read<AuthCubit>();
-      final authState = authCubit.state;
+      final authState = authNotifier.authState;
 
       // Check if user is authenticated
       final isAuthenticated = authState is AuthVerified;
@@ -42,20 +65,20 @@ GoRouter createRouter() {
 
       // If authenticated and on login page, redirect to default route for role
       if (isAuthenticated && isLoginRoute) {
-        final role = (authState).role;
-        return RoleGuard.getDefaultRoute(role);
+        final verifiedState = authState;
+        return RoleGuard.getDefaultRoute(verifiedState.role);
       }
 
       // Check role-based access
       if (isAuthenticated && !isLoginRoute) {
-        final role = (authState).role;
+        final verifiedState = authState;
         final route = state.matchedLocation
             .split('?')
             .first; // Remove query params
 
-        if (!RoleGuard.canAccess(role, route)) {
+        if (!RoleGuard.canAccess(verifiedState.role, route)) {
           // Redirect to default route if unauthorized
-          return RoleGuard.getDefaultRoute(role);
+          return RoleGuard.getDefaultRoute(verifiedState.role);
         }
       }
 
@@ -83,7 +106,11 @@ GoRouter createRouter() {
           ),
           GoRoute(
             path: OrderTakingScreen.routeName,
-            builder: (context, state) => const OrderTakingScreen(),
+            builder: (context, state) {
+              final tableId = state.uri.queryParameters['tableId'];
+              final roomId = state.uri.queryParameters['roomId'];
+              return OrderTakingScreen(tableId: tableId, roomId: roomId);
+            },
           ),
           GoRoute(
             path: OrderHistoryScreen.routeName,
@@ -104,6 +131,10 @@ GoRouter createRouter() {
             builder: (context, state) => const RoomsScreen(),
           ),
           GoRoute(
+            path: BookingHistoryScreen.routeName,
+            builder: (context, state) => const BookingHistoryScreen(),
+          ),
+          GoRoute(
             path: AuditLogScreen.routeName,
             name: AuditLogScreen.routeName,
             builder: (context, state) => const AuditLogScreen(),
@@ -111,6 +142,10 @@ GoRouter createRouter() {
           GoRoute(
             path: KitchenScreen.routeName,
             builder: (context, state) => const KitchenScreen(),
+          ),
+          GoRoute(
+            path: TableDashboardScreen.routeName,
+            builder: (context, state) => const TableDashboardScreen(),
           ),
           GoRoute(
             path: AttendanceScreen.routeName,
@@ -137,6 +172,17 @@ GoRouter createRouter() {
           GoRoute(
             path: EmployeePerformanceScreen.routeName,
             builder: (context, state) => const EmployeePerformanceScreen(),
+          ),
+          GoRoute(
+            path: '/folio/:bookingId',
+            builder: (context, state) {
+              final bookingId = state.pathParameters['bookingId']!;
+              return RoomFolioScreen(bookingId: bookingId);
+            },
+          ),
+          GoRoute(
+            path: KdsAnalyticsScreen.routeName,
+            builder: (context, state) => const KdsAnalyticsScreen(),
           ),
         ],
       ),

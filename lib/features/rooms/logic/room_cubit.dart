@@ -1,9 +1,9 @@
+import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotel_manager/core/models/audit_log.dart';
-import 'package:hotel_manager/core/services/audit_service.dart';
+import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
-import 'package:hotel_manager/features/rooms/data/room_model.dart';
 import 'package:uuid/uuid.dart';
 
 /// Room Cubit State
@@ -23,54 +23,188 @@ class RoomLoading extends RoomState {
 
 class RoomLoaded extends RoomState {
   final List<Room> rooms;
-  final Map<String, Booking> bookings;
+  final List<Booking> allBookings;
+  final Map<String, Booking> activeBookings; // Current check-ins/reservations
+  final DateTime? filterFrom;
+  final DateTime? filterTo;
+  final bool availableOnly;
 
   const RoomLoaded({
     required this.rooms,
-    required this.bookings,
+    required this.allBookings,
+    required this.activeBookings,
+    this.filterFrom,
+    this.filterTo,
+    this.availableOnly = false,
   });
 
   @override
-  List<Object> get props => [rooms, bookings];
+  List<Object?> get props => [
+    rooms,
+    allBookings,
+    activeBookings,
+    filterFrom,
+    filterTo,
+    availableOnly,
+  ];
 
   RoomLoaded copyWith({
     List<Room>? rooms,
-    Map<String, Booking>? bookings,
+    List<Booking>? allBookings,
+    Map<String, Booking>? activeBookings,
+    DateTime? filterFrom,
+    DateTime? filterTo,
+    bool? availableOnly,
   }) {
     return RoomLoaded(
       rooms: rooms ?? this.rooms,
-      bookings: bookings ?? this.bookings,
+      allBookings: allBookings ?? this.allBookings,
+      activeBookings: activeBookings ?? this.activeBookings,
+      filterFrom: filterFrom ?? this.filterFrom,
+      filterTo: filterTo ?? this.filterTo,
+      availableOnly: availableOnly ?? this.availableOnly,
     );
   }
 }
 
 class RoomError extends RoomState {
   final String message;
-
   const RoomError(this.message);
-
   @override
   List<Object> get props => [message];
 }
 
-
 /// Room Cubit - Manages room bookings and status
 class RoomCubit extends Cubit<RoomState> {
-  final AuditService _auditService = AuditService();
-  final Uuid _uuid = const Uuid();
+  final DatabaseService _databaseService;
   final ChecklistCubit checklistCubit;
+  final Uuid _uuid = const Uuid();
+  StreamSubscription? _roomsSubscription;
+  StreamSubscription? _bookingsSubscription;
 
-  RoomCubit({required this.checklistCubit}) : super(RoomInitial());
+  RoomCubit({
+    required DatabaseService databaseService,
+    required this.checklistCubit,
+  }) : _databaseService = databaseService,
+       super(RoomInitial()) {
+    loadRooms();
+  }
 
-  /// Load all rooms and bookings
+  /// Load all rooms and bookings in real-time
   void loadRooms() {
     emit(RoomLoading());
-    
-    // TODO: Replace with actual API call
-    final rooms = _generateMockRooms();
-    final bookings = _generateMockBookings();
-    
-    emit(RoomLoaded(rooms: rooms, bookings: bookings));
+    _roomsSubscription?.cancel();
+    _bookingsSubscription?.cancel();
+
+    // Combined stream would be better but let's handle them separately for now
+    _roomsSubscription = _databaseService.streamRooms().listen((rooms) {
+      final currentState = state;
+      if (currentState is RoomLoaded) {
+        emit(currentState.copyWith(rooms: rooms));
+      } else {
+        _updateState(rooms: rooms);
+      }
+    }, onError: (e) => emit(RoomError('Failed to load rooms: $e')));
+
+    _bookingsSubscription = _databaseService.streamBookings().listen((
+      bookings,
+    ) {
+      final currentState = state;
+      if (currentState is RoomLoaded) {
+        emit(
+          currentState.copyWith(
+            allBookings: bookings,
+            activeBookings: _getActiveBookings(bookings),
+          ),
+        );
+      } else {
+        _updateState(allBookings: bookings);
+      }
+    }, onError: (e) => emit(RoomError('Failed to load bookings: $e')));
+  }
+
+  void _updateState({List<Room>? rooms, List<Booking>? allBookings}) {
+    final curRooms =
+        rooms ?? (state is RoomLoaded ? (state as RoomLoaded).rooms : <Room>[]);
+    final curBookings =
+        allBookings ??
+        (state is RoomLoaded ? (state as RoomLoaded).allBookings : <Booking>[]);
+
+    emit(
+      RoomLoaded(
+        rooms: curRooms,
+        allBookings: curBookings,
+        activeBookings: _getActiveBookings(curBookings),
+      ),
+    );
+  }
+
+  Map<String, Booking> _getActiveBookings(List<Booking> bookings) {
+    final map = <String, Booking>{};
+    for (var b in bookings) {
+      if (b.status == BookingStatus.checkedIn ||
+          b.status == BookingStatus.confirmed) {
+        map[b.roomId] = b;
+      }
+    }
+    return map;
+  }
+
+  /// Set availability filters
+  void setFilters({DateTime? from, DateTime? to, bool? availableOnly}) {
+    final currentState = state;
+    if (currentState is RoomLoaded) {
+      emit(
+        currentState.copyWith(
+          filterFrom: from,
+          filterTo: to,
+          availableOnly: availableOnly,
+        ),
+      );
+    }
+  }
+
+  /// Check if a room is available for a given date range
+  bool isRoomAvailable(String roomId, DateTime from, DateTime to) {
+    final currentState = state;
+    if (currentState is! RoomLoaded) return false;
+
+    return !currentState.allBookings.any((b) {
+      if (b.roomId != roomId) return false;
+      if (b.status == BookingStatus.cancelled ||
+          b.status == BookingStatus.checkedOut) {
+        return false;
+      }
+
+      // Check for overlap
+      return (from.isBefore(b.checkOut) && to.isAfter(b.checkIn));
+    });
+  }
+
+  /// Filtered rooms based on UI selection
+  List<Room> getFilteredRooms() {
+    final currentState = state;
+    if (currentState is! RoomLoaded) return [];
+
+    var rooms = currentState.rooms;
+
+    if (currentState.availableOnly &&
+        currentState.filterFrom != null &&
+        currentState.filterTo != null) {
+      rooms = rooms
+          .where(
+            (r) => isRoomAvailable(
+              r.id,
+              currentState.filterFrom!,
+              currentState.filterTo!,
+            ),
+          )
+          .toList();
+    } else if (currentState.availableOnly) {
+      rooms = rooms.where((r) => r.status == RoomStatus.available).toList();
+    }
+
+    return rooms;
   }
 
   /// Create a new booking
@@ -85,172 +219,113 @@ class RoomCubit extends Cubit<RoomState> {
     required String bookedByUserId,
     required String bookedByUserName,
     required String bookedByUserRole,
-    Map<String, dynamic>? metadata,
+    String? notes,
+    String? idProofType,
+    String? idProofNumber,
+    int numberOfGuests = 1,
+    List<Map<String, dynamic>>? accompanyingPersons,
+    String? customerId,
+    String? idProofImageUrl,
+    double paidAmount = 0.0,
+    PaymentMethod? paymentMethod,
+    String? paymentReference,
   }) async {
-    final currentState = state;
-    if (currentState is! RoomLoaded) return;
+    // Zero out time part for date-only bookings
+    final cleanCheckIn = DateTime(checkIn.year, checkIn.month, checkIn.day);
+    final cleanCheckOut = DateTime(checkOut.year, checkOut.month, checkOut.day);
+
+    // Validate phone number (mandatory)
+    if (guestPhone.trim().isEmpty) {
+      emit(const RoomError('Phone number is mandatory for booking'));
+      return;
+    }
 
     try {
-      // Create booking
       final booking = Booking(
         id: _uuid.v4(),
         guestName: guestName,
         guestPhone: guestPhone,
         guestEmail: guestEmail,
         roomId: roomId,
-        checkIn: checkIn,
-        checkOut: checkOut,
+        checkIn: cleanCheckIn,
+        checkOut: cleanCheckOut,
         totalAmount: totalAmount,
         status: BookingStatus.confirmed,
-        bookedBy: bookedByUserId,
+        bookedBy: bookedByUserName,
         createdAt: DateTime.now(),
+        notes: notes,
+        idProofType: idProofType,
+        idProofNumber: idProofNumber,
+        numberOfGuests: numberOfGuests,
+        accompanyingPersons: accompanyingPersons,
+        customerId: customerId,
+        idProofImageUrl: idProofImageUrl,
+        paidAmount: paidAmount,
+        paymentMethod: paymentMethod,
+        paymentReference: paymentReference,
       );
 
-      // Update room status to reserved
-      final updatedRooms = currentState.rooms.map((room) {
-        if (room.id == roomId) {
-          return room.copyWith(status: RoomStatus.reserved);
-        }
-        return room;
-      }).toList();
+      await _databaseService.saveBooking(booking);
 
-      final updatedBookings = Map<String, Booking>.from(currentState.bookings);
-      updatedBookings[roomId] = booking;
-
-      // Update state
-      emit(currentState.copyWith(
-        rooms: updatedRooms,
-        bookings: updatedBookings,
-      ));
-
-      // Log audit
-      await _auditService.log(
-        userId: bookedByUserId,
-        userName: bookedByUserName,
-        userRole: bookedByUserRole,
-        action: AuditAction.create,
-        entity: 'booking',
-        entityId: booking.id,
-        description: 'Created booking for $guestName in room $roomId',
-        metadata: {
-          'roomId': roomId,
-          'guestName': guestName,
-          'checkIn': checkIn.toIso8601String(),
-          'checkOut': checkOut.toIso8601String(),
-          'totalAmount': totalAmount,
-          ...?metadata,
-        },
-      );
+      // Update room status if it's for today
+      final now = DateTime.now();
+      if (checkIn.year == now.year &&
+          checkIn.month == now.month &&
+          checkIn.day == now.day) {
+        await _databaseService.updateRoomStatus(roomId, RoomStatus.reserved);
+      }
     } catch (e) {
       emit(RoomError('Failed to create booking: $e'));
-      emit(currentState);
     }
   }
 
   /// Check-in a guest
   Future<void> checkIn({
     required String bookingId,
+    required String roomId,
     required String userId,
     required String userName,
     required String userRole,
   }) async {
-    final currentState = state;
-    if (currentState is! RoomLoaded) return;
-
     try {
-      final updatedBookings = Map<String, Booking>.from(currentState.bookings);
-      final booking = updatedBookings.values.firstWhere((b) => b.id == bookingId);
-      
-      // Update booking status
-      final updatedBooking = booking.copyWith(status: BookingStatus.checkedIn);
-      updatedBookings[booking.roomId] = updatedBooking;
-
-      // Update room status to occupied
-      final updatedRooms = currentState.rooms.map((room) {
-        if (room.id == booking.roomId) {
-          return room.copyWith(status: RoomStatus.occupied);
-        }
-        return room;
-      }).toList();
-
-      emit(currentState.copyWith(
-        rooms: updatedRooms,
-        bookings: updatedBookings,
-      ));
-
-      // Log audit
-      await _auditService.log(
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
-        action: AuditAction.checkIn,
-        entity: 'booking',
-        entityId: bookingId,
-        description: 'Checked in guest ${booking.guestName} to room ${booking.roomId}',
-        metadata: {'roomId': booking.roomId, 'guestName': booking.guestName},
-      );
+      await _databaseService.bookingsRef.child(bookingId).update({
+        'status': BookingStatus.checkedIn.name,
+      });
+      await _databaseService.updateRoomStatus(roomId, RoomStatus.occupied);
     } catch (e) {
       emit(RoomError('Failed to check in: $e'));
-      emit(currentState);
     }
   }
 
   /// Check-out a guest
   Future<void> checkOut({
     required String bookingId,
+    required String roomId,
     required String userId,
     required String userName,
     required String userRole,
   }) async {
-    final currentState = state;
-    if (currentState is! RoomLoaded) return;
-
     try {
-      final updatedBookings = Map<String, Booking>.from(currentState.bookings);
-      final booking = updatedBookings.values.firstWhere((b) => b.id == bookingId);
-      
-      // Update booking status
-      final updatedBooking = booking.copyWith(status: BookingStatus.checkedOut);
-      updatedBookings[booking.roomId] = updatedBooking;
+      await _databaseService.bookingsRef.child(bookingId).update({
+        'status': BookingStatus.checkedOut.name,
+      });
+      await _databaseService.updateRoomStatus(roomId, RoomStatus.cleaning);
 
-      // Update room status to cleaning
-      final updatedRooms = currentState.rooms.map((room) {
-        if (room.id == booking.roomId) {
-          return room.copyWith(status: RoomStatus.cleaning);
-        }
-        return room;
-      }).toList();
-
-      emit(currentState.copyWith(
-        rooms: updatedRooms,
-        bookings: updatedBookings,
-      ));
-
-      // Log audit
-      await _auditService.log(
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
-        action: AuditAction.checkOut,
-        entity: 'booking',
-        entityId: bookingId,
-        description: 'Checked out guest ${booking.guestName} from room ${booking.roomId}',
-        metadata: {'roomId': booking.roomId, 'guestName': booking.guestName},
-      );
-
-      // Auto-create cleaning checklist
-      final room = currentState.rooms.firstWhere((r) => r.id == booking.roomId);
-      checklistCubit.createCleaningChecklist(
-        roomId: booking.roomId,
-        roomNumber: room.roomNumber,
-      );
+      // Create cleaning checklist
+      final currentState = state;
+      if (currentState is RoomLoaded) {
+        final room = currentState.rooms.firstWhere((r) => r.id == roomId);
+        checklistCubit.createCleaningChecklist(
+          roomId: roomId,
+          roomNumber: room.roomNumber,
+        );
+      }
     } catch (e) {
       emit(RoomError('Failed to check out: $e'));
-      emit(currentState);
     }
   }
 
-  /// Update room status (for housekeeping)
+  /// Update room status manually
   Future<void> updateRoomStatus({
     required String roomId,
     required RoomStatus newStatus,
@@ -258,137 +333,30 @@ class RoomCubit extends Cubit<RoomState> {
     required String userName,
     required String userRole,
   }) async {
-    final currentState = state;
-    if (currentState is! RoomLoaded) return;
-
     try {
-      final updatedRooms = currentState.rooms.map((room) {
-        if (room.id == roomId) {
-          return room.copyWith(status: newStatus);
-        }
-        return room;
-      }).toList();
-
-      emit(currentState.copyWith(rooms: updatedRooms));
-
-      // Log audit
-      await _auditService.log(
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
-        action: AuditAction.update,
-        entity: 'room',
-        entityId: roomId,
-        description: 'Updated room $roomId status to ${newStatus.displayName}',
-        metadata: {'newStatus': newStatus.name},
-      );
+      await _databaseService.updateRoomStatus(roomId, newStatus);
     } catch (e) {
       emit(RoomError('Failed to update room status: $e'));
-      emit(currentState);
     }
   }
 
-  /// Cancel a booking
-  Future<void> cancelBooking({
-    required String bookingId,
-    required String userId,
-    required String userName,
-    required String userRole,
-    String? reason,
-  }) async {
-    final currentState = state;
-    if (currentState is! RoomLoaded) return;
-
-    try {
-      final updatedBookings = Map<String, Booking>.from(currentState.bookings);
-      final booking = updatedBookings.values.firstWhere((b) => b.id == bookingId);
-      
-      // Update booking status
-      final updatedBooking = booking.copyWith(status: BookingStatus.cancelled);
-      updatedBookings[booking.roomId] = updatedBooking;
-
-      // Update room status back to available
-      final updatedRooms = currentState.rooms.map((room) {
-        if (room.id == booking.roomId) {
-          return room.copyWith(status: RoomStatus.available);
-        }
-        return room;
-      }).toList();
-
-      emit(currentState.copyWith(
-        rooms: updatedRooms,
-        bookings: updatedBookings,
-      ));
-
-      // Log audit
-      await _auditService.log(
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
-        action: AuditAction.delete,
-        entity: 'booking',
-        entityId: bookingId,
-        description: 'Cancelled booking for ${booking.guestName}${reason != null ? ": $reason" : ""}',
-        metadata: {'roomId': booking.roomId, 'reason': reason},
-      );
-    } catch (e) {
-      emit(RoomError('Failed to cancel booking: $e'));
-      emit(currentState);
-    }
+  /// Check if a phone number already has an active overlapping booking
+  bool isPhoneBooked(String phone, DateTime from, DateTime to) {
+    if (state is! RoomLoaded) return false;
+    final loaded = state as RoomLoaded;
+    return loaded.allBookings.any(
+      (b) =>
+          b.guestPhone == phone &&
+          (b.status == BookingStatus.confirmed ||
+              b.status == BookingStatus.checkedIn) &&
+          (from.isBefore(b.checkOut) && to.isAfter(b.checkIn)),
+    );
   }
 
-  // Mock data generators
-  List<Room> _generateMockRooms() {
-    return List.generate(30, (index) {
-      final roomNumber = '${(index ~/ 10) + 1}0${(index % 10) + 1}';
-      final statuses = [
-        RoomStatus.available,
-        RoomStatus.occupied,
-        RoomStatus.cleaning,
-        RoomStatus.maintenance,
-        RoomStatus.reserved,
-      ];
-      return Room(
-        id: 'room_$index',
-        roomNumber: roomNumber,
-        type: RoomType.values[index % 4],
-        status: statuses[index % 5],
-        pricePerNight: 1000 + (index * 100),
-        floor: (index ~/ 10) + 1,
-        capacity: (RoomType.values[index % 4] == RoomType.single) ? 1 : 2,
-        amenities: ['WiFi', 'AC', 'TV'],
-      );
-    });
-  }
-
-  Map<String, Booking> _generateMockBookings() {
-    return {
-      'room_1': Booking(
-        id: 'booking_1',
-        guestName: 'John Doe',
-        guestPhone: '+91 9876543210',
-        guestEmail: 'john@example.com',
-        roomId: 'room_1',
-        checkIn: DateTime.now().subtract(const Duration(days: 1)),
-        checkOut: DateTime.now().add(const Duration(days: 2)),
-        totalAmount: 3000,
-        status: BookingStatus.checkedIn,
-        bookedBy: 'front_desk_1',
-        createdAt: DateTime.now().subtract(const Duration(days: 2)),
-      ),
-      'room_6': Booking(
-        id: 'booking_2',
-        guestName: 'Jane Smith',
-        guestPhone: '+91 9876543211',
-        guestEmail: 'jane@example.com',
-        roomId: 'room_6',
-        checkIn: DateTime.now(),
-        checkOut: DateTime.now().add(const Duration(days: 3)),
-        totalAmount: 4500,
-        status: BookingStatus.checkedIn,
-        bookedBy: 'front_desk_1',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-    };
+  @override
+  Future<void> close() {
+    _roomsSubscription?.cancel();
+    _bookingsSubscription?.cancel();
+    return super.close();
   }
 }

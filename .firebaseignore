@@ -1,0 +1,10 @@
+# Firebase-related files
+.firebase/
+.firebaserc
+
+# Firebase emulator data
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
+pubsub-debug.log

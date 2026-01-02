@@ -33,20 +33,22 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'mock-api-key',
-    appId: 'mock-app-id',
-    messagingSenderId: 'mock-sender-id',
-    projectId: 'mock-project-id',
-    authDomain: 'mock-project-id.firebaseapp.com',
-    storageBucket: 'mock-project-id.appspot.com',
+    apiKey: 'AIzaSyAjZhVtqbBUhzWPQuLZMaiLGtJktMxhNOs',
+    appId: '1:261612415694:web:386fbe49ac9a0eb399be9f',
+    messagingSenderId: '261612415694',
+    projectId: 'sargon-25f65',
+    authDomain: 'sargon-25f65.firebaseapp.com',
+    databaseURL: 'https://sargon-25f65-default-rtdb.firebaseio.com',
+    storageBucket: 'sargon-25f65.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'mock-api-key',
-    appId: 'mock-app-id',
-    messagingSenderId: 'mock-sender-id',
-    projectId: 'mock-project-id',
-    storageBucket: 'mock-project-id.appspot.com',
+    apiKey: 'AIzaSyDP5z8O-utbtV3rp7zpb2sb8BqbEFjL7V0',
+    appId: '1:261612415694:android:5d0477876099230399be9f',
+    messagingSenderId: '261612415694',
+    projectId: 'sargon-25f65',
+    databaseURL: 'https://sargon-25f65-default-rtdb.firebaseio.com',
+    storageBucket: 'sargon-25f65.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

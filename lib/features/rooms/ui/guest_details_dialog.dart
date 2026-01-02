@@ -4,6 +4,7 @@ import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/rooms/data/room_model.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
+import 'package:go_router/go_router.dart';
 
 /// Dialog showing details of an occupied room
 class GuestDetailsDialog extends StatelessWidget {
@@ -29,7 +30,11 @@ class GuestDetailsDialog extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.person, size: 32, color: Theme.of(context).primaryColor),
+                Icon(
+                  Icons.person,
+                  size: 32,
+                  color: Theme.of(context).primaryColor,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -37,15 +42,14 @@ class GuestDetailsDialog extends StatelessWidget {
                     children: [
                       Text(
                         'Guest Details',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Room ${room.roomNumber} - ${room.type.displayName}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.grey.shade600,
-                            ),
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ],
                   ),
@@ -57,22 +61,38 @@ class GuestDetailsDialog extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
-            
-            _buildInfoRow(Icons.person_outline, 'Guest Name', booking.guestName),
+
+            _buildInfoRow(
+              Icons.person_outline,
+              'Guest Name',
+              booking.guestName,
+            ),
             _buildInfoRow(Icons.phone, 'Phone', booking.guestPhone),
             if (booking.guestEmail != null)
               _buildInfoRow(Icons.email, 'Email', booking.guestEmail!),
-            
+
             const Divider(height: 32),
-            
-            _buildInfoRow(Icons.calendar_today, 'Check-In', _formatDate(booking.checkIn)),
-            _buildInfoRow(Icons.event, 'Check-Out', _formatDate(booking.checkOut)),
+
+            _buildInfoRow(
+              Icons.calendar_today,
+              'Check-In',
+              _formatDate(booking.checkIn),
+            ),
+            _buildInfoRow(
+              Icons.event,
+              'Check-Out',
+              _formatDate(booking.checkOut),
+            ),
             _buildInfoRow(Icons.nights_stay, 'Nights', '${booking.nights}'),
-            
+
             const Divider(height: 32),
-            
-            _buildInfoRow(Icons.payments, 'Total Amount', '₹${booking.totalAmount}'),
-            
+
+            _buildInfoRow(
+              Icons.payments,
+              'Total Amount',
+              '₹${booking.totalAmount}',
+            ),
+
             Container(
               margin: const EdgeInsets.only(top: 16),
               padding: const EdgeInsets.all(12),
@@ -83,7 +103,10 @@ class GuestDetailsDialog extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(_getStatusIcon(booking.status), color: _getStatusColor(booking.status)),
+                  Icon(
+                    _getStatusIcon(booking.status),
+                    color: _getStatusColor(booking.status),
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     booking.status.displayName,
@@ -95,9 +118,9 @@ class GuestDetailsDialog extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Actions
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -108,12 +131,27 @@ class GuestDetailsDialog extends StatelessWidget {
                     icon: const Icon(Icons.login),
                     label: const Text('Check In'),
                   ),
-                if (booking.status == BookingStatus.checkedIn)
-  TextButton.icon(
+                if (booking.status == BookingStatus.checkedIn) ...[
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      context.push('/folio/${booking.id}');
+                    },
+                    icon: const Icon(Icons.receipt_long),
+                    label: const Text('View Folio'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.orange.shade800,
+                    ),
+                  ),
+                  TextButton.icon(
                     onPressed: () => _handleCheckOut(context),
                     icon: const Icon(Icons.logout),
                     label: const Text('Check Out'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.red.shade800,
+                    ),
                   ),
+                ],
                 const SizedBox(width: 8),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
@@ -138,8 +176,17 @@ class GuestDetailsDialog extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
@@ -184,6 +231,7 @@ class GuestDetailsDialog extends StatelessWidget {
 
     await context.read<RoomCubit>().checkIn(
       bookingId: booking.id,
+      roomId: room.id,
       userId: authState.userId,
       userName: authState.userName,
       userRole: authState.role.name,
@@ -206,6 +254,7 @@ class GuestDetailsDialog extends StatelessWidget {
 
     await context.read<RoomCubit>().checkOut(
       bookingId: booking.id,
+      roomId: room.id,
       userId: authState.userId,
       userName: authState.userName,
       userRole: authState.role.name,

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "261612415694",
+    "firebase_url": "https://sargon-25f65-default-rtdb.firebaseio.com",
+    "project_id": "sargon-25f65",
+    "storage_bucket": "sargon-25f65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:261612415694:android:5d0477876099230399be9f",
+        "android_client_info": {
+          "package_name": "com.hotelmanager.hotel_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP5z8O-utbtV3rp7zpb2sb8BqbEFjL7V0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

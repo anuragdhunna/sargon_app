@@ -1,42 +1,9 @@
-import 'package:equatable/equatable.dart';
+/// Legacy Incident Model
+///
+/// This file now re-exports from the centralized models location.
+/// All new code should import from 'package:hotel_manager/core/models/models.dart'
+///
+/// @deprecated Use 'package:hotel_manager/core/models/incident_model.dart' instead.
+library;
 
-enum IncidentPriority { low, medium, high, critical }
-enum IncidentStatus { open, inProgress, resolved }
-
-class Incident extends Equatable {
-  final String id;
-  final String title;
-  final String description;
-  final String reportedBy;
-  final DateTime timestamp;
-  final IncidentPriority priority;
-  final IncidentStatus status;
-  final String? location; // e.g., Room 101
-
-  const Incident({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.reportedBy,
-    required this.timestamp,
-    required this.priority,
-    required this.status,
-    this.location,
-  });
-
-  Incident copyWith({IncidentStatus? status}) {
-    return Incident(
-      id: id,
-      title: title,
-      description: description,
-      reportedBy: reportedBy,
-      timestamp: timestamp,
-      priority: priority,
-      status: status ?? this.status,
-      location: location,
-    );
-  }
-
-  @override
-  List<Object?> get props => [id, title, description, reportedBy, timestamp, priority, status, location];
-}
+export 'package:hotel_manager/core/models/incident_model.dart';

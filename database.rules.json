@@ -1,0 +1,148 @@
+{
+    "rules": {
+        "users": {
+            ".read": "auth != null",
+            "$uid": {
+                ".write": "$uid === auth.uid || root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager'"
+            }
+        },
+        "orders": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "tableNumber",
+                "status",
+                "timestamp"
+            ]
+        },
+        "rooms": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager' || root.child('users').child(auth.uid).child('role').val() === 'frontDesk'",
+            ".indexOn": [
+                "status",
+                "type",
+                "floor"
+            ]
+        },
+        "bookings": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "roomId",
+                "status",
+                "checkIn",
+                "checkOut"
+            ]
+        },
+        "inventory": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager'",
+            ".indexOn": [
+                "category",
+                "name"
+            ]
+        },
+        "checklists": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "assignedRole",
+                "status",
+                "dueDate"
+            ]
+        },
+        "incidents": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "status",
+                "priority",
+                "timestamp"
+            ]
+        },
+        "attendance": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "userId",
+                "date",
+                "status"
+            ]
+        },
+        "vendors": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager'",
+            ".indexOn": [
+                "category",
+                "name"
+            ]
+        },
+        "purchaseOrders": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager'",
+            ".indexOn": [
+                "status",
+                "createdAt",
+                "vendorId"
+            ]
+        },
+        "goodsReceipts": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "receivedAt",
+                "purchaseOrderId"
+            ]
+        },
+        "menuItems": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager'",
+            ".indexOn": [
+                "category",
+                "isAvailable"
+            ]
+        },
+        "_migrations": {
+            ".read": "auth != null",
+            ".write": "auth != null"
+        },
+        "bills": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "tableId",
+                "roomId",
+                "bookingId",
+                "openedAt"
+            ]
+        },
+        "taxRules": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager'"
+        },
+        "serviceChargeRules": {
+            ".read": "auth != null",
+            ".write": "root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager'"
+        },
+        "folios": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "bookingId",
+                "roomId"
+            ]
+        },
+        "tables": {
+            ".read": "auth != null",
+            ".write": "auth != null"
+        },
+        "tableGroups": {
+            ".read": "auth != null",
+            ".write": "auth != null"
+        },
+        "auditLogs": {
+            ".read": "auth != null",
+            ".write": "auth != null"
+        }
+    }
+}

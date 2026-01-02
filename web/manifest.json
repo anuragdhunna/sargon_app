@@ -1,12 +1,12 @@
 {
-    "name": "hotel_manager",
-    "short_name": "hotel_manager",
+    "name": "Sargon Hotel Manager",
+    "short_name": "Sargon",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#1A237E",
+    "theme_color": "#1A237E",
+    "description": "Complete hotel management solution for staff scheduling, room management, inventory, and operations.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/dialogs/confirmation_dialog.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/dashboard/presentation/widgets/dashboard_stats_grid.dart';
-import 'package:hotel_manager/features/dashboard/presentation/widgets/placeholder_card.dart';
+import 'package:hotel_manager/features/dashboard/presentation/widgets/seasonal_trends_widget.dart';
+import 'package:hotel_manager/features/dashboard/presentation/widgets/kds_performance_widget.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -56,13 +57,21 @@ class DashboardScreen extends StatelessWidget {
             DashboardStatsGrid(isDesktop: isDesktop, isTablet: isTablet),
             const SizedBox(height: 24),
 
-            // Live Room Status (Placeholder for now)
-            Text(
-              'Live Room Status',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            const PlaceholderCard(title: 'Room Map Visualization Coming Soon'),
+            // Analytics & Performance
+            if (isDesktop)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Expanded(flex: 2, child: SeasonalTrendsWidget()),
+                  const SizedBox(width: 24),
+                  const Expanded(child: KdsPerformanceWidget()),
+                ],
+              )
+            else ...[
+              const KdsPerformanceWidget(),
+              const SizedBox(height: 24),
+              const SeasonalTrendsWidget(),
+            ],
           ],
         ),
       ),

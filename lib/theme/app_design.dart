@@ -129,6 +129,38 @@ class AppDesign {
     );
   }
 
+  // ==================== INPUTS ====================
+
+  /// Standard input decoration for the app
+  static InputDecoration inputDecoration({
+    required String label,
+    String? hint,
+    IconData? prefixIcon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
+      suffixIcon: suffix,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(radiusMd)),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(radiusMd),
+        borderSide: const BorderSide(color: neutral300),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(radiusMd),
+        borderSide: const BorderSide(color: primaryStart, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(radiusMd),
+        borderSide: const BorderSide(color: error),
+      ),
+      filled: true,
+      fillColor: Colors.white,
+    );
+  }
+
   // ==================== TYPOGRAPHY ====================
 
   /// Text styles following Material Design 3

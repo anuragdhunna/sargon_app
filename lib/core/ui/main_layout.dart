@@ -4,19 +4,22 @@ import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/dialogs/confirmation_dialog.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
-import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
+import 'package:hotel_manager/core/models/user_model.dart';
 import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/presentation/inventory_screen.dart';
 import 'package:hotel_manager/features/orders/ui/order_taking_screen.dart';
 import 'package:hotel_manager/features/orders/ui/kitchen_screen.dart';
+import 'package:hotel_manager/features/orders/ui/order_history_screen.dart';
 import 'package:hotel_manager/features/checklists/ui/checklist_list_screen.dart';
 import 'package:hotel_manager/features/attendance/ui/attendance_screen.dart';
 import 'package:hotel_manager/features/incidents/ui/incident_management_screen.dart';
 import 'package:hotel_manager/features/performance/ui/employee_performance_screen.dart';
 import 'package:hotel_manager/features/audit/ui/audit_log_screen.dart';
 import 'package:hotel_manager/features/auth/ui/login_screen.dart';
+import 'package:hotel_manager/features/table_mgmt/ui/table_dashboard_screen.dart';
+import 'package:hotel_manager/features/orders/ui/kds_analytics_screen.dart';
 
 class MainLayout extends StatelessWidget {
   final Widget child;
@@ -41,49 +44,62 @@ class MainLayout extends StatelessWidget {
       body: Row(
         children: [
           if (isDesktop)
-            NavigationRail(
-              selectedIndex: selectedIndex,
-              onDestinationSelected: (index) =>
-                  _onItemTapped(index, context, destinations),
-              labelType: NavigationRailLabelType.all,
-              destinations: destinations
-                  .map(
-                    (d) => NavigationRailDestination(
-                      icon: Icon(d.icon),
-                      label: Text(d.label),
-                    ),
-                  )
-                  .toList(),
-              trailing: Expanded(
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: IconButton(
-                      icon: const Icon(Icons.logout),
-                      tooltip: 'Logout',
-                      onPressed: () async {
-                        final confirmed =
-                            await showDialog<bool>(
-                              context: context,
-                              builder: (_) => const ConfirmationDialog(
-                                title: 'Logout',
-                                message: 'Are you sure you want to logout?',
-                                confirmText: 'Logout',
-                                icon: Icon(
-                                  Icons.logout,
-                                  size: 48,
-                                  color: Colors.orange,
-                                ),
-                              ),
-                            ) ??
-                            false;
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 72, maxWidth: 100),
+              child: SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height,
+                  ),
+                  child: IntrinsicHeight(
+                    child: NavigationRail(
+                      selectedIndex: selectedIndex,
+                      onDestinationSelected: (index) =>
+                          _onItemTapped(index, context, destinations),
+                      labelType: NavigationRailLabelType.all,
+                      destinations: destinations
+                          .map(
+                            (d) => NavigationRailDestination(
+                              icon: Icon(d.icon),
+                              label: Text(d.label),
+                            ),
+                          )
+                          .toList(),
+                      trailing: Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: IconButton(
+                              icon: const Icon(Icons.logout),
+                              tooltip: 'Logout',
+                              onPressed: () async {
+                                final confirmed =
+                                    await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => const ConfirmationDialog(
+                                        title: 'Logout',
+                                        message:
+                                            'Are you sure you want to logout?',
+                                        confirmText: 'Logout',
+                                        icon: Icon(
+                                          Icons.logout,
+                                          size: 48,
+                                          color: Colors.orange,
+                                        ),
+                                      ),
+                                    ) ??
+                                    false;
 
-                        if (confirmed && context.mounted) {
-                          context.read<AuthCubit>().logout();
-                          context.go(LoginScreen.routeName);
-                        }
-                      },
+                                if (confirmed && context.mounted) {
+                                  context.read<AuthCubit>().logout();
+                                  context.go(LoginScreen.routeName);
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -122,6 +138,11 @@ class MainLayout extends StatelessWidget {
             route: DashboardScreen.routeName,
           ),
           const NavDestination(
+            icon: Icons.table_chart,
+            label: 'Floor View',
+            route: TableDashboardScreen.routeName,
+          ),
+          const NavDestination(
             icon: Icons.people,
             label: 'Staff',
             route: UserManagementScreen.routeName,
@@ -145,6 +166,16 @@ class MainLayout extends StatelessWidget {
             icon: Icons.kitchen,
             label: 'Kitchen',
             route: KitchenScreen.routeName,
+          ),
+          const NavDestination(
+            icon: Icons.history,
+            label: 'Order History',
+            route: OrderHistoryScreen.routeName,
+          ),
+          const NavDestination(
+            icon: Icons.bar_chart,
+            label: 'KDS Performance',
+            route: KdsAnalyticsScreen.routeName,
           ),
           const NavDestination(
             icon: Icons.checklist,
@@ -261,12 +292,24 @@ class MainLayout extends StatelessWidget {
   }
 
   int _getSelectedIndex(String location, List<NavDestination> destinations) {
+    // Exact match first
     for (int i = 0; i < destinations.length; i++) {
-      if (location.startsWith(destinations[i].route)) {
-        return i;
+      if (location == destinations[i].route) return i;
+    }
+
+    // Prefix match with separator check
+    for (int i = 0; i < destinations.length; i++) {
+      final route = destinations[i].route;
+      if (location.startsWith(route)) {
+        // Ensure it's a full path segment match (e.g., /orders/1 matches /orders, but /order-history doesn't match /order)
+        if (location.length == route.length ||
+            location[route.length] == '/' ||
+            location[route.length] == '?') {
+          return i;
+        }
       }
     }
-    return 0; // Default to first item if no match
+    return 0;
   }
 
   void _onItemTapped(

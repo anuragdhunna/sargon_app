@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'package:hotel_manager/features/orders/data/menu_item_model.dart';
+import 'package:hotel_manager/features/orders/data/order_model.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 /// A reusable cart item widget used in the order taking screen.
 ///
-/// Displays the item image, name, optional notes and price, and provides
+/// Displays the item name, quantity, optional notes and price, and provides
 /// edit / remove callbacks. All UI styling follows the app's design system.
 class OrderCartItem extends StatelessWidget {
-  final MenuItem item;
+  final OrderItem item;
   final VoidCallback onEdit;
   final VoidCallback onRemove;
   final bool canEdit;
@@ -32,22 +32,23 @@ class OrderCartItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Image thumbnail
+          // Quantity badge
           Container(
-            width: 60,
-            height: 60,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: AppDesign.neutral200,
-              image: DecorationImage(
-                image: NetworkImage(item.imageUrl),
-                fit: BoxFit.cover,
-                onError: (_, __) {},
+              color: AppDesign.primaryStart.withAlpha(25),
+            ),
+            child: Center(
+              child: Text(
+                '${item.quantity}x',
+                style: AppDesign.titleMedium.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: AppDesign.primaryStart,
+                ),
               ),
             ),
-            child: item.imageUrl.contains('placeholder')
-                ? const Icon(Icons.fastfood, color: Colors.grey)
-                : null,
           ),
           const SizedBox(width: 12),
           // Details column
@@ -87,7 +88,7 @@ class OrderCartItem extends StatelessWidget {
                     ),
                   ),
                 Text(
-                  '₹${item.price}',
+                  '₹${item.totalPrice.toStringAsFixed(0)}',
                   style: AppDesign.titleMedium.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

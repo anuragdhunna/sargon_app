@@ -1,4 +1,4 @@
-import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
+import 'package:hotel_manager/core/models/user_model.dart';
 import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
@@ -10,6 +10,9 @@ import 'package:hotel_manager/features/attendance/ui/attendance_screen.dart';
 import 'package:hotel_manager/features/incidents/ui/incident_management_screen.dart';
 import 'package:hotel_manager/features/performance/ui/employee_performance_screen.dart';
 import 'package:hotel_manager/features/audit/ui/audit_log_screen.dart';
+import 'package:hotel_manager/features/rooms/ui/booking_history_screen.dart';
+import 'package:hotel_manager/features/table_mgmt/ui/table_dashboard_screen.dart';
+import 'package:hotel_manager/features/orders/ui/kds_analytics_screen.dart';
 
 class RoleGuard {
   /// Check if a user role has access to a specific route
@@ -76,6 +79,7 @@ class RoleGuard {
 
       // Room Management - Front Desk, Manager
       case RoomsScreen.routeName:
+      case BookingHistoryScreen.routeName:
         return [UserRole.manager, UserRole.frontDesk].contains(role);
 
       // Performance - Manager only
@@ -86,7 +90,21 @@ class RoleGuard {
       case AuditLogScreen.routeName:
         return role == UserRole.manager;
 
+      case TableDashboardScreen.routeName:
+        return [UserRole.manager, UserRole.owner].contains(role);
+
+      case KdsAnalyticsScreen.routeName:
+        return [UserRole.manager, UserRole.chef, UserRole.owner].contains(role);
+
       default:
+        // Folio route uses parameters, need prefix check
+        if (route.startsWith('/folio/')) {
+          return [
+            UserRole.manager,
+            UserRole.frontDesk,
+            UserRole.owner,
+          ].contains(role);
+        }
         return false;
     }
   }

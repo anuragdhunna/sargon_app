@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
+import 'package:hotel_manager/core/services/database_service.dart';
 
 // States
 abstract class UserState extends Equatable {
@@ -10,13 +12,17 @@ abstract class UserState extends Equatable {
 }
 
 class UserInitial extends UserState {}
+
 class UserLoading extends UserState {}
+
 class UserLoaded extends UserState {
   final List<User> users;
-  const UserLoaded(this.users);
+  final List<User> allUsers; // Kept for filtering
+  const UserLoaded(this.users, {this.allUsers = const []});
   @override
-  List<Object?> get props => [users];
+  List<Object?> get props => [users, allUsers];
 }
+
 class UserError extends UserState {
   final String message;
   const UserError(this.message);
@@ -26,39 +32,66 @@ class UserError extends UserState {
 
 // Cubit
 class UserCubit extends Cubit<UserState> {
-  UserCubit() : super(UserInitial());
+  final DatabaseService _databaseService;
+  StreamSubscription? _usersSubscription;
 
-  final List<User> _mockUsers = [
-    const User(id: '1', name: 'Alice Manager', phoneNumber: '+123', role: UserRole.manager, status: UserStatus.active),
-    const User(id: '2', name: 'Bob Chef', phoneNumber: '+124', role: UserRole.chef, status: UserStatus.active),
-  ];
+  UserCubit({required DatabaseService databaseService})
+    : _databaseService = databaseService,
+      super(UserInitial());
 
-  void loadUsers() async {
+  void loadUsers() {
     emit(UserLoading());
-    await Future.delayed(const Duration(seconds: 1)); // Simulate API
-    emit(UserLoaded(List.from(_mockUsers)));
+    _usersSubscription?.cancel();
+    _usersSubscription = _databaseService.streamUsers().listen(
+      (users) {
+        emit(UserLoaded(users, allUsers: users));
+      },
+      onError: (error) {
+        emit(UserError(error.toString()));
+      },
+    );
   }
 
-  void addUser(User user) async {
-    emit(UserLoading());
-    await Future.delayed(const Duration(seconds: 1));
-    _mockUsers.add(user);
-    emit(UserLoaded(List.from(_mockUsers)));
+  Future<void> addUser(User user) async {
+    await _databaseService.saveUser(user);
   }
 
-  void deleteUser(String userId) async {
-    emit(UserLoading());
-    await Future.delayed(const Duration(seconds: 1));
-    _mockUsers.removeWhere((u) => u.id == userId);
-    emit(UserLoaded(List.from(_mockUsers)));
+  Future<void> toggleUserStatus(String userId) async {
+    final user = await _databaseService.getUser(userId);
+    if (user != null) {
+      final newStatus = user.status == UserStatus.active
+          ? UserStatus.inactive
+          : UserStatus.active;
+      await _databaseService.saveUser(user.copyWith(status: newStatus));
+    }
+  }
+
+  Future<void> deleteUser(String userId) async {
+    // Instead of actual delete, we could just deactivate,
+    // but the requirement says provide a toggle switch.
+    // We'll keep delete just in case, but preferred is toggle.
+    await _databaseService.usersRef.child(userId).remove();
   }
 
   void filterUsers(UserRole? role) {
-    if (role == null) {
-      emit(UserLoaded(List.from(_mockUsers)));
-    } else {
-      final filtered = _mockUsers.where((u) => u.role == role).toList();
-      emit(UserLoaded(filtered));
+    final currentState = state;
+    if (currentState is UserLoaded) {
+      if (role == null) {
+        emit(
+          UserLoaded(currentState.allUsers, allUsers: currentState.allUsers),
+        );
+      } else {
+        final filtered = currentState.allUsers
+            .where((u) => u.role == role)
+            .toList();
+        emit(UserLoaded(filtered, allUsers: currentState.allUsers));
+      }
     }
+  }
+
+  @override
+  Future<void> close() {
+    _usersSubscription?.cancel();
+    return super.close();
   }
 }

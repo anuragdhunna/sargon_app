@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hotel_manager/features/orders/data/menu_item_model.dart';
-import 'package:hotel_manager/features/orders/data/order_model.dart';
+import '../../../core/models/models.dart';
+import '../../../core/services/database_service.dart';
 
 // States
 abstract class OrderState extends Equatable {
@@ -21,101 +22,218 @@ class OrderLoaded extends OrderState {
   List<Object?> get props => [orders];
 }
 
+class OrderError extends OrderState {
+  final String message;
+  const OrderError(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
 // Cubit
 class OrderCubit extends Cubit<OrderState> {
-  OrderCubit() : super(OrderInitial()) {
-    // Initialize with some mock data
-    emit(
-      OrderLoaded([
-        Order(
-          id: '1',
-          tableNumber: '5',
-          items: const [
-            MenuItem(
-              id: '1',
-              name: 'Butter Chicken',
-              description: '',
-              price: 350,
-              category: MenuCategory.mainCourse,
-              imageUrl: '',
-            ),
-            MenuItem(
-              id: '3',
-              name: 'Dal Makhani',
-              description: '',
-              price: 220,
-              category: MenuCategory.mainCourse,
-              imageUrl: '',
-            ),
-          ],
-          status: OrderStatus.pending,
-          timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-        ),
-      ]),
+  final DatabaseService _databaseService;
+  StreamSubscription? _ordersSubscription;
+
+  OrderCubit({required DatabaseService databaseService})
+    : _databaseService = databaseService,
+      super(OrderInitial());
+
+  void loadOrders() {
+    emit(OrderLoading());
+    _ordersSubscription?.cancel();
+    _ordersSubscription = _databaseService.streamOrders().listen(
+      (orders) {
+        emit(OrderLoaded(orders));
+      },
+      onError: (error) {
+        emit(OrderError(error.toString()));
+      },
     );
   }
 
-  void addOrder(Order order) {
+  Future<void> addOrder(Order order) async {
     final currentState = state;
+
+    // Auto-fire starters and drinks for new items
+    final processedItems = order.items.map((item) {
+      if (item.kdsStatus == KdsStatus.pending &&
+          (item.course == CourseType.starters ||
+              item.course == CourseType.drinks)) {
+        return item.copyWith(
+          kdsStatus: KdsStatus.fired,
+          firedAt: DateTime.now(),
+        );
+      }
+      return item;
+    }).toList();
+
+    final orderToSave = order.copyWith(items: processedItems);
+
     if (currentState is OrderLoaded) {
-      // Check if there's an existing PENDING order for the same table
+      // Find an active order to merge into (any order that is not served or cancelled)
       final existingOrderIndex = currentState.orders.indexWhere(
         (o) =>
-            o.tableNumber == order.tableNumber &&
-            o.status == OrderStatus.pending,
+            o.tableId == orderToSave.tableId &&
+            o.status != OrderStatus.served &&
+            o.status != OrderStatus.cancelled,
       );
 
       if (existingOrderIndex != -1) {
-        // Merge with existing order (industry standard for Indian dining)
         final existingOrder = currentState.orders[existingOrderIndex];
-        final mergedItems = [...existingOrder.items, ...order.items];
+        final mergedItems = [...existingOrder.items, ...orderToSave.items];
 
-        // Combine notes if both exist
         String? combinedNotes;
-        if (existingOrder.orderNotes != null && order.orderNotes != null) {
-          combinedNotes = '${existingOrder.orderNotes}; ${order.orderNotes}';
+        if (existingOrder.orderNotes != null &&
+            orderToSave.orderNotes != null) {
+          combinedNotes =
+              '${existingOrder.orderNotes}; ${orderToSave.orderNotes}';
         } else {
-          combinedNotes = order.orderNotes ?? existingOrder.orderNotes;
+          combinedNotes = orderToSave.orderNotes ?? existingOrder.orderNotes;
         }
 
         final mergedOrder = existingOrder.copyWith(
           items: mergedItems,
           orderNotes: combinedNotes,
-          timestamp: DateTime.now(), // Update timestamp to latest
+          updatedAt: DateTime.now(),
+          status: OrderStatus.cooking, // Items added, move to cooking
         );
 
-        final updatedOrders = List<Order>.from(currentState.orders);
-        updatedOrders[existingOrderIndex] = mergedOrder;
-        emit(OrderLoaded(updatedOrders));
+        await _databaseService.saveOrder(mergedOrder);
       } else {
-        // No existing pending order for this table, add as new
-        final updatedOrders = List<Order>.from(currentState.orders)..add(order);
-        emit(OrderLoaded(updatedOrders));
+        await _databaseService.saveOrder(orderToSave);
+        await _databaseService.updateTableStatus(
+          orderToSave.tableId,
+          TableStatus.occupied,
+        );
       }
     } else {
-      emit(OrderLoaded([order]));
+      await _databaseService.saveOrder(orderToSave);
+      await _databaseService.updateTableStatus(
+        orderToSave.tableId,
+        TableStatus.occupied,
+      );
     }
   }
 
-  void updateStatus(String orderId, OrderStatus newStatus) {
+  /// Fire a specific course to the KDS
+  Future<void> fireCourse(String orderId, CourseType course) async {
+    final currentState = state;
+    if (currentState is! OrderLoaded) return;
+
+    final order = currentState.orders.firstWhere((o) => o.id == orderId);
+    final firedAt = DateTime.now();
+
+    final updatedItems = order.items.map((item) {
+      if (item.course == course && item.kdsStatus == KdsStatus.pending) {
+        return item.copyWith(kdsStatus: KdsStatus.fired, firedAt: firedAt);
+      }
+      return item;
+    }).toList();
+
+    await _databaseService.saveOrder(
+      order.copyWith(items: updatedItems, status: OrderStatus.cooking),
+    );
+  }
+
+  /// Update individual item status in KDS
+  Future<void> updateItemKdsStatus(
+    String orderId,
+    String itemId,
+    KdsStatus newStatus,
+  ) async {
+    final currentState = state;
+    if (currentState is! OrderLoaded) return;
+
+    final order = currentState.orders.firstWhere((o) => o.id == orderId);
+    final updatedItems = order.items.map((item) {
+      if (item.id == itemId) {
+        return item.copyWith(kdsStatus: newStatus);
+      }
+      return item;
+    }).toList();
+
+    // Determine overall order status
+    OrderStatus newOrderStatus = order.status;
+
+    bool allServed = updatedItems.every(
+      (i) =>
+          i.kdsStatus == KdsStatus.served || i.kdsStatus == KdsStatus.cancelled,
+    );
+    bool allReady = updatedItems.every(
+      (i) =>
+          i.kdsStatus == KdsStatus.ready ||
+          i.kdsStatus == KdsStatus.served ||
+          i.kdsStatus == KdsStatus.cancelled,
+    );
+    bool anyPreparing = updatedItems.any(
+      (i) =>
+          i.kdsStatus == KdsStatus.preparing || i.kdsStatus == KdsStatus.fired,
+    );
+
+    if (allServed) {
+      newOrderStatus = OrderStatus.served;
+    } else if (allReady) {
+      newOrderStatus = OrderStatus.ready;
+    } else if (anyPreparing) {
+      newOrderStatus = OrderStatus.cooking;
+    }
+
+    await _databaseService.saveOrder(
+      order.copyWith(
+        items: updatedItems,
+        status: newOrderStatus,
+        updatedAt: DateTime.now(),
+      ),
+    );
+  }
+
+  Future<void> updateStatus(String orderId, OrderStatus newStatus) async {
     final currentState = state;
     if (currentState is OrderLoaded) {
-      final index = currentState.orders.indexWhere((o) => o.id == orderId);
-      if (index != -1) {
-        final updatedOrders = List<Order>.from(currentState.orders);
-        updatedOrders[index] = updatedOrders[index].copyWith(status: newStatus);
-        emit(OrderLoaded(updatedOrders));
+      currentState.orders.firstWhere((o) => o.id == orderId);
+      await _databaseService.updateOrderStatus(orderId, newStatus);
+
+      // Auto table transitions
+      if (newStatus == OrderStatus.served) {
+        // Still occupied
+      } else if (newStatus == OrderStatus.cancelled) {
+        // Maybe available if no other orders? For now keep occupied if table link exists
       }
     }
   }
 
-  List<Order> getOrdersForTable(String tableNumber) {
+  /// Finalize bill and update table status
+  Future<void> generateBill(Order order) async {
+    await _databaseService.saveOrder(
+      order.copyWith(status: OrderStatus.served),
+    ); // Ensure it's marked served
+    await _databaseService.updateTableStatus(order.tableId, TableStatus.billed);
+  }
+
+  /// Complete payment and move table to cleaning
+  Future<void> completePayment(Order order, PaymentMethod method) async {
+    await _databaseService.saveOrder(
+      order.copyWith(paymentStatus: PaymentStatus.paid, paymentMethod: method),
+    );
+    await _databaseService.updateTableStatus(
+      order.tableId,
+      TableStatus.cleaning,
+    );
+  }
+
+  List<Order> getOrdersForTable(String tableId) {
     final currentState = state;
     if (currentState is OrderLoaded) {
       return currentState.orders
-          .where((order) => order.tableNumber == tableNumber)
+          .where((order) => order.tableId == tableId)
           .toList();
     }
     return [];
+  }
+
+  @override
+  Future<void> close() {
+    _ordersSubscription?.cancel();
+    return super.close();
   }
 }
