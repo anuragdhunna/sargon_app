@@ -85,7 +85,7 @@ Before creating a new file, check if the functionality belongs to an existing mo
 | **inventory** | Stock, Goods Receipt, POs, Vendors | **Refactored** (Sub-modules: `stock`, `goods_receipt`, `purchase_orders`, `vendors`) |
 | **orders** | Order taking, order history, KDS sync | **Enhanced**: Order merging for same table, overall order notes, responsive 3-column grid, real-time order history with KDS status |
 | **performance** | Staff performance metrics | Active |
-| **rooms** | Room management and status | Active |
+| **rooms** | Room management and status | **Refactored** (Cubit -> Repository pattern) |
 | **staff_mgmt** | Staff profiles and management | Active |
 | **table_mgmt** | Table seating, status, groups, pax intelligence | Active |
 
@@ -143,6 +143,12 @@ When modifying code, apply these expert-level practices:
     *   Catch errors in the Repository layer.
     *   Return `Either<Failure, Success>` or throw custom Exceptions caught by the Cubit.
     *   Show user-friendly error messages (Snackbars/Dialogs) via `BlocListener`.
+
+### E. Testing Standards (Established Jan 2026)
+- **Unit Testing:** Mandatory for Cubits. Use `bloc_test` and `mocktail`.
+- **Mocks:** Dependencies (Repositories/Services) must be mocked using `Mock` classes.
+- **Async Control:** Use `StreamController` in tests to simulate real-time data flow (e.g., Firebase streams).
+- **Validation:** Always verify that dependency methods were called using `verify(...).called(n)`.
 
 ---
 

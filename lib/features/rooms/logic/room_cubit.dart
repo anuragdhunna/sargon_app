@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
-import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
+import 'package:hotel_manager/features/rooms/data/room_repository.dart';
 import 'package:uuid/uuid.dart';
 
 /// Room Cubit State
@@ -76,17 +76,15 @@ class RoomError extends RoomState {
 
 /// Room Cubit - Manages room bookings and status
 class RoomCubit extends Cubit<RoomState> {
-  final DatabaseService _databaseService;
+  final RoomRepository _repository;
   final ChecklistCubit checklistCubit;
   final Uuid _uuid = const Uuid();
   StreamSubscription? _roomsSubscription;
   StreamSubscription? _bookingsSubscription;
 
-  RoomCubit({
-    required DatabaseService databaseService,
-    required this.checklistCubit,
-  }) : _databaseService = databaseService,
-       super(RoomInitial()) {
+  RoomCubit({required RoomRepository repository, required this.checklistCubit})
+    : _repository = repository,
+      super(RoomInitial()) {
     loadRooms();
   }
 
@@ -97,7 +95,7 @@ class RoomCubit extends Cubit<RoomState> {
     _bookingsSubscription?.cancel();
 
     // Combined stream would be better but let's handle them separately for now
-    _roomsSubscription = _databaseService.streamRooms().listen((rooms) {
+    _roomsSubscription = _repository.streamRooms().listen((rooms) {
       final currentState = state;
       if (currentState is RoomLoaded) {
         emit(currentState.copyWith(rooms: rooms));
@@ -106,9 +104,7 @@ class RoomCubit extends Cubit<RoomState> {
       }
     }, onError: (e) => emit(RoomError('Failed to load rooms: $e')));
 
-    _bookingsSubscription = _databaseService.streamBookings().listen((
-      bookings,
-    ) {
+    _bookingsSubscription = _repository.streamBookings().listen((bookings) {
       final currentState = state;
       if (currentState is RoomLoaded) {
         emit(
@@ -265,14 +261,14 @@ class RoomCubit extends Cubit<RoomState> {
         paymentReference: paymentReference,
       );
 
-      await _databaseService.saveBooking(booking);
+      await _repository.saveBooking(booking);
 
       // Update room status if it's for today
       final now = DateTime.now();
       if (checkIn.year == now.year &&
           checkIn.month == now.month &&
           checkIn.day == now.day) {
-        await _databaseService.updateRoomStatus(roomId, RoomStatus.reserved);
+        await _repository.updateRoomStatus(roomId, RoomStatus.reserved);
       }
     } catch (e) {
       emit(RoomError('Failed to create booking: $e'));
@@ -288,10 +284,10 @@ class RoomCubit extends Cubit<RoomState> {
     required String userRole,
   }) async {
     try {
-      await _databaseService.bookingsRef.child(bookingId).update({
+      await _repository.bookingsRef.child(bookingId).update({
         'status': BookingStatus.checkedIn.name,
       });
-      await _databaseService.updateRoomStatus(roomId, RoomStatus.occupied);
+      await _repository.updateRoomStatus(roomId, RoomStatus.occupied);
     } catch (e) {
       emit(RoomError('Failed to check in: $e'));
     }
@@ -306,10 +302,10 @@ class RoomCubit extends Cubit<RoomState> {
     required String userRole,
   }) async {
     try {
-      await _databaseService.bookingsRef.child(bookingId).update({
+      await _repository.bookingsRef.child(bookingId).update({
         'status': BookingStatus.checkedOut.name,
       });
-      await _databaseService.updateRoomStatus(roomId, RoomStatus.cleaning);
+      await _repository.updateRoomStatus(roomId, RoomStatus.cleaning);
 
       // Create cleaning checklist
       final currentState = state;
@@ -334,7 +330,7 @@ class RoomCubit extends Cubit<RoomState> {
     required String userRole,
   }) async {
     try {
-      await _databaseService.updateRoomStatus(roomId, newStatus);
+      await _repository.updateRoomStatus(roomId, newStatus);
     } catch (e) {
       emit(RoomError('Failed to update room status: $e'));
     }

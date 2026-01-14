@@ -18,6 +18,7 @@ import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dar
 import 'package:hotel_manager/features/inventory/vendors/logic/vendor_cubit.dart';
 import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
 import 'package:hotel_manager/features/performance/logic/performance_cubit.dart';
+import 'package:hotel_manager/features/rooms/data/room_repository.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/user_cubit.dart';
@@ -56,6 +57,9 @@ void main() async {
       providers: [
         RepositoryProvider<AuthService>.value(value: authService),
         RepositoryProvider<DatabaseService>.value(value: databaseService),
+        RepositoryProvider<RoomRepository>(
+          create: (context) => RoomRepository(databaseService: databaseService),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -85,7 +89,7 @@ void main() async {
           ),
           BlocProvider<RoomCubit>(
             create: (context) => RoomCubit(
-              databaseService: databaseService,
+              repository: context.read<RoomRepository>(),
               checklistCubit: checklistCubit,
             ),
           ),
