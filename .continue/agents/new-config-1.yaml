@@ -1,0 +1,11 @@
+{
+  "models": [
+    {
+      "title": "Qwen2.5 Coder 7B Local",
+      "provider": "openai",
+      "model": "qwen2.5-coder-7b-instruct-q5_k_m.gguf",
+      "apiBase": "http://localhost:8080/v1",
+      "apiKey": "local"
+    }
+  ]
+}

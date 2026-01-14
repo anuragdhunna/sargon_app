@@ -145,67 +145,103 @@ class _PaymentDialogState extends State<PaymentDialog> {
               const SizedBox(height: 8),
               BlocBuilder<RoomCubit, RoomState>(
                 builder: (context, roomState) {
-                  if (roomState is RoomLoaded) {
-                    final occupiedRooms = roomState.rooms
-                        .where((r) => r.status == RoomStatus.occupied)
-                        .toList();
+                  try {
+                    if (roomState is RoomLoaded) {
+                      final occupiedRooms = roomState.rooms
+                          .where((r) => r.status == RoomStatus.occupied)
+                          .toList();
 
-                    if (occupiedRooms.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          'No occupied rooms found.',
-                          style: TextStyle(color: Colors.red, fontSize: 12),
+                      if (occupiedRooms.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            'No occupied rooms found.',
+                            style: TextStyle(color: Colors.red, fontSize: 12),
+                          ),
+                        );
+                      }
+
+                      final String? selectedValue = occupiedRooms.any((r) => r.id == _selectedRoomId)
+                          ? _selectedRoomId
+                          : null;
+
+                      return DropdownButtonFormField<String>(
+                        value: selectedValue,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: AppDesign.neutral50,
+                          hintText: 'Select Room',
                         ),
+                        items: occupiedRooms.map((r) {
+                          try {
+                            // booking may not exist for a room; guard with try/catch
+                            Booking? _booking;
+                            try {
+                              _booking = roomState.allBookings.firstWhere(
+                                (b) => b.roomId == r.id && b.status == BookingStatus.checkedIn,
+                              );
+                            } catch (_) {
+                              try {
+                                _booking = roomState.allBookings.firstWhere((b) => b.roomId == r.id);
+                              } catch (_) {
+                                _booking = null;
+                              }
+                            }
+
+                            return DropdownMenuItem(
+                              value: r.id,
+                              child: Text(
+                                'Room ${r.roomNumber} - ${_booking?.guestName ?? 'Unknown'}',
+                              ),
+                            );
+                          } catch (e, st) {
+                            debugPrint('PaymentDialog item build error for room ${r.id}: $e\n$st');
+                            return DropdownMenuItem(
+                              value: r.id,
+                              child: Text('Room ${r.roomNumber} - Unknown'),
+                            );
+                          }
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            Booking? booking;
+                            try {
+                              booking = roomState.allBookings.firstWhere(
+                                (b) => b.roomId == val && b.status == BookingStatus.checkedIn,
+                              );
+                            } catch (_) {
+                              try {
+                                booking = roomState.allBookings.firstWhere((b) => b.roomId == val);
+                              } catch (_) {
+                                booking = null;
+                              }
+                            }
+
+                            setState(() {
+                              _selectedRoomId = val;
+                              _selectedBookingId = booking?.id;
+                            });
+                          }
+                        },
                       );
                     }
-
-                    return DropdownButtonFormField<String>(
-                      value: _selectedRoomId,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: AppDesign.neutral50,
-                        hintText: 'Select Room',
+                    return const CircularProgressIndicator();
+                  } catch (e, st) {
+                    // Log and show a friendly error instead of red crash screen
+                    debugPrint('PaymentDialog room builder error: $e\n$st');
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        'Error loading rooms: $e',
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
                       ),
-                      items: occupiedRooms.map((r) {
-                        final booking = roomState.allBookings.firstWhere(
-                          (b) =>
-                              b.roomId == r.id &&
-                              b.status == BookingStatus.checkedIn,
-                          orElse: () => roomState.allBookings.firstWhere(
-                            (b) => b.roomId == r.id,
-                          ),
-                        );
-                        return DropdownMenuItem(
-                          value: r.id,
-                          child: Text(
-                            'Room ${r.roomNumber} - ${booking.guestName}',
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          final booking = roomState.allBookings.firstWhere(
-                            (b) =>
-                                b.roomId == val &&
-                                b.status == BookingStatus.checkedIn,
-                            orElse: () => roomState.allBookings.firstWhere(
-                              (b) => b.roomId == val,
-                            ),
-                          );
-                          setState(() {
-                            _selectedRoomId = val;
-                            _selectedBookingId = booking.id;
-                          });
-                        }
-                      },
                     );
                   }
-                  return const CircularProgressIndicator();
                 },
+
               ),
             ],
           ],

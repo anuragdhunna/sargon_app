@@ -175,31 +175,45 @@ class Order extends Equatable {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      id: json['id'],
-      tableId: json['tableId'],
-      tableNumber: json['tableNumber'],
-      items: (json['items'] as List).map((i) => OrderItem.fromJson(i)).toList(),
-      status: OrderStatus.values.firstWhere((e) => e.name == json['status']),
-      timestamp: DateTime.parse(json['timestamp']),
+      id: json['id'] != null ? json['id'].toString() : '',
+      tableId: json['tableId'] != null ? json['tableId'].toString() : '',
+      tableNumber:
+          json['tableNumber'] != null ? json['tableNumber'].toString() : '',
+      items: json['items'] != null
+          ? (json['items'] as List).map((i) => OrderItem.fromJson(i)).toList()
+          : <OrderItem>[],
+      status: OrderStatus.values.firstWhere(
+        (e) => e.name == (json['status'] ?? 'pending'),
+        orElse: () => OrderStatus.pending,
+      ),
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'])
+          : DateTime.now(),
       updatedAt: json['updatedAt'] != null
           ? DateTime.parse(json['updatedAt'])
           : null,
       openedAt: json['openedAt'] != null
           ? DateTime.parse(json['openedAt'])
           : null,
-      paxCount: json['paxCount'] ?? 1,
+      paxCount: json['paxCount'] is int
+          ? json['paxCount']
+          : (json['paxCount'] != null
+              ? int.tryParse(json['paxCount'].toString()) ?? 1
+              : 1),
       priority: OrderPriority.values.firstWhere(
         (e) => e.name == (json['priority'] ?? 'normal'),
+        orElse: () => OrderPriority.normal,
       ),
-      orderNotes: json['orderNotes'],
-      createdBy: json['createdBy'],
-      waiterName: json['waiterName'],
-      bookingId: json['bookingId'],
-      roomId: json['roomId'],
-      guestName: json['guestName'],
+      orderNotes: json['orderNotes'] != null ? json['orderNotes'].toString() : null,
+      createdBy: json['createdBy'] != null ? json['createdBy'].toString() : null,
+      waiterName: json['waiterName'] != null ? json['waiterName'].toString() : null,
+      bookingId: json['bookingId'] != null ? json['bookingId'].toString() : null,
+      roomId: json['roomId'] != null ? json['roomId'].toString() : null,
+      guestName: json['guestName'] != null ? json['guestName'].toString() : null,
       paymentMethod: json['paymentMethod'] != null
           ? PaymentMethod.values.firstWhere(
               (e) => e.name == json['paymentMethod'],
+              orElse: () => PaymentMethod.cash,
             )
           : null,
       paymentStatus: PaymentStatus.values.firstWhere(
