@@ -177,8 +177,9 @@ class Order extends Equatable {
     return Order(
       id: json['id'] != null ? json['id'].toString() : '',
       tableId: json['tableId'] != null ? json['tableId'].toString() : '',
-      tableNumber:
-          json['tableNumber'] != null ? json['tableNumber'].toString() : '',
+      tableNumber: json['tableNumber'] != null
+          ? json['tableNumber'].toString()
+          : '',
       items: json['items'] != null
           ? (json['items'] as List).map((i) => OrderItem.fromJson(i)).toList()
           : <OrderItem>[],
@@ -198,18 +199,18 @@ class Order extends Equatable {
       paxCount: json['paxCount'] is int
           ? json['paxCount']
           : (json['paxCount'] != null
-              ? int.tryParse(json['paxCount'].toString()) ?? 1
-              : 1),
+                ? int.tryParse(json['paxCount'].toString()) ?? 1
+                : 1),
       priority: OrderPriority.values.firstWhere(
         (e) => e.name == (json['priority'] ?? 'normal'),
         orElse: () => OrderPriority.normal,
       ),
-      orderNotes: json['orderNotes'] != null ? json['orderNotes'].toString() : null,
-      createdBy: json['createdBy'] != null ? json['createdBy'].toString() : null,
-      waiterName: json['waiterName'] != null ? json['waiterName'].toString() : null,
-      bookingId: json['bookingId'] != null ? json['bookingId'].toString() : null,
-      roomId: json['roomId'] != null ? json['roomId'].toString() : null,
-      guestName: json['guestName'] != null ? json['guestName'].toString() : null,
+      orderNotes: json['orderNotes']?.toString(),
+      createdBy: json['createdBy']?.toString(),
+      waiterName: json['waiterName']?.toString(),
+      bookingId: json['bookingId']?.toString(),
+      roomId: json['roomId']?.toString(),
+      guestName: json['guestName']?.toString(),
       paymentMethod: json['paymentMethod'] != null
           ? PaymentMethod.values.firstWhere(
               (e) => e.name == json['paymentMethod'],
@@ -274,8 +275,9 @@ class OrderItem extends Equatable {
   bool get isDelayed {
     if (firedAt == null ||
         kdsStatus == KdsStatus.served ||
-        kdsStatus == KdsStatus.cancelled)
+        kdsStatus == KdsStatus.cancelled) {
       return false;
+    }
     final delay = DateTime.now().difference(firedAt!).inMinutes;
     return delay > expectedPrepTimeMinutes;
   }

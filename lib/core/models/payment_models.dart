@@ -1,4 +1,5 @@
 /// Payment related enums and models
+library;
 
 /// Payment status for orders and bills
 enum PaymentStatus {

@@ -103,7 +103,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<PaymentMethod>(
-              value: _selectedMethod,
+              initialValue: _selectedMethod,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -161,12 +161,13 @@ class _PaymentDialogState extends State<PaymentDialog> {
                         );
                       }
 
-                      final String? selectedValue = occupiedRooms.any((r) => r.id == _selectedRoomId)
+                      final String? selectedValue =
+                          occupiedRooms.any((r) => r.id == _selectedRoomId)
                           ? _selectedRoomId
                           : null;
 
                       return DropdownButtonFormField<String>(
-                        value: selectedValue,
+                        initialValue: selectedValue,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -178,27 +179,33 @@ class _PaymentDialogState extends State<PaymentDialog> {
                         items: occupiedRooms.map((r) {
                           try {
                             // booking may not exist for a room; guard with try/catch
-                            Booking? _booking;
+                            Booking? booking0;
                             try {
-                              _booking = roomState.allBookings.firstWhere(
-                                (b) => b.roomId == r.id && b.status == BookingStatus.checkedIn,
+                              booking0 = roomState.allBookings.firstWhere(
+                                (b) =>
+                                    b.roomId == r.id &&
+                                    b.status == BookingStatus.checkedIn,
                               );
                             } catch (_) {
                               try {
-                                _booking = roomState.allBookings.firstWhere((b) => b.roomId == r.id);
+                                booking0 = roomState.allBookings.firstWhere(
+                                  (b) => b.roomId == r.id,
+                                );
                               } catch (_) {
-                                _booking = null;
+                                booking0 = null;
                               }
                             }
 
                             return DropdownMenuItem(
                               value: r.id,
                               child: Text(
-                                'Room ${r.roomNumber} - ${_booking?.guestName ?? 'Unknown'}',
+                                'Room ${r.roomNumber} - ${booking0?.guestName ?? 'Unknown'}',
                               ),
                             );
                           } catch (e, st) {
-                            debugPrint('PaymentDialog item build error for room ${r.id}: $e\n$st');
+                            debugPrint(
+                              'PaymentDialog item build error for room ${r.id}: $e\n$st',
+                            );
                             return DropdownMenuItem(
                               value: r.id,
                               child: Text('Room ${r.roomNumber} - Unknown'),
@@ -210,11 +217,15 @@ class _PaymentDialogState extends State<PaymentDialog> {
                             Booking? booking;
                             try {
                               booking = roomState.allBookings.firstWhere(
-                                (b) => b.roomId == val && b.status == BookingStatus.checkedIn,
+                                (b) =>
+                                    b.roomId == val &&
+                                    b.status == BookingStatus.checkedIn,
                               );
                             } catch (_) {
                               try {
-                                booking = roomState.allBookings.firstWhere((b) => b.roomId == val);
+                                booking = roomState.allBookings.firstWhere(
+                                  (b) => b.roomId == val,
+                                );
                               } catch (_) {
                                 booking = null;
                               }
@@ -241,7 +252,6 @@ class _PaymentDialogState extends State<PaymentDialog> {
                     );
                   }
                 },
-
               ),
             ],
           ],

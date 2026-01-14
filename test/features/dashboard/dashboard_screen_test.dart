@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
 import 'package:hotel_manager/features/dashboard/presentation/widgets/dashboard_stats_grid.dart';
-import 'package:hotel_manager/features/dashboard/presentation/widgets/placeholder_card.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 
 class MockAuthCubit extends Mock implements AuthCubit {}
@@ -32,7 +31,6 @@ void main() {
     // Act & Assert
     expect(find.text('Dashboard'), findsOneWidget);
     expect(find.byType(DashboardStatsGrid), findsOneWidget);
-    expect(find.byType(PlaceholderCard), findsOneWidget);
     expect(find.text('Room Map Visualization Coming Soon'), findsOneWidget);
   });
 

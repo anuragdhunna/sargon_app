@@ -1,5 +1,6 @@
 /// Import this single file to access any model in the codebase.
 ///
+library;
 
 // User & Auth
 export 'user_model.dart';
