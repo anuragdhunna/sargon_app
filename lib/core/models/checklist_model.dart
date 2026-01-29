@@ -84,13 +84,13 @@ class ChecklistItem extends Equatable {
 
   factory ChecklistItem.fromJson(Map<String, dynamic> json) {
     return ChecklistItem(
-      id: json['id'] as String,
-      task: json['task'] as String,
-      isCompleted: json['isCompleted'] as bool? ?? false,
+      id: json['id']?.toString() ?? '',
+      task: json['task']?.toString() ?? '',
+      isCompleted: json['isCompleted'] == true,
       completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'] as String)
+          ? DateTime.tryParse(json['completedAt'].toString())
           : null,
-      completedBy: json['completedBy'] as String?,
+      completedBy: json['completedBy']?.toString(),
     );
   }
 
@@ -117,6 +117,7 @@ class Checklist extends Equatable {
   final DateTime? lastModifiedAt;
   final String? completedBy;
   final String? crossRoleReason;
+  final Map<String, dynamic>? metadata;
 
   // Schema version for migrations
   static const int schemaVersion = 1;
@@ -136,6 +137,7 @@ class Checklist extends Equatable {
     this.lastModifiedAt,
     this.completedBy,
     this.crossRoleReason,
+    this.metadata,
   }) : createdAt = createdAt ?? DateTime.now();
 
   double get completionPercentage {
@@ -161,6 +163,7 @@ class Checklist extends Equatable {
     DateTime? lastModifiedAt,
     String? completedBy,
     String? crossRoleReason,
+    Map<String, dynamic>? metadata,
   }) {
     return Checklist(
       id: id ?? this.id,
@@ -177,6 +180,7 @@ class Checklist extends Equatable {
       lastModifiedAt: lastModifiedAt ?? DateTime.now(),
       completedBy: completedBy ?? this.completedBy,
       crossRoleReason: crossRoleReason ?? this.crossRoleReason,
+      metadata: metadata ?? this.metadata,
     );
   }
 
@@ -196,6 +200,7 @@ class Checklist extends Equatable {
     lastModifiedAt,
     completedBy,
     crossRoleReason,
+    metadata,
   ];
 
   Map<String, dynamic> toJson() {
@@ -214,15 +219,16 @@ class Checklist extends Equatable {
       'lastModifiedAt': lastModifiedAt?.toIso8601String(),
       'completedBy': completedBy,
       'crossRoleReason': crossRoleReason,
+      'metadata': metadata,
       '_schemaVersion': schemaVersion,
     };
   }
 
   factory Checklist.fromJson(Map<String, dynamic> json) {
     return Checklist(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      description: json['description'] as String? ?? '',
+      id: json['id']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
       type: ChecklistType.values.firstWhere(
         (e) => e.name == json['type'],
         orElse: () => ChecklistType.general,
@@ -235,25 +241,34 @@ class Checklist extends Equatable {
         (e) => e.name == json['assignedRole'],
         orElse: () => UserRole.waiter,
       ),
-      dueDate: DateTime.parse(json['dueDate'] as String),
+      dueDate: json['dueDate'] != null
+          ? DateTime.parse(json['dueDate'].toString())
+          : DateTime.now(),
       items:
           (json['items'] as List?)
               ?.map(
-                (item) => ChecklistItem.fromJson(item as Map<String, dynamic>),
+                (item) => ChecklistItem.fromJson(
+                  Map<String, dynamic>.from(item as Map),
+                ),
               )
               .toList() ??
           [],
-      isTimeBound: json['isTimeBound'] as bool? ?? true,
+      isTimeBound: json['isTimeBound'] == true,
       recurrence: RecurrencePattern.values.firstWhere(
         (e) => e.name == json['recurrence'],
         orElse: () => RecurrencePattern.none,
       ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'].toString())
+          : DateTime.now(),
       lastModifiedAt: json['lastModifiedAt'] != null
-          ? DateTime.parse(json['lastModifiedAt'] as String)
+          ? DateTime.tryParse(json['lastModifiedAt'].toString())
           : null,
-      completedBy: json['completedBy'] as String?,
-      crossRoleReason: json['crossRoleReason'] as String?,
+      completedBy: json['completedBy']?.toString(),
+      crossRoleReason: json['crossRoleReason']?.toString(),
+      metadata: json['metadata'] != null
+          ? Map<String, dynamic>.from(json['metadata'] as Map)
+          : null,
     );
   }
 }

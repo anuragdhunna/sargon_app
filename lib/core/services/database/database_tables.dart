@@ -22,6 +22,20 @@ extension DatabaseTables on DatabaseService {
 
   Future<void> updateTableStatus(String tableId, TableStatus status) async {
     await tablesRef.child(tableId).update({'status': status.name});
+
+    // Auto-create cleaning checklist
+    if (status == TableStatus.cleaning) {
+      try {
+        final tableSnap = await tablesRef.child(tableId).get();
+        if (tableSnap.value != null) {
+          final tableData = _toMap(tableSnap.value);
+          final tableCode = tableData['tableCode'] ?? tableId;
+          await createTableCleaningChecklist(tableId, tableCode);
+        }
+      } catch (e) {
+        debugPrint('Error creating auto-checklist: $e');
+      }
+    }
   }
 
   Future<void> saveTableGroup(TableGroup group) async {

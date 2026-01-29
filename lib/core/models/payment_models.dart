@@ -9,6 +9,7 @@ enum PaymentStatus {
   paid,
   cancelled,
   refunded,
+  toRoom,
 }
 
 extension PaymentStatusExtension on PaymentStatus {
@@ -26,6 +27,8 @@ extension PaymentStatusExtension on PaymentStatus {
         return 'Cancelled';
       case PaymentStatus.refunded:
         return 'Refunded';
+      case PaymentStatus.toRoom:
+        return 'Billed to Room';
     }
   }
 }

@@ -5,15 +5,16 @@ import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/features/orders/presentation/widgets/order_cart_item.dart';
 import 'package:hotel_manager/features/orders/presentation/widgets/order_item_dialog.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/features/billing/ui/billing_screen.dart';
 import 'package:hotel_manager/features/orders/ui/order_history_screen.dart';
-import 'package:hotel_manager/features/orders/presentation/widgets/menu_item_card.dart';
-import 'package:hotel_manager/features/orders/presentation/widgets/order_selection_header.dart';
-import 'package:hotel_manager/features/orders/presentation/widgets/category_filter_chips.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
 import 'package:hotel_manager/features/table_mgmt/logic/table_cubit.dart';
 import 'package:hotel_manager/features/table_mgmt/logic/table_state.dart';
-import 'package:hotel_manager/core/models/models.dart';
-import 'package:go_router/go_router.dart';
+import 'package:hotel_manager/features/orders/presentation/widgets/menu_item_card.dart';
+import 'package:hotel_manager/features/orders/presentation/widgets/order_selection_header.dart';
+import 'package:hotel_manager/features/orders/presentation/widgets/category_filter_chips.dart';
 
 class OrderTakingScreen extends StatefulWidget {
   final String? tableId;
@@ -100,6 +101,7 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
   String? _selectedRoom;
   String _orderType = 'Table'; // Table or Room
   int _paxCount = 1;
+  Customer? _selectedCustomer;
   final OrderPriority _priority = OrderPriority.normal;
 
   @override
@@ -244,6 +246,9 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
                         onRoomChanged: (val) =>
                             setState(() => _selectedRoom = val),
                         onPaxChanged: (val) => setState(() => _paxCount = val),
+                        onCustomerChanged: (customer) =>
+                            setState(() => _selectedCustomer = customer),
+                        selectedCustomer: _selectedCustomer,
                         onSearch: (val) {
                           _searchQuery = val;
                           _filterMenu();
@@ -579,6 +584,43 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
+                      if (_selectedTableId != null || _selectedRoom != null)
+                        BlocBuilder<OrderCubit, OrderState>(
+                          builder: (context, state) {
+                            if (state is OrderLoaded) {
+                              final tableId = _orderType == 'Table'
+                                  ? _selectedTableId!
+                                  : 'room_$_selectedRoom';
+                              final existingOrders = state.orders
+                                  .where(
+                                    (o) =>
+                                        o.tableId == tableId &&
+                                        o.paymentStatus != PaymentStatus.paid,
+                                  )
+                                  .toList();
+
+                              if (existingOrders.isNotEmpty) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: PremiumButton.secondary(
+                                    label: 'Review & Generate Bill',
+                                    isFullWidth: true,
+                                    onPressed: () {
+                                      String tableNumber = _orderType == 'Table'
+                                          ? 'Table $_selectedTableId'
+                                          : 'Room $_selectedRoom';
+                                      context.push(
+                                        '${BillingScreen.routeName}?tableId=$tableId&tableNumber=$tableNumber',
+                                        extra: existingOrders,
+                                      );
+                                    },
+                                  ),
+                                );
+                              }
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
                       PremiumButton.primary(
                         label: 'Place Order',
                         isFullWidth: true,
@@ -619,12 +661,15 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
                           final existingOrders = cubit.getOrdersForTable(
                             tableId,
                           );
-                          final hasPendingOrder = existingOrders.any(
-                            (o) => o.status == OrderStatus.pending,
+                          final hasActiveOrder = existingOrders.any(
+                            (o) =>
+                                o.status == OrderStatus.pending ||
+                                o.status == OrderStatus.cooking ||
+                                o.status == OrderStatus.ready,
                           );
 
                           bool shouldProceed = true;
-                          if (hasPendingOrder) {
+                          if (hasActiveOrder) {
                             shouldProceed =
                                 await showDialog<bool>(
                                   context: context,
@@ -643,7 +688,7 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
                                       ],
                                     ),
                                     content: Text(
-                                      'There is already a pending order for $tableNumber. Would you like to add these items to the existing order?',
+                                      'There is already an active order for $tableNumber. Would you like to add these items to the existing order?',
                                       style: AppDesign.bodyMedium,
                                     ),
                                     actions: [
@@ -693,7 +738,9 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
                             timestamp: DateTime.now(),
                             paxCount: _paxCount,
                             priority: _priority,
-                            guestName: guestName,
+                            guestName: guestName ?? _selectedCustomer?.name,
+                            phone: _selectedCustomer?.phone,
+                            customerId: _selectedCustomer?.id,
                             roomId: roomId,
                             bookingId: bookingId,
                             paymentMethod: PaymentMethod
@@ -712,7 +759,7 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                hasPendingOrder
+                                hasActiveOrder
                                     ? 'Items added to existing order! 👨‍🍳'
                                     : 'Order sent to kitchen! 👨‍🍳',
                               ),

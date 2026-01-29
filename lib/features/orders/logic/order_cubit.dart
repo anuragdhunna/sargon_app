@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../core/models/models.dart';
 import '../../../core/services/database_service.dart';
+import '../../offers/domain/repositories/offer_repository.dart';
+import '../../offers/logic/happy_hour_service.dart';
 
 // States
 abstract class OrderState extends Equatable {
@@ -32,11 +34,17 @@ class OrderError extends OrderState {
 // Cubit
 class OrderCubit extends Cubit<OrderState> {
   final DatabaseService _databaseService;
+  final OfferRepository _offerRepository;
   StreamSubscription? _ordersSubscription;
+  List<HappyHour> _happyHours = [];
+  StreamSubscription? _hhSubscription;
 
-  OrderCubit({required DatabaseService databaseService})
-    : _databaseService = databaseService,
-      super(OrderInitial());
+  OrderCubit({
+    required DatabaseService databaseService,
+    required OfferRepository offerRepository,
+  }) : _databaseService = databaseService,
+       _offerRepository = offerRepository,
+       super(OrderInitial());
 
   void loadOrders() {
     emit(OrderLoading());
@@ -49,23 +57,45 @@ class OrderCubit extends Cubit<OrderState> {
         emit(OrderError(error.toString()));
       },
     );
+
+    _hhSubscription?.cancel();
+    _hhSubscription = _offerRepository.watchHappyHours().listen((hh) {
+      _happyHours = hh;
+    });
   }
 
   Future<void> addOrder(Order order) async {
     final currentState = state;
 
-    // Auto-fire starters and drinks for new items
-    final processedItems = order.items.map((item) {
-      if (item.kdsStatus == KdsStatus.pending &&
-          (item.course == CourseType.starters ||
-              item.course == CourseType.drinks)) {
-        return item.copyWith(
-          kdsStatus: KdsStatus.fired,
-          firedAt: DateTime.now(),
-        );
-      }
-      return item;
-    }).toList();
+    // Auto-fire starters and drinks for new items + Apply Happy Hour
+    final processedItems = await Future.wait(
+      order.items.map((item) async {
+        var updatedItem = item;
+
+        // Happy Hour Check
+        if (item.discountAmount == 0 && !item.isComplimentary) {
+          final menuItem = await _databaseService.getMenuItem(item.menuItemId);
+          if (menuItem != null) {
+            final hh = HappyHourService.getActiveHappyHour(
+              _happyHours,
+              menuItem,
+              DateTime.now(),
+            );
+            updatedItem = HappyHourService.applyHappyHour(updatedItem, hh);
+          }
+        }
+
+        if (updatedItem.kdsStatus == KdsStatus.pending &&
+            (updatedItem.course == CourseType.starters ||
+                updatedItem.course == CourseType.drinks)) {
+          updatedItem = updatedItem.copyWith(
+            kdsStatus: KdsStatus.fired,
+            firedAt: DateTime.now(),
+          );
+        }
+        return updatedItem;
+      }),
+    );
 
     final orderToSave = order.copyWith(items: processedItems);
 
@@ -74,7 +104,7 @@ class OrderCubit extends Cubit<OrderState> {
       final existingOrderIndex = currentState.orders.indexWhere(
         (o) =>
             o.tableId == orderToSave.tableId &&
-            o.status != OrderStatus.served &&
+            o.paymentStatus == PaymentStatus.pending &&
             o.status != OrderStatus.cancelled,
       );
 
@@ -221,6 +251,120 @@ class OrderCubit extends Cubit<OrderState> {
     );
   }
 
+  /// Cancel an entire order
+  Future<void> cancelOrder(String orderId) async {
+    final currentState = state;
+    if (currentState is! OrderLoaded) return;
+
+    final order = currentState.orders.firstWhere((o) => o.id == orderId);
+
+    // Mark all items as cancelled
+    final cancelledItems = order.items.map((item) {
+      return item.copyWith(kdsStatus: KdsStatus.cancelled);
+    }).toList();
+
+    await _databaseService.saveOrder(
+      order.copyWith(
+        items: cancelledItems,
+        status: OrderStatus.cancelled,
+        updatedAt: DateTime.now(),
+      ),
+    );
+
+    // If this was the only active order for the table, mark table as available
+    final remainingOrders = currentState.orders
+        .where(
+          (o) =>
+              o.tableId == order.tableId &&
+              o.id != orderId &&
+              o.status != OrderStatus.cancelled &&
+              o.status != OrderStatus.served,
+        )
+        .toList();
+
+    if (remainingOrders.isEmpty) {
+      await _databaseService.updateTableStatus(
+        order.tableId,
+        TableStatus.available,
+      );
+    }
+  }
+
+  /// Remove a specific item from an order
+  Future<void> removeItemFromOrder(String orderId, String itemId) async {
+    final currentState = state;
+    if (currentState is! OrderLoaded) return;
+
+    final order = currentState.orders.firstWhere((o) => o.id == orderId);
+
+    // Remove the item from the list
+    final updatedItems = order.items
+        .where((item) => item.id != itemId)
+        .toList();
+
+    // If no items left, cancel the order
+    if (updatedItems.isEmpty) {
+      await cancelOrder(orderId);
+      return;
+    }
+
+    // Otherwise save the order with updated items
+    await _databaseService.saveOrder(
+      order.copyWith(items: updatedItems, updatedAt: DateTime.now()),
+    );
+  }
+
+  /// Apply An Offer to an entire order
+  Future<void> applyOfferToOrder(String orderId, Offer offer) async {
+    final currentState = state;
+    if (currentState is! OrderLoaded) return;
+
+    final order = currentState.orders.firstWhere((o) => o.id == orderId);
+
+    // Apply offer logic
+    final updatedItems = order.items.map((item) {
+      double discountAmount = 0.0;
+
+      // Correct base price calculation (including options)
+      double itemPriceWithPriv =
+          item.price + (item.options?.fold(0.0, (s, o) => s! + o.price) ?? 0.0);
+      double totalItemBasePrice = itemPriceWithPriv * item.quantity;
+
+      // Check if offer is applicable to this item
+      bool isApplicable = false;
+      if (offer.offerType == OfferType.bill) {
+        isApplicable = true;
+      } else if (offer.offerType == OfferType.item) {
+        isApplicable = offer.applicableItemIds.contains(item.menuItemId);
+      } else if (offer.offerType == OfferType.category) {
+        isApplicable = offer.applicableItemIds.contains(item.menuItemId);
+      }
+
+      if (isApplicable) {
+        if (offer.discountType == DiscountType.percent) {
+          discountAmount = totalItemBasePrice * (offer.discountValue / 100);
+        } else {
+          discountAmount = offer.discountValue / order.items.length;
+        }
+
+        // Cap discount
+        if (discountAmount > offer.maxDiscountAmount) {
+          discountAmount = offer.maxDiscountAmount;
+        }
+
+        return item.copyWith(
+          discountAmount: discountAmount,
+          discountType: offer.discountType,
+        );
+      }
+      return item;
+    }).toList();
+
+    await _databaseService.saveOrder(
+      order.copyWith(items: updatedItems, updatedAt: DateTime.now()),
+    );
+  }
+
   List<Order> getOrdersForTable(String tableId) {
     final currentState = state;
     if (currentState is OrderLoaded) {
@@ -234,6 +378,7 @@ class OrderCubit extends Cubit<OrderState> {
   @override
   Future<void> close() {
     _ordersSubscription?.cancel();
+    _hhSubscription?.cancel();
     return super.close();
   }
 }

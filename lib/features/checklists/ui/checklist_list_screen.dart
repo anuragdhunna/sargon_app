@@ -57,6 +57,22 @@ class ChecklistListScreen extends StatelessWidget {
                 return _ChecklistCard(checklist: checklist);
               },
             );
+          } else if (state is ChecklistError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text('Error: ${state.message}'),
+                  TextButton(
+                    onPressed: () =>
+                        context.read<ChecklistCubit>().loadChecklists(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
           }
           return const Center(child: Text('Something went wrong'));
         },
@@ -219,7 +235,7 @@ class _ChecklistCard extends StatelessWidget {
                               reason: reason,
                               userId: authState.userId,
                               userName: authState.userName,
-                              userRole: authState.role.name,
+                              userRole: authState.role,
                             );
                             Navigator.pop(context);
                           },
@@ -235,7 +251,7 @@ class _ChecklistCard extends StatelessWidget {
                   item.id,
                   userId: authState.userId,
                   userName: authState.userName,
-                  userRole: authState.role.name,
+                  userRole: authState.role,
                 );
               }
             },

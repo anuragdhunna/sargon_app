@@ -30,7 +30,7 @@ extension DatabaseUtils on DatabaseService {
   /// Public helper to convert Firebase data to Map
   Map<String, dynamic> toMap(dynamic value) => _toMap(value);
 
-  /// Helper to convert Firebase dynamic value to Map<String, dynamic> recursively
+  /// Helper to convert Firebase dynamic value to `Map<String, dynamic>` recursively
   /// Handles both Map and List (for numeric keys) and works across Web/Mobile
   Map<String, dynamic> _toMap(dynamic value) {
     if (value == null) return {};

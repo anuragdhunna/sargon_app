@@ -85,10 +85,10 @@ class TableEntity extends Equatable {
 
   factory TableEntity.fromJson(Map<String, dynamic> json) {
     return TableEntity(
-      id: json['id'] as String,
-      tableCode: json['tableCode'] as String,
-      minCapacity: json['minCapacity'] as int,
-      maxCapacity: json['maxCapacity'] as int,
+      id: json['id']?.toString() ?? '',
+      tableCode: json['tableCode']?.toString() ?? 'T-?',
+      minCapacity: (json['minCapacity'] as num?)?.toInt() ?? 1,
+      maxCapacity: (json['maxCapacity'] as num?)?.toInt() ?? 4,
       joinableTableIds: List<String>.from(json['joinableTableIds'] ?? []),
       status: TableStatus.values.firstWhere(
         (e) => e.name == json['status'],
@@ -96,7 +96,7 @@ class TableEntity extends Equatable {
       ),
       isBarTable: json['isBarTable'] as bool? ?? false,
       isActive: json['isActive'] as bool? ?? true,
-      currentGroupId: json['currentGroupId'] as String?,
+      currentGroupId: json['currentGroupId']?.toString(),
     );
   }
 

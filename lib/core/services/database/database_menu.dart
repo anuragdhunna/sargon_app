@@ -31,4 +31,11 @@ extension DatabaseMenu on DatabaseService {
   Future<void> saveMenuItem(MenuItem item) async {
     await menuItemsRef.child(item.id).set(item.toJson());
   }
+
+  /// Get menu item by ID
+  Future<MenuItem?> getMenuItem(String id) async {
+    final snapshot = await menuItemsRef.child(id).get();
+    if (!snapshot.exists || snapshot.value == null) return null;
+    return MenuItem.fromJson(_toMap(snapshot.value));
+  }
 }

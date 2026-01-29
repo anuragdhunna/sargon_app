@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +7,8 @@ import '../../../theme/app_design.dart';
 import '../logic/table_cubit.dart';
 import '../logic/table_state.dart';
 import '../../orders/logic/order_cubit.dart';
+import '../../../component/buttons/premium_button.dart';
+import '../../checklists/ui/checklist_list_screen.dart';
 
 class TableDashboardScreen extends StatelessWidget {
   const TableDashboardScreen({super.key});
@@ -222,9 +222,9 @@ class _TableDashboardContentState extends State<_TableDashboardContent> {
                   final tableOrders = widget.orders
                       .where(
                         (o) =>
-                    o.tableId == table.id &&
-                        o.status != OrderStatus.cancelled,
-                  )
+                            o.tableId == table.id &&
+                            o.status != OrderStatus.cancelled,
+                      )
                       .toList();
                   final activeOrder = tableOrders.isNotEmpty
                       ? tableOrders.first
@@ -493,6 +493,17 @@ class _TableTile extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    if (table.status == TableStatus.cleaning)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: PremiumButton.outline(
+                          label: 'Checklist',
+                          onPressed: () {
+                            context.push(ChecklistListScreen.routeName);
+                          },
+                          isFullWidth: true,
+                        ),
+                      ),
                   ],
                 ],
               ),
@@ -563,4 +574,3 @@ class _TableTile extends StatelessWidget {
     );
   }
 }
-

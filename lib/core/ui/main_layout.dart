@@ -6,7 +6,10 @@ import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/core/models/user_model.dart';
 import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
+import 'package:hotel_manager/features/loyalty/presentation/screens/loyalty_management_screen.dart';
+import 'package:hotel_manager/features/offers/presentation/screens/offer_management_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/customer_analytics_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/presentation/inventory_screen.dart';
 import 'package:hotel_manager/features/orders/ui/order_taking_screen.dart';
@@ -148,6 +151,11 @@ class MainLayout extends StatelessWidget {
             route: UserManagementScreen.routeName,
           ),
           const NavDestination(
+            icon: Icons.analytics_outlined,
+            label: 'Customers',
+            route: CustomerAnalyticsScreen.routeName,
+          ),
+          const NavDestination(
             icon: Icons.bed,
             label: 'Rooms',
             route: RoomsScreen.routeName,
@@ -201,6 +209,16 @@ class MainLayout extends StatelessWidget {
             icon: Icons.history,
             label: 'Audit Logs',
             route: AuditLogScreen.routeName,
+          ),
+          const NavDestination(
+            icon: Icons.local_offer,
+            label: 'Offers',
+            route: OfferManagementScreen.routeName,
+          ),
+          const NavDestination(
+            icon: Icons.star,
+            label: 'Loyalty',
+            route: LoyaltyManagementScreen.routeName,
           ),
         ];
       case UserRole.frontDesk:

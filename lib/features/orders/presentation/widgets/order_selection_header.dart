@@ -6,6 +6,7 @@ import '../../../../features/rooms/logic/room_cubit.dart';
 import '../../../../component/inputs/premium_search_bar.dart';
 import '../../../../core/models/models.dart';
 import '../../../../theme/app_design.dart';
+import '../../../../features/staff_mgmt/ui/widgets/customer_selection_sheet.dart';
 
 /// Header widget for table/room selection and menu search with Pax intelligence
 class OrderSelectionHeader extends StatelessWidget {
@@ -19,6 +20,8 @@ class OrderSelectionHeader extends StatelessWidget {
   final ValueChanged<String?> onRoomChanged;
   final ValueChanged<int> onPaxChanged;
   final ValueChanged<String> onSearch;
+  final Customer? selectedCustomer;
+  final ValueChanged<Customer?> onCustomerChanged;
 
   const OrderSelectionHeader({
     super.key,
@@ -32,6 +35,8 @@ class OrderSelectionHeader extends StatelessWidget {
     required this.onRoomChanged,
     required this.onPaxChanged,
     required this.onSearch,
+    this.selectedCustomer,
+    required this.onCustomerChanged,
   });
 
   @override
@@ -92,7 +97,7 @@ class OrderSelectionHeader extends StatelessWidget {
                     ? _buildTableDropdown()
                     : (orderType == 'Room'
                           ? _buildRoomDropdown(context)
-                          : _buildTakeawayHeader()),
+                          : _buildTakeawayHeader(context)),
               ),
             ],
           ),
@@ -205,31 +210,58 @@ class OrderSelectionHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildTakeawayHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppDesign.neutral100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppDesign.neutral300),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.shopping_bag_outlined,
-            size: 20,
-            color: AppDesign.neutral600,
+  Widget _buildTakeawayHeader(BuildContext context) {
+    return InkWell(
+      onTap: () => _showCustomerSheet(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: selectedCustomer != null
+              ? AppDesign.primaryStart.withOpacity(0.05)
+              : AppDesign.neutral100,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: selectedCustomer != null
+                ? AppDesign.primaryStart
+                : AppDesign.neutral300,
           ),
-          const SizedBox(width: 8),
-          Text(
-            'Takeaway Order',
-            style: AppDesign.bodyMedium.copyWith(
-              color: AppDesign.neutral700,
-              fontWeight: FontWeight.bold,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selectedCustomer != null
+                  ? Icons.person
+                  : Icons.shopping_bag_outlined,
+              size: 20,
+              color: selectedCustomer != null
+                  ? AppDesign.primaryStart
+                  : AppDesign.neutral600,
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                selectedCustomer?.name ?? 'Select Customer*',
+                style: AppDesign.bodyMedium.copyWith(
+                  color: selectedCustomer != null
+                      ? AppDesign.primaryStart
+                      : AppDesign.neutral700,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  void _showCustomerSheet(BuildContext context) {
+    CustomerSelectionSheet.show(
+      context,
+      initialCustomer: selectedCustomer,
+      onSelected: onCustomerChanged,
     );
   }
 }

@@ -21,11 +21,17 @@ import 'package:hotel_manager/features/orders/ui/order_taking_screen.dart';
 import 'package:hotel_manager/features/orders/ui/order_history_screen.dart';
 import 'package:hotel_manager/features/performance/ui/employee_performance_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/customer_analytics_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/booking_history_screen.dart';
 import 'package:hotel_manager/features/table_mgmt/ui/table_dashboard_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/room_folio_screen.dart';
 import 'package:hotel_manager/features/orders/ui/kds_analytics_screen.dart';
+import 'package:hotel_manager/features/billing/ui/billing_screen.dart';
+import 'package:hotel_manager/features/billing/ui/discount_report_screen.dart';
+import 'package:hotel_manager/features/offers/presentation/screens/offer_management_screen.dart';
+import 'package:hotel_manager/features/loyalty/presentation/screens/loyalty_management_screen.dart';
+import 'package:hotel_manager/core/models/models.dart';
 
 /// Auth state notifier for GoRouter refresh
 ///
@@ -101,6 +107,10 @@ GoRouter createRouter(AuthCubit authCubit) {
             builder: (context, state) => const UserManagementScreen(),
           ),
           GoRoute(
+            path: CustomerAnalyticsScreen.routeName,
+            builder: (context, state) => const CustomerAnalyticsScreen(),
+          ),
+          GoRoute(
             path: InventoryScreen.routeName,
             builder: (context, state) => const InventoryScreen(),
           ),
@@ -114,7 +124,10 @@ GoRouter createRouter(AuthCubit authCubit) {
           ),
           GoRoute(
             path: OrderHistoryScreen.routeName,
-            builder: (context, state) => const OrderHistoryScreen(),
+            builder: (context, state) {
+              final bookingId = state.uri.queryParameters['bookingId'];
+              return OrderHistoryScreen(initialBookingId: bookingId);
+            },
           ),
           GoRoute(
             path: ChecklistListScreen.routeName,
@@ -183,6 +196,31 @@ GoRouter createRouter(AuthCubit authCubit) {
           GoRoute(
             path: KdsAnalyticsScreen.routeName,
             builder: (context, state) => const KdsAnalyticsScreen(),
+          ),
+          GoRoute(
+            path: BillingScreen.routeName,
+            builder: (context, state) {
+              final tableId = state.uri.queryParameters['tableId']!;
+              final tableNumber = state.uri.queryParameters['tableNumber'];
+              final orders = state.extra as List<Order>;
+              return BillingScreen(
+                tableId: tableId,
+                tableNumber: tableNumber,
+                orders: orders,
+              );
+            },
+          ),
+          GoRoute(
+            path: DiscountReportScreen.routeName,
+            builder: (context, state) => const DiscountReportScreen(),
+          ),
+          GoRoute(
+            path: OfferManagementScreen.routeName,
+            builder: (context, state) => const OfferManagementScreen(),
+          ),
+          GoRoute(
+            path: LoyaltyManagementScreen.routeName,
+            builder: (context, state) => const LoyaltyManagementScreen(),
           ),
         ],
       ),

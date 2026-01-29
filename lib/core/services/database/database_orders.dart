@@ -91,6 +91,16 @@ extension DatabaseOrders on DatabaseService {
     await ordersRef.child(order.id).set(order.toJson());
   }
 
+  /// Get specific orders by ID list
+  Future<List<Order>> getOrdersByIds(List<String> ids) async {
+    final futures = ids.map((id) => ordersRef.child(id).get());
+    final snapshots = await Future.wait(futures);
+    return snapshots
+        .where((s) => s.exists && s.value != null)
+        .map((s) => Order.fromJson(_toMap(s.value)))
+        .toList();
+  }
+
   /// Update order status
   Future<void> updateOrderStatus(String orderId, OrderStatus status) async {
     await ordersRef.child(orderId).update({

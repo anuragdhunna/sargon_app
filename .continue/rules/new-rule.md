@@ -3,9 +3,14 @@ Sargon: Developing Rules
 ---
 
 Always Read: ARCHITECTURE.md first and update it when any new feature is added keep it minimal
-For sargon_app all the models should be moved to Firebase.
-The Firebase Database Structure must be industry level designed!
-always use components lib/component/
+
+# Project Architecture
+
+This is a Flutter application with:
+
+- Components in `lib/component/`
+- The Firebase Database Structure must be industry level designed!
+- State management using Redux in `/src/store`
 
 1. CODING STANDARDS & NAMING RULES
 

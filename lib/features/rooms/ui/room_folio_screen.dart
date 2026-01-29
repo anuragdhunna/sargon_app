@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/billing/logic/billing_cubit.dart';
 import 'package:hotel_manager/features/billing/logic/billing_state.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
+import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/core/services/pdf_service.dart';
+import 'package:hotel_manager/features/orders/ui/order_history_screen.dart';
 import 'package:intl/intl.dart';
 
 class RoomFolioScreen extends StatelessWidget {
@@ -25,6 +29,17 @@ class RoomFolioScreen extends StatelessWidget {
         title: const Text('Room Folio & Charges'),
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.print, color: AppDesign.primaryStart),
+            onPressed: () {
+              // Get current state from StreamBuilder result if possible
+              // For simplicity, we'll re-fetch or use context if needed.
+              // But we'll add the UI button here.
+            },
+            tooltip: 'Print Folio',
+          ),
+        ],
       ),
       body: StreamBuilder<RoomFolio?>(
         stream: databaseService.streamFolio(bookingId),
@@ -50,7 +65,17 @@ class RoomFolioScreen extends StatelessWidget {
                   children: [
                     _FolioHeader(bookingId: bookingId),
                     const SizedBox(height: 24),
-                    _ChargesSummary(bills: bills, folio: folio),
+                    _ChargesSummary(
+                      bookingId: bookingId,
+                      bills: bills,
+                      folio: folio,
+                      onPrint: () => PdfService.generateConsolidatedFolio(
+                        bookingId,
+                        bills,
+                        bills.fold(0, (sum, b) => sum + b.grandTotal),
+                        bills.fold(0, (sum, b) => sum + b.paidAmount),
+                      ),
+                    ),
                     const SizedBox(height: 24),
                     const Text(
                       'Details of Charges',
@@ -124,10 +149,17 @@ class _FolioHeader extends StatelessWidget {
 }
 
 class _ChargesSummary extends StatelessWidget {
+  final String bookingId;
   final List<Bill> bills;
   final RoomFolio? folio;
+  final VoidCallback onPrint;
 
-  const _ChargesSummary({required this.bills, this.folio});
+  const _ChargesSummary({
+    required this.bookingId,
+    required this.bills,
+    this.folio,
+    required this.onPrint,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -173,10 +205,14 @@ class _ChargesSummary extends StatelessWidget {
                 ],
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: balance <= 0
+                    ? null
+                    : () => _showSettlementDialog(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: AppDesign.primaryStart,
+                  disabledBackgroundColor: Colors.white24,
+                  disabledForegroundColor: Colors.white70,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -189,9 +225,65 @@ class _ChargesSummary extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          PremiumButton.secondary(
+            label: 'Print Consolidated Folio',
+            onPressed: onPrint,
+            isFullWidth: true,
+            icon: Icons.print,
+          ),
         ],
       ),
     );
+  }
+
+  void _showSettlementDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Settle Folio'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Choose payment method for total checkout:'),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.money),
+              title: const Text('Cash'),
+              onTap: () => _settle(context, PaymentMethod.cash),
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code),
+              title: const Text('UPI'),
+              onTap: () => _settle(context, PaymentMethod.upi),
+            ),
+            ListTile(
+              leading: const Icon(Icons.credit_card),
+              title: const Text('Card'),
+              onTap: () => _settle(context, PaymentMethod.card),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _settle(BuildContext context, PaymentMethod method) async {
+    Navigator.pop(context); // Close dialog
+
+    await context.read<BillingCubit>().settleFolio(
+      bookingId: bookingId,
+      method: method,
+    );
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Folio settled via ${method.displayName}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 }
 
@@ -239,6 +331,16 @@ class _BillItemCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ExpansionTile(
+        onExpansionChanged: (expanded) {
+          if (expanded) {
+            _redirectToOrderHistory(context);
+          }
+        },
+        leading: IconButton(
+          icon: const Icon(Icons.receipt_long, color: AppDesign.primaryStart),
+          onPressed: () => _redirectToOrderHistory(context),
+          tooltip: 'View Order Details',
+        ),
         title: Text('Bill #${bill.id.split('_').last}'),
         subtitle: Text(
           'Date: ${DateFormat('dd MMM, hh:mm a').format(bill.openedAt)}',
@@ -255,12 +357,14 @@ class _BillItemCard extends StatelessWidget {
               ),
             ),
             Text(
-              bill.paymentStatus.name.toUpperCase(),
+              bill.paymentStatus.displayName.toUpperCase(),
               style: TextStyle(
                 fontSize: 10,
                 color: bill.paymentStatus == PaymentStatus.paid
                     ? Colors.green
-                    : Colors.orange,
+                    : (bill.paymentStatus == PaymentStatus.toRoom
+                          ? Colors.blue
+                          : Colors.orange),
               ),
             ),
           ],
@@ -302,6 +406,10 @@ class _BillItemCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _redirectToOrderHistory(BuildContext context) {
+    context.push('${OrderHistoryScreen.routeName}?bookingId=${bill.bookingId}');
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'menu_item_model.dart';
 import 'payment_models.dart';
+import 'offer_model.dart';
 
 /// Overall Order status enum
 enum OrderStatus { pending, cooking, ready, served, cancelled }
@@ -58,6 +59,8 @@ class Order extends Equatable {
   final String? bookingId;
   final String? roomId;
   final String? guestName;
+  final String? customerId;
+  final String? phone;
   final PaymentMethod? paymentMethod;
   final PaymentStatus paymentStatus;
 
@@ -78,6 +81,8 @@ class Order extends Equatable {
     this.bookingId,
     this.roomId,
     this.guestName,
+    this.customerId,
+    this.phone,
     this.paymentMethod,
     this.paymentStatus = PaymentStatus.pending,
   });
@@ -100,6 +105,8 @@ class Order extends Equatable {
     bookingId,
     roomId,
     guestName,
+    customerId,
+    phone,
     paymentMethod,
     paymentStatus,
   ];
@@ -125,6 +132,8 @@ class Order extends Equatable {
     String? bookingId,
     String? roomId,
     String? guestName,
+    String? customerId,
+    String? phone,
     PaymentMethod? paymentMethod,
     PaymentStatus? paymentStatus,
   }) {
@@ -145,6 +154,8 @@ class Order extends Equatable {
       bookingId: bookingId ?? this.bookingId,
       roomId: roomId ?? this.roomId,
       guestName: guestName ?? this.guestName,
+      customerId: customerId ?? this.customerId,
+      phone: phone ?? this.phone,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentStatus: paymentStatus ?? this.paymentStatus,
     );
@@ -168,6 +179,8 @@ class Order extends Equatable {
       'bookingId': bookingId,
       'roomId': roomId,
       'guestName': guestName,
+      'customerId': customerId,
+      'phone': phone,
       'paymentMethod': paymentMethod?.name,
       'paymentStatus': paymentStatus.name,
     };
@@ -211,6 +224,8 @@ class Order extends Equatable {
       bookingId: json['bookingId']?.toString(),
       roomId: json['roomId']?.toString(),
       guestName: json['guestName']?.toString(),
+      customerId: json['customerId']?.toString(),
+      phone: json['phone']?.toString(),
       paymentMethod: json['paymentMethod'] != null
           ? PaymentMethod.values.firstWhere(
               (e) => e.name == json['paymentMethod'],
@@ -237,6 +252,9 @@ class OrderItem extends Equatable {
   final DateTime? firedAt;
   final CourseType course;
   final int expectedPrepTimeMinutes;
+  final double discountAmount;
+  final DiscountType? discountType;
+  final bool isComplimentary;
 
   const OrderItem({
     required this.id,
@@ -250,6 +268,9 @@ class OrderItem extends Equatable {
     this.firedAt,
     this.course = CourseType.mains,
     this.expectedPrepTimeMinutes = 15,
+    this.discountAmount = 0.0,
+    this.discountType,
+    this.isComplimentary = false,
   });
 
   @override
@@ -265,11 +286,16 @@ class OrderItem extends Equatable {
     firedAt,
     course,
     expectedPrepTimeMinutes,
+    discountAmount,
+    discountType,
+    isComplimentary,
   ];
 
   double get totalPrice {
+    if (isComplimentary) return 0.0;
     double optPrice = options?.fold(0, (sum, opt) => sum! + opt.price) ?? 0;
-    return (price + optPrice) * quantity;
+    final baseTotal = (price + optPrice) * quantity;
+    return (baseTotal - discountAmount).clamp(0.0, double.infinity);
   }
 
   bool get isDelayed {
@@ -294,6 +320,9 @@ class OrderItem extends Equatable {
     DateTime? firedAt,
     CourseType? course,
     int? expectedPrepTimeMinutes,
+    double? discountAmount,
+    DiscountType? discountType,
+    bool? isComplimentary,
   }) {
     return OrderItem(
       id: id ?? this.id,
@@ -308,6 +337,9 @@ class OrderItem extends Equatable {
       course: course ?? this.course,
       expectedPrepTimeMinutes:
           expectedPrepTimeMinutes ?? this.expectedPrepTimeMinutes,
+      discountAmount: discountAmount ?? this.discountAmount,
+      discountType: discountType ?? this.discountType,
+      isComplimentary: isComplimentary ?? this.isComplimentary,
     );
   }
 
@@ -324,6 +356,9 @@ class OrderItem extends Equatable {
       'firedAt': firedAt?.toIso8601String(),
       'course': course.name,
       'expectedPrepTimeMinutes': expectedPrepTimeMinutes,
+      'discountAmount': discountAmount,
+      if (discountType != null) 'discountType': discountType?.name,
+      'isComplimentary': isComplimentary,
     };
   }
 
@@ -348,6 +383,13 @@ class OrderItem extends Equatable {
         (e) => e.name == (json['course'] ?? 'mains'),
       ),
       expectedPrepTimeMinutes: json['expectedPrepTimeMinutes'] ?? 15,
+      discountAmount: (json['discountAmount'] as num?)?.toDouble() ?? 0.0,
+      discountType: json['discountType'] != null
+          ? DiscountType.values.firstWhere(
+              (e) => e.name == json['discountType'],
+            )
+          : null,
+      isComplimentary: json['isComplimentary'] ?? false,
     );
   }
 

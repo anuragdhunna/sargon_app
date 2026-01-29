@@ -105,4 +105,45 @@ extension DatabaseBilling on DatabaseService {
   Future<void> saveFolio(RoomFolio folio) async {
     await foliosRef.child(folio.id).set(folio.toJson());
   }
+
+  /// stream service charge rules
+  Stream<List<ServiceChargeRule>> streamServiceChargeRules() {
+    return serviceChargeRulesRef.onValue.map((event) {
+      if (event.snapshot.value == null) return [];
+      final data = _toMap(event.snapshot.value);
+      return data.entries
+          .map((e) => ServiceChargeRule.fromJson(_toMap(e.value)))
+          .toList();
+    });
+  }
+
+  /// Get a bill by ID
+  Future<Bill?> getBillById(String billId) async {
+    final snapshot = await billsRef.child(billId).get();
+    if (snapshot.value == null) return null;
+    return Bill.fromJson(_toMap(snapshot.value));
+  }
+
+  /// Get Room Folio for a booking (one-time fetch)
+  Future<RoomFolio?> getFolioByBookingId(String bookingId) async {
+    final snapshot = await foliosRef
+        .orderByChild('bookingId')
+        .equalTo(bookingId)
+        .get();
+    if (snapshot.value == null) return null;
+    final data = _toMap(snapshot.value);
+    if (data.isEmpty) return null;
+    return RoomFolio.fromJson(_toMap(data.values.first));
+  }
+
+  /// Get all bills for a customer
+  Future<List<Bill>> getBillsByCustomerId(String customerId) async {
+    final snapshot = await billsRef
+        .orderByChild('customerId')
+        .equalTo(customerId)
+        .get();
+    if (snapshot.value == null) return [];
+    final data = _toMap(snapshot.value);
+    return data.entries.map((e) => Bill.fromJson(_toMap(e.value))).toList();
+  }
 }

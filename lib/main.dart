@@ -11,6 +11,7 @@ import 'package:hotel_manager/features/attendance/logic/attendance_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
+import 'package:hotel_manager/features/dashboard/logic/dashboard_cubit.dart';
 import 'package:hotel_manager/features/incidents/logic/incident_cubit.dart';
 import 'package:hotel_manager/features/inventory/goods_receipt/logic/goods_receipt_cubit.dart';
 import 'package:hotel_manager/features/inventory/purchase_orders/logic/purchase_order_cubit.dart';
@@ -24,6 +25,12 @@ import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/user_cubit.dart';
 import 'package:hotel_manager/features/table_mgmt/logic/table_cubit.dart';
 import 'package:hotel_manager/features/billing/logic/billing_cubit.dart';
+import 'package:hotel_manager/features/offers/domain/repositories/offer_repository.dart';
+import 'package:hotel_manager/features/offers/data/repositories/offer_repository_impl.dart';
+import 'package:hotel_manager/features/offers/logic/offer_cubit.dart';
+import 'package:hotel_manager/features/loyalty/domain/repositories/loyalty_repository.dart';
+import 'package:hotel_manager/features/loyalty/data/repositories/loyalty_repository_impl.dart';
+import 'package:hotel_manager/features/loyalty/logic/loyalty_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +50,7 @@ void main() async {
 
   // Create cubits
   final authCubit = AuthCubit(authService: authService);
-  final checklistCubit = ChecklistCubit();
+  final checklistCubit = ChecklistCubit(databaseService: databaseService);
   final inventoryCubit = InventoryCubit();
   final purchaseOrderCubit = PurchaseOrderCubit();
   final vendorCubit = VendorCubit();
@@ -60,6 +67,14 @@ void main() async {
         RepositoryProvider<RoomRepository>(
           create: (context) => RoomRepository(databaseService: databaseService),
         ),
+        RepositoryProvider<OfferRepository>(
+          create: (context) =>
+              OfferRepositoryImpl(databaseService: databaseService),
+        ),
+        RepositoryProvider<LoyaltyRepository>(
+          create: (context) =>
+              LoyaltyRepositoryImpl(databaseService: databaseService),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -69,7 +84,10 @@ void main() async {
             create: (context) => UserCubit(databaseService: databaseService),
           ),
           BlocProvider<OrderCubit>(
-            create: (context) => OrderCubit(databaseService: databaseService),
+            create: (context) => OrderCubit(
+              databaseService: databaseService,
+              offerRepository: context.read<OfferRepository>(),
+            ),
           ),
           BlocProvider<InventoryCubit>(create: (context) => inventoryCubit),
           BlocProvider<PurchaseOrderCubit>(
@@ -100,6 +118,20 @@ void main() async {
           BlocProvider<TableCubit>.value(value: tableCubit),
           BlocProvider<BillingCubit>(
             create: (context) => BillingCubit(databaseService: databaseService),
+          ),
+          BlocProvider<OfferCubit>(
+            create: (context) =>
+                OfferCubit(offerRepository: context.read<OfferRepository>())
+                  ..loadOffers(),
+          ),
+          BlocProvider<DashboardCubit>(
+            create: (context) =>
+                DashboardCubit(databaseService: databaseService),
+          ),
+          BlocProvider<LoyaltyCubit>(
+            create: (context) => LoyaltyCubit(
+              loyaltyRepository: context.read<LoyaltyRepository>(),
+            )..loadLoyaltyData(),
           ),
         ],
         child: HotelManagerApp(router: router),

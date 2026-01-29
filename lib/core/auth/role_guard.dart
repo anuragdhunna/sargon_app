@@ -13,6 +13,8 @@ import 'package:hotel_manager/features/audit/ui/audit_log_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/booking_history_screen.dart';
 import 'package:hotel_manager/features/table_mgmt/ui/table_dashboard_screen.dart';
 import 'package:hotel_manager/features/orders/ui/kds_analytics_screen.dart';
+import 'package:hotel_manager/features/billing/ui/billing_screen.dart';
+import 'package:hotel_manager/features/billing/ui/discount_report_screen.dart';
 
 class RoleGuard {
   /// Check if a user role has access to a specific route
@@ -88,13 +90,21 @@ class RoleGuard {
 
       // Audit Logs - Manager only
       case AuditLogScreen.routeName:
-        return role == UserRole.manager;
+      case DiscountReportScreen.routeName:
+        return [UserRole.manager, UserRole.owner].contains(role);
 
       case TableDashboardScreen.routeName:
         return [UserRole.manager, UserRole.owner].contains(role);
 
       case KdsAnalyticsScreen.routeName:
         return [UserRole.manager, UserRole.chef, UserRole.owner].contains(role);
+
+      case BillingScreen.routeName:
+        return [
+          UserRole.manager,
+          UserRole.waiter,
+          UserRole.owner,
+        ].contains(role);
 
       default:
         // Folio route uses parameters, need prefix check

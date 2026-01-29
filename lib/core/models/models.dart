@@ -31,3 +31,8 @@ export 'audit_log.dart';
 
 // Performance
 export 'performance_model.dart';
+
+// Offers & Loyalty
+export 'offer_model.dart';
+export 'loyalty_model.dart';
+export 'happy_hour_model.dart';

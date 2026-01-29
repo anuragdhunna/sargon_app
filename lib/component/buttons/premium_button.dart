@@ -54,6 +54,15 @@ class PremiumButton extends StatelessWidget {
     this.isFullWidth = false,
   }) : variant = ButtonVariant.outline;
 
+  const PremiumButton.danger({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.isLoading = false,
+    this.icon,
+    this.isFullWidth = false,
+  }) : variant = ButtonVariant.danger;
+
   @override
   Widget build(BuildContext context) {
     final bool isDisabled = onPressed == null || isLoading;
@@ -149,6 +158,26 @@ class PremiumButton extends StatelessWidget {
             child: buttonChild,
           ),
         );
+
+      case ButtonVariant.danger:
+        return SizedBox(
+          width: isFullWidth ? double.infinity : null,
+          child: FilledButton(
+            onPressed: isDisabled ? null : onPressed,
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              disabledBackgroundColor: Colors.red.shade200,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppDesign.space6,
+                vertical: AppDesign.space4,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+              ),
+            ),
+            child: buttonChild,
+          ),
+        );
     }
   }
 
@@ -166,8 +195,10 @@ class PremiumButton extends StatelessWidget {
         return AppDesign.neutral900;
       case ButtonVariant.outline:
         return AppDesign.primaryStart;
+      case ButtonVariant.danger:
+        return Colors.white;
     }
   }
 }
 
-enum ButtonVariant { primary, secondary, outline }
+enum ButtonVariant { primary, secondary, outline, danger }

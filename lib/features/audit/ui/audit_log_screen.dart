@@ -13,117 +13,98 @@ class AuditLogScreen extends StatefulWidget {
 }
 
 class _AuditLogScreenState extends State<AuditLogScreen> {
-  List<AuditLog> _logs = [];
-  List<AuditLog> _filteredLogs = [];
   String _searchQuery = '';
-  String? _selectedEntity;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadLogs();
-  }
-
-  void _loadLogs() {
-    setState(() {
-      _logs = AuditService().getAllLogs().reversed.toList(); // Newest first
-      _filterLogs();
-    });
-  }
-
-  void _filterLogs() {
-    setState(() {
-      _filteredLogs = _logs.where((log) {
-        final matchesSearch = _searchQuery.isEmpty ||
-            log.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            log.userName.toLowerCase().contains(_searchQuery.toLowerCase());
-        
-        final matchesEntity = _selectedEntity == null || log.entity == _selectedEntity;
-        
-        return matchesSearch && matchesEntity;
-      }).toList();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    final entities = _logs.map((e) => e.entity).toSet().toList();
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Audit Logs'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadLogs,
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Audit Logs')),
       body: Column(
         children: [
-          // Filters
+          // Search/Filter Header
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Search logs...',
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    ),
-                    onChanged: (value) {
-                      _searchQuery = value;
-                      _filterLogs();
-                    },
-                  ),
+            child: TextField(
+              decoration: const InputDecoration(
+                hintText: 'Search logs...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-                const SizedBox(width: 16),
-                DropdownButton<String>(
-                  value: _selectedEntity,
-                  hint: const Text('Entity'),
-                  items: [
-                    const DropdownMenuItem(value: null, child: Text('All')),
-                    ...entities.map((e) => DropdownMenuItem(value: e, child: Text(e.toUpperCase()))),
-                  ],
-                  onChanged: (value) {
-                    _selectedEntity = value;
-                    _filterLogs();
-                  },
-                ),
-              ],
+              ),
+              onChanged: (value) {
+                setState(() => _searchQuery = value);
+              },
             ),
           ),
-          
-          // Logs List
+
           Expanded(
-            child: _filteredLogs.isEmpty
-                ? const Center(child: Text('No logs found'))
-                : ListView.separated(
-                    itemCount: _filteredLogs.length,
-                    separatorBuilder: (_, __) => const Divider(height: 1),
-                    itemBuilder: (context, index) {
-                      final log = _filteredLogs[index];
-                      return ListTile(
-                        leading: _buildActionIcon(log.action),
-                        title: Text(log.description),
-                        subtitle: Text(
-                          '${DateFormat('MMM d, h:mm a').format(log.timestamp)} • ${log.userName} (${log.userRole})',
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            child: StreamBuilder<List<AuditLog>>(
+              stream: AuditService().streamAllLogs(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                final logs = snapshot.data ?? [];
+                final filteredLogs = logs
+                    .where((log) {
+                      final query = _searchQuery.toLowerCase();
+                      return log.description.toLowerCase().contains(query) ||
+                          log.userName.toLowerCase().contains(query) ||
+                          log.entity.toLowerCase().contains(query);
+                    })
+                    .toList()
+                    .reversed
+                    .toList();
+
+                if (filteredLogs.isEmpty) {
+                  return const Center(child: Text('No logs found'));
+                }
+
+                return ListView.separated(
+                  itemCount: filteredLogs.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final log = filteredLogs[index];
+                    return ListTile(
+                      leading: _buildActionIcon(log.action),
+                      title: Text(log.description),
+                      subtitle: Text(
+                        '${DateFormat('MMM d, h:mm a').format(log.timestamp)} • ${log.userName} (${log.userRole})',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
                         ),
-                        trailing: Chip(
-                          label: Text(
-                            log.entity.toUpperCase(),
-                            style: const TextStyle(fontSize: 10),
+                      ),
+                      trailing: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          log.entity.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
                           ),
-                          padding: EdgeInsets.zero,
-                          visualDensity: VisualDensity.compact,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -175,7 +156,7 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: color, size: 20),

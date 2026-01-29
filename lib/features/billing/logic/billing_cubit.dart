@@ -2,12 +2,15 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/core/services/database/interfaces/billing_database.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/core/services/audit_service.dart';
 import 'package:hotel_manager/features/billing/logic/billing_state.dart';
+import 'package:hotel_manager/features/billing/logic/discount_calculator.dart';
 
 class BillingCubit extends Cubit<BillingState> {
-  final DatabaseService _databaseService;
+  final IBillingDatabase _databaseService;
+  final AuditService _auditService;
   List<Bill> _bills = [];
   List<TaxRule> _taxRules = [];
   List<ServiceChargeRule> _scRules = [];
@@ -15,9 +18,12 @@ class BillingCubit extends Cubit<BillingState> {
   StreamSubscription? _taxSubscription;
   StreamSubscription? _scSubscription;
 
-  BillingCubit({required DatabaseService databaseService})
-    : _databaseService = databaseService,
-      super(BillingInitial());
+  BillingCubit({
+    required IBillingDatabase databaseService,
+    AuditService? auditService,
+  }) : _databaseService = databaseService,
+       _auditService = auditService ?? AuditService(),
+       super(BillingInitial());
 
   Future<void> loadBillingData() async {
     // Proactively set defaults to avoid any "not loaded" state
@@ -73,16 +79,17 @@ class BillingCubit extends Cubit<BillingState> {
   }
 
   /// Create a bill from one or more orders
-  Future<void> createBill({
+  Future<String> createBill({
     required String tableId,
     required List<Order> orders,
     required String taxRuleId,
     String? serviceChargeRuleId,
     String? roomId,
     String? bookingId,
+    List<Offer> manualDiscounts = const [],
+    String? customerId,
+    int redeemedPoints = 0,
   }) async {
-    final subTotal = orders.fold(0.0, (sum, o) => sum + o.totalPrice);
-
     final currentState = state;
     if (currentState is! BillingLoaded) {
       throw Exception('Billing data not loaded');
@@ -100,24 +107,12 @@ class BillingCubit extends Cubit<BillingState> {
           )
         : null;
 
-    final scAmount = (serviceChargeRuleId != null && scRule != null)
-        ? (subTotal * scRule.percent / 100)
-        : 0.0;
-    final taxableAmount = subTotal + scAmount;
-    final cgst = taxableAmount * taxRule.cgstPercent / 100;
-    final sgst = taxableAmount * taxRule.sgstPercent / 100;
-    final totalTax = cgst + sgst;
-    final grandTotal = taxableAmount + totalTax;
-
-    final taxSummary = BillTaxSummary(
-      subTotal: subTotal,
-      serviceChargeAmount: scAmount,
-      taxableAmount: taxableAmount,
-      cgstAmount: cgst,
-      sgstAmount: sgst,
-      igstAmount: 0,
-      totalTax: totalTax,
-      grandTotal: grandTotal,
+    final taxSummary = DiscountCalculator.calculateTaxSummary(
+      orders: orders,
+      taxRule: taxRule,
+      scRule: scRule,
+      manualDiscounts: manualDiscounts,
+      loyaltyPointsRedeemed: redeemedPoints,
     );
 
     final bill = Bill(
@@ -126,11 +121,36 @@ class BillingCubit extends Cubit<BillingState> {
       roomId: roomId,
       bookingId: bookingId,
       orderIds: orders.map((o) => o.id).toList(),
-      subTotal: subTotal,
+      subTotal: taxSummary.subTotal,
       taxRuleId: taxRuleId,
       serviceChargeRuleId: serviceChargeRuleId,
       taxSummary: taxSummary,
       openedAt: DateTime.now(),
+      customerId: customerId,
+      redeemedPoints: redeemedPoints,
+      discounts: manualDiscounts.map((o) {
+        double discountAmount = 0.0;
+        if (o.discountType == DiscountType.percent) {
+          // Discount is calculated on taxable subtotal (pre-tax)
+          discountAmount =
+              (taxSummary.taxableAmount - taxSummary.serviceChargeAmount) *
+              (o.discountValue / 100);
+        } else {
+          discountAmount = o.discountValue;
+        }
+
+        return BillDiscount(
+          id: 'disc_${DateTime.now().millisecondsSinceEpoch}',
+          offerId: o.id,
+          name: o.name,
+          discountType: o.discountType,
+          discountValue: o.discountValue,
+          discountAmount: discountAmount,
+          reason: o.description ?? 'Applied',
+          appliedAt: DateTime.now(),
+          appliedBy: 'system', // Replace with actual user ID
+        );
+      }).toList(),
     );
 
     await _databaseService.saveBill(bill);
@@ -152,7 +172,7 @@ class BillingCubit extends Cubit<BillingState> {
     await _databaseService.updateTableStatus(tableId, TableStatus.billed);
 
     // Audit Log
-    await AuditService().log(
+    await _auditService.log(
       userId: 'system',
       userName: 'Billing System',
       userRole: 'finance',
@@ -162,6 +182,98 @@ class BillingCubit extends Cubit<BillingState> {
       description:
           'System generated bill for Table $tableId. Total: ₹${bill.grandTotal}',
       metadata: bill.toJson(),
+    );
+
+    return bill.id;
+  }
+
+  /// Manually apply a discount to an existing bill
+  Future<void> applyBillDiscount(
+    String billId,
+    Offer offer,
+    String userId,
+  ) async {
+    final currentState = state;
+    if (currentState is! BillingLoaded) return;
+
+    final bill = currentState.bills.firstWhere((b) => b.id == billId);
+
+    // Check if discount already applied
+    if (bill.discounts.any((d) => d.offerId == offer.id)) return;
+
+    final updatedDiscounts = [...bill.discounts];
+
+    // For manual application, we need to recalculate the whole tax summary
+    // Since manual discounts are usually bill-level
+    final orders = await _databaseService.getOrdersByIds(bill.orderIds);
+    final taxRule = currentState.taxRules.firstWhere(
+      (r) => r.id == bill.taxRuleId,
+    );
+    final scRule = bill.serviceChargeRuleId != null
+        ? currentState.serviceChargeRules.firstWhere(
+            (r) => r.id == bill.serviceChargeRuleId,
+          )
+        : null;
+
+    final manualOffers = [
+      ...updatedDiscounts.map(
+        (d) => Offer(
+          id: d.offerId,
+          name: d.name,
+          offerType: OfferType.bill,
+          discountType: d.discountType,
+          discountValue: d.discountValue,
+        ),
+      ),
+      offer,
+    ];
+
+    final newTaxSummary = DiscountCalculator.calculateTaxSummary(
+      orders: orders,
+      taxRule: taxRule,
+      scRule: scRule,
+      manualDiscounts: manualOffers,
+    );
+
+    double discountAmount = 0.0;
+    if (offer.discountType == DiscountType.percent) {
+      discountAmount =
+          (newTaxSummary.taxableAmount - newTaxSummary.serviceChargeAmount) *
+          (offer.discountValue / 100);
+    } else {
+      discountAmount = offer.discountValue;
+    }
+
+    final newBillDiscount = BillDiscount(
+      id: 'disc_${DateTime.now().millisecondsSinceEpoch}',
+      offerId: offer.id,
+      name: offer.name,
+      discountType: offer.discountType,
+      discountValue: offer.discountValue,
+      discountAmount: discountAmount,
+      reason: offer.description ?? 'Manual override',
+      appliedAt: DateTime.now(),
+      appliedBy: userId,
+    );
+
+    final updatedBill = bill.copyWith(
+      discounts: [...bill.discounts, newBillDiscount],
+      taxSummary: newTaxSummary,
+      subTotal: newTaxSummary.subTotal,
+    );
+
+    await _databaseService.saveBill(updatedBill);
+
+    // Audit Log
+    await _auditService.log(
+      userId: userId,
+      userName: 'Staff',
+      userRole: 'finance',
+      action: AuditAction.update,
+      entity: 'bill_discount',
+      entityId: billId,
+      description: 'Applied discount ${offer.name} to bill $billId',
+      metadata: newBillDiscount.toJson(),
     );
   }
 
@@ -193,13 +305,59 @@ class BillingCubit extends Cubit<BillingState> {
       payments: updatedPayments,
       roomId: roomId ?? bill.roomId,
       bookingId: bookingId ?? bill.bookingId,
-      paymentStatus: totalPaid >= bill.grandTotal
-          ? PaymentStatus.paid
-          : PaymentStatus.partially_paid,
+      paymentStatus: method == PaymentMethod.bill_to_room
+          ? PaymentStatus.toRoom
+          : (totalPaid >= bill.grandTotal
+                ? PaymentStatus.paid
+                : PaymentStatus.partially_paid),
       closedAt: totalPaid >= bill.grandTotal ? DateTime.now() : null,
     );
 
     await _databaseService.saveBill(updatedBill);
+
+    // If fully paid, award loyalty points
+    if (totalPaid >= updatedBill.grandTotal && updatedBill.customerId != null) {
+      try {
+        final db =
+            _databaseService
+                as DatabaseService; // Cast to access loyalty methods
+        final points = (updatedBill.grandTotal / 100).floor();
+        if (points > 0) {
+          // Fetch current loyalty info or start fresh
+          final customerSnap = await db.customersRef
+              .child(updatedBill.customerId!)
+              .get();
+          if (customerSnap.exists) {
+            final customerData = db.toMap(customerSnap.value);
+            final customer = Customer.fromJson(customerData);
+            final currentLoyalty =
+                customer.loyaltyInfo ??
+                const LoyaltyInfo(
+                  tierId: 'bronze',
+                  totalPoints: 0,
+                  availablePoints: 0,
+                  lifetimeSpend: 0,
+                );
+
+            final newLoyalty = currentLoyalty.copyWith(
+              totalPoints: currentLoyalty.totalPoints + points,
+              availablePoints: currentLoyalty.availablePoints + points,
+              lifetimeSpend:
+                  currentLoyalty.lifetimeSpend + updatedBill.grandTotal,
+            );
+
+            final updatedCustomer = customer.copyWith(loyaltyInfo: newLoyalty);
+
+            await db.saveCustomer(updatedCustomer);
+            debugPrint(
+              'Loyalty points awarded: $points to customer ${updatedBill.customerId}',
+            );
+          }
+        }
+      } catch (e) {
+        debugPrint('Error awarding loyalty points: $e');
+      }
+    }
 
     // If fully paid or billed to room, handle downstream updates
     if (totalPaid >= updatedBill.grandTotal ||
@@ -209,12 +367,16 @@ class BillingCubit extends Cubit<BillingState> {
         await _attachBillToFolio(bookingId, updatedBill);
       }
 
+      // Update order statuses
+      final orderStatus = method == PaymentMethod.bill_to_room
+          ? PaymentStatus.toRoom
+          : PaymentStatus.paid;
+
       for (final orderId in bill.orderIds) {
-        await _databaseService.updateOrderPaymentStatus(
-          orderId,
-          PaymentStatus.paid,
-        );
+        await _databaseService.updateOrderPaymentStatus(orderId, orderStatus);
       }
+
+      // Table status: cleaning if settled, but if billed to room it might also be free
       await _databaseService.updateTableStatus(
         bill.tableId,
         TableStatus.cleaning,
@@ -222,7 +384,7 @@ class BillingCubit extends Cubit<BillingState> {
     }
 
     // Audit Log
-    await AuditService().log(
+    await _auditService.log(
       userId: 'system',
       userName: 'Billing System',
       userRole: 'finance',
@@ -236,16 +398,10 @@ class BillingCubit extends Cubit<BillingState> {
   }
 
   Future<void> _attachBillToFolio(String bookingId, Bill bill) async {
-    // Check if folio exists
-    final snapshot = await _databaseService.foliosRef
-        .orderByChild('bookingId')
-        .equalTo(bookingId)
-        .get();
+    final existingFolio = await _databaseService.getFolioByBookingId(bookingId);
 
     RoomFolio folio;
-    if (snapshot.value != null) {
-      final data = (snapshot.value as Map).values.first;
-      final existingFolio = RoomFolio.fromJson(_databaseService.toMap(data));
+    if (existingFolio != null) {
       final updatedBillIds = [...existingFolio.billIds, bill.id];
       folio = existingFolio.copyWith(
         billIds: updatedBillIds,
@@ -262,6 +418,69 @@ class BillingCubit extends Cubit<BillingState> {
     }
 
     await _databaseService.saveFolio(folio);
+  }
+
+  /// Settle all charges in a folio
+  Future<void> settleFolio({
+    required String bookingId,
+    required PaymentMethod method,
+    String? reference,
+  }) async {
+    final folio = await _databaseService.getFolioByBookingId(bookingId);
+    if (folio == null) return;
+
+    final currentState = state;
+    if (currentState is! BillingLoaded) return;
+
+    // Get all bills linked to this folio that are not 'paid'
+    final billsToSettle = currentState.bills
+        .where(
+          (b) =>
+              folio.billIds.contains(b.id) &&
+              b.paymentStatus != PaymentStatus.paid,
+        )
+        .toList();
+
+    for (final bill in billsToSettle) {
+      final payment = BillPayment(
+        id: 'pay_${DateTime.now().millisecondsSinceEpoch}_${bill.id}',
+        amount: bill.remainingBalance,
+        method: method,
+        timestamp: DateTime.now(),
+        reference: reference ?? 'Folio Settlement',
+      );
+
+      final updatedBill = bill.copyWith(
+        payments: [...bill.payments, payment],
+        paymentStatus: PaymentStatus.paid,
+        closedAt: DateTime.now(),
+      );
+
+      await _databaseService.saveBill(updatedBill);
+
+      // Update order statuses to paid
+      for (final orderId in bill.orderIds) {
+        await _databaseService.updateOrderPaymentStatus(
+          orderId,
+          PaymentStatus.paid,
+        );
+      }
+    }
+
+    // Update folio status
+    final updatedFolio = folio.copyWith(paymentStatus: PaymentStatus.paid);
+    await _databaseService.saveFolio(updatedFolio);
+
+    // Audit Log
+    await _auditService.log(
+      userId: 'system',
+      userName: 'Billing System',
+      userRole: 'finance',
+      action: AuditAction.update,
+      entity: 'folio',
+      entityId: bookingId,
+      description: 'Folio $bookingId settled via ${method.name}',
+    );
   }
 
   @override

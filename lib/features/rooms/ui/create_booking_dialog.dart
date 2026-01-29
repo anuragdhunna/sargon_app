@@ -44,7 +44,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: const EdgeInsets.all(24),
-        constraints: const BoxConstraints(maxWidth: 700, maxHeight: 750),
+        constraints: const BoxConstraints(maxWidth: 700, maxHeight: 850),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,6 +236,92 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                       ),
                       const SizedBox(height: 16),
 
+                      // ID Proof Image Section
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ID Proof Document Pic',
+                            style: AppDesign.bodySmall.copyWith(
+                              color: AppDesign.neutral500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          InkWell(
+                            onTap: () {
+                              // Simulate file picker
+                              setState(() {
+                                _idProofImageUrl =
+                                    "https://example.com/id_proof.jpg";
+                              });
+                            },
+                            child: Container(
+                              height: 120,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: AppDesign.neutral100,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: AppDesign.neutral300,
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                              child: _idProofImageUrl != null
+                                  ? Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                          child: Image.network(
+                                            _idProofImageUrl!,
+                                            width: double.infinity,
+                                            height: 120,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: CircleAvatar(
+                                            backgroundColor: Colors.red,
+                                            radius: 12,
+                                            child: IconButton(
+                                              padding: EdgeInsets.zero,
+                                              icon: const Icon(
+                                                Icons.close,
+                                                size: 16,
+                                                color: Colors.white,
+                                              ),
+                                              onPressed: () => setState(
+                                                () => _idProofImageUrl = null,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_a_photo_outlined,
+                                          color: AppDesign.neutral500,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          'Upload ID Proof Pic',
+                                          style: AppDesign.bodySmall,
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
                       // Number of Guests
                       AppTextField(
                         name: 'numberOfGuests',
@@ -251,6 +337,61 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                           FormBuilderValidators.max(widget.room.capacity),
                         ]),
                       ),
+                      const SizedBox(height: 24),
+
+                      // Accompanying Persons Section
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Accompanying Guests',
+                            style: AppDesign.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: () => _addPersonDialog(),
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add Guest'),
+                          ),
+                        ],
+                      ),
+                      if (_accompanyingPersons.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            'No other guest details added.',
+                            style: AppDesign.bodySmall.copyWith(
+                              fontStyle: FontStyle.italic,
+                              color: AppDesign.neutral500,
+                            ),
+                          ),
+                        )
+                      else
+                        ..._accompanyingPersons.asMap().entries.map((entry) {
+                          final idx = entry.key;
+                          final person = entry.value;
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              dense: true,
+                              title: Text(person['name'] ?? 'Guest'),
+                              subtitle: Text(
+                                '${person['relation'] ?? ''} • ${person['id'] ?? ''}',
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                                onPressed: () => setState(
+                                  () => _accompanyingPersons.removeAt(idx),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
                       const SizedBox(height: 24),
 
                       // Booking Dates Section
@@ -460,6 +601,22 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
       final paidAmount =
           double.tryParse(data['paidAmount']?.toString() ?? '0') ?? 0.0;
 
+      String? finalCustomerId = _selectedCustomer?.id;
+      if (finalCustomerId == null) {
+        // Create new customer for new booking
+        final newCustomerId = 'cust_${DateTime.now().millisecondsSinceEpoch}';
+        final newCustomer = Customer(
+          id: newCustomerId,
+          name: data['guestName'],
+          phone: data['guestPhone'],
+          email: data['guestEmail'],
+          idProofType: data['idProofType'],
+          idProofNumber: data['idProofNumber'],
+        );
+        await context.read<CustomerCubit>().saveCustomer(newCustomer);
+        finalCustomerId = newCustomerId;
+      }
+
       await context.read<RoomCubit>().createBooking(
         roomId: widget.room.id,
         guestName: data['guestName'],
@@ -476,7 +633,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
         numberOfGuests:
             int.tryParse(data['numberOfGuests']?.toString() ?? '1') ?? 1,
         accompanyingPersons: _accompanyingPersons,
-        customerId: _selectedCustomer?.id,
+        customerId: finalCustomerId,
         idProofImageUrl: _idProofImageUrl,
         paidAmount: paidAmount,
         paymentMethod: data['paymentMethod'],
@@ -503,5 +660,56 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
 
   double _calculateTotal() {
     return widget.room.pricePerNight * _getNights();
+  }
+
+  void _addPersonDialog() {
+    final nameController = TextEditingController();
+    final relationController = TextEditingController();
+    final idController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Guest Details'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Full Name'),
+            ),
+            TextField(
+              controller: relationController,
+              decoration: const InputDecoration(labelText: 'Relation'),
+            ),
+            TextField(
+              controller: idController,
+              decoration: const InputDecoration(labelText: 'ID Proof Number'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.isNotEmpty) {
+                setState(() {
+                  _accompanyingPersons.add({
+                    'name': nameController.text,
+                    'relation': relationController.text,
+                    'id': idController.text,
+                  });
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
   }
 }

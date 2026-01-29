@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'payment_models.dart';
+import 'offer_model.dart';
 
 /// Tax calculation rule model
 class TaxRule extends Equatable {
@@ -93,6 +94,7 @@ class BillTaxSummary extends Equatable {
   final double cgstAmount;
   final double sgstAmount;
   final double igstAmount;
+  final double totalDiscountAmount;
   final double totalTax;
   final double grandTotal;
 
@@ -103,6 +105,7 @@ class BillTaxSummary extends Equatable {
     required this.cgstAmount,
     required this.sgstAmount,
     required this.igstAmount,
+    required this.totalDiscountAmount,
     required this.totalTax,
     required this.grandTotal,
   });
@@ -114,6 +117,7 @@ class BillTaxSummary extends Equatable {
     'cgstAmount': cgstAmount,
     'sgstAmount': sgstAmount,
     'igstAmount': igstAmount,
+    'totalDiscountAmount': totalDiscountAmount,
     'totalTax': totalTax,
     'grandTotal': grandTotal,
   };
@@ -125,6 +129,8 @@ class BillTaxSummary extends Equatable {
     cgstAmount: (json['cgstAmount'] as num).toDouble(),
     sgstAmount: (json['sgstAmount'] as num).toDouble(),
     igstAmount: (json['igstAmount'] as num).toDouble(),
+    totalDiscountAmount:
+        (json['totalDiscountAmount'] as num?)?.toDouble() ?? 0.0,
     totalTax: (json['totalTax'] as num).toDouble(),
     grandTotal: (json['grandTotal'] as num).toDouble(),
   );
@@ -137,6 +143,7 @@ class BillTaxSummary extends Equatable {
     cgstAmount,
     sgstAmount,
     igstAmount,
+    totalDiscountAmount,
     totalTax,
     grandTotal,
   ];
@@ -160,7 +167,10 @@ class Bill extends Equatable {
   final bool serviceChargeApplied;
   final String? serviceChargeRemovedBy;
   final String? serviceChargeRemovalReason;
+  final List<BillDiscount> discounts;
   final List<BillPayment> payments;
+  final String? customerId;
+  final int redeemedPoints;
 
   const Bill({
     required this.id,
@@ -179,7 +189,10 @@ class Bill extends Equatable {
     this.serviceChargeApplied = true,
     this.serviceChargeRemovedBy,
     this.serviceChargeRemovalReason,
+    this.discounts = const [],
     this.payments = const [],
+    this.customerId,
+    this.redeemedPoints = 0,
   });
 
   Bill copyWith({
@@ -199,7 +212,10 @@ class Bill extends Equatable {
     bool? serviceChargeApplied,
     String? serviceChargeRemovedBy,
     String? serviceChargeRemovalReason,
+    List<BillDiscount>? discounts,
     List<BillPayment>? payments,
+    String? customerId,
+    int? redeemedPoints,
   }) {
     return Bill(
       id: id ?? this.id,
@@ -220,7 +236,10 @@ class Bill extends Equatable {
           serviceChargeRemovedBy ?? this.serviceChargeRemovedBy,
       serviceChargeRemovalReason:
           serviceChargeRemovalReason ?? this.serviceChargeRemovalReason,
+      discounts: discounts ?? this.discounts,
       payments: payments ?? this.payments,
+      customerId: customerId ?? this.customerId,
+      redeemedPoints: redeemedPoints ?? this.redeemedPoints,
     );
   }
 
@@ -243,7 +262,10 @@ class Bill extends Equatable {
       'serviceChargeRemovedBy': serviceChargeRemovedBy,
     if (serviceChargeRemovalReason != null)
       'serviceChargeRemovalReason': serviceChargeRemovalReason,
+    'discounts': discounts.map((d) => d.toJson()).toList(),
     'payments': payments.map((p) => p.toJson()).toList(),
+    if (customerId != null) 'customerId': customerId,
+    'redeemedPoints': redeemedPoints,
   };
 
   factory Bill.fromJson(Map<String, dynamic> json) => Bill(
@@ -273,11 +295,18 @@ class Bill extends Equatable {
     serviceChargeApplied: json['serviceChargeApplied'] ?? true,
     serviceChargeRemovedBy: json['serviceChargeRemovedBy'],
     serviceChargeRemovalReason: json['serviceChargeRemovalReason'],
+    discounts:
+        (json['discounts'] as List?)
+            ?.map((d) => BillDiscount.fromJson(Map<String, dynamic>.from(d)))
+            .toList() ??
+        [],
     payments:
         (json['payments'] as List?)
             ?.map((p) => BillPayment.fromJson(Map<String, dynamic>.from(p)))
             .toList() ??
         [],
+    customerId: json['customerId'],
+    redeemedPoints: json['redeemedPoints'] ?? 0,
   );
 
   @override

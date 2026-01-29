@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'loyalty_model.dart';
+
 /// Customer model for marketing and analytics
 class Customer extends Equatable {
   final String id;
@@ -13,6 +15,7 @@ class Customer extends Equatable {
   final String? idProofType;
   final String? idProofNumber;
   final String? idProofImageUrl;
+  final LoyaltyInfo? loyaltyInfo;
 
   const Customer({
     required this.id,
@@ -26,6 +29,7 @@ class Customer extends Equatable {
     this.idProofType,
     this.idProofNumber,
     this.idProofImageUrl,
+    this.loyaltyInfo,
   });
 
   @override
@@ -41,6 +45,7 @@ class Customer extends Equatable {
     idProofType,
     idProofNumber,
     idProofImageUrl,
+    loyaltyInfo,
   ];
 
   Customer copyWith({
@@ -55,6 +60,7 @@ class Customer extends Equatable {
     String? idProofType,
     String? idProofNumber,
     String? idProofImageUrl,
+    LoyaltyInfo? loyaltyInfo,
   }) {
     return Customer(
       id: id ?? this.id,
@@ -68,6 +74,7 @@ class Customer extends Equatable {
       idProofType: idProofType ?? this.idProofType,
       idProofNumber: idProofNumber ?? this.idProofNumber,
       idProofImageUrl: idProofImageUrl ?? this.idProofImageUrl,
+      loyaltyInfo: loyaltyInfo ?? this.loyaltyInfo,
     );
   }
 
@@ -84,6 +91,7 @@ class Customer extends Equatable {
       'idProofType': idProofType,
       'idProofNumber': idProofNumber,
       'idProofImageUrl': idProofImageUrl,
+      if (loyaltyInfo != null) 'loyaltyInfo': loyaltyInfo?.toJson(),
     };
   }
 
@@ -104,6 +112,9 @@ class Customer extends Equatable {
       idProofType: json['idProofType'] as String?,
       idProofNumber: json['idProofNumber'] as String?,
       idProofImageUrl: json['idProofImageUrl'] as String?,
+      loyaltyInfo: json['loyaltyInfo'] != null
+          ? LoyaltyInfo.fromJson(Map<String, dynamic>.from(json['loyaltyInfo']))
+          : null,
     );
   }
 }

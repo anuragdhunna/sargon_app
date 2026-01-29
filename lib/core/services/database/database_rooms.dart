@@ -154,4 +154,28 @@ extension DatabaseRooms on DatabaseService {
   Future<void> saveBooking(Booking booking) async {
     await bookingsRef.child(booking.id).set(booking.toJson());
   }
+
+  /// Get all bookings for a customer
+  Future<List<Booking>> getBookingsByCustomerId(String customerId) async {
+    final snapshot = await bookingsRef
+        .orderByChild('customerId')
+        .equalTo(customerId)
+        .get();
+    if (snapshot.value == null) return [];
+    final data = _toMap(snapshot.value);
+    return data.entries.map((e) => Booking.fromJson(_toMap(e.value))).toList();
+  }
+
+  /// Get booking by ID
+  Future<Booking?> getBookingById(String bookingId) async {
+    try {
+      final snapshot = await bookingsRef.child(bookingId).get();
+      if (snapshot.value == null) return null;
+      final data = _toMap(snapshot.value);
+      return Booking.fromJson(data);
+    } catch (e) {
+      debugPrint('Error getting booking by ID: $e');
+      return null;
+    }
+  }
 }

@@ -2,7 +2,7 @@
 
 > **Target Audience:** AI Agents & Developers
 > **Purpose:** Source of Truth for Architecture, Modules, and Coding Standards.
-> **Last Updated:** 2025-12-04
+> **Last Updated:** 2026-01-26
 
 ## 1. Architectural Overview
 
@@ -88,6 +88,10 @@ Before creating a new file, check if the functionality belongs to an existing mo
 | **rooms** | Room management and status | **Refactored** (Cubit -> Repository pattern) |
 | **staff_mgmt** | Staff profiles and management | Active |
 | **table_mgmt** | Table seating, status, groups, pax intelligence | Active |
+| **billing** | Invoicing, taxes, offers, and payments | **Enhanced**: Dynamic tax/service charge, offer application, loyalty redemption |
+| **offers** | Discount management, happy hours | Active |
+| **loyalty** | Point earning and tier management | Active |
+| **customers** | CRM, analytics, spending history | Active |
 
 ### Order Module Features (Production-Ready)
 - **Order Taking**: Responsive menu grid (2-3 columns), category filtering, search
@@ -161,7 +165,152 @@ When modifying code, apply these expert-level practices:
 
 ### Table & KDS Intelligence (SARGON)
 - **Table Entity**: Physical tables are first-class citizens with seating capacities and joinable logic.
-- **Automated Lifecycle**: Tables transition automatically through states: `Available` -> `Occupied` -> `Billed` -> `Cleaning`.
+- **Automated Lifecycle**: Tables transition automatically through states: `Available` -> `Occupied` -> `Billed` -> `Cleaning`. Transition to `Cleaning` auto-creates housekeeping checklists via Firebase; completion reverts status to `Available`.
 - **Pax-Based Table Suggestion**: Algorithmically suggests the best table fit based on guest count to maximize floor yield.
 - **Production KDS**: Item-level status tracking (Pending -> Fired -> Preparing -> Ready -> Served) with SLA enforcement.
+- **Dynamic Offer Engine**: Real-time offer application from Order History with intelligent discount logic.
 
+---
+
+## 8. 🚀 Quick Reference: Reusable Components & Flows
+
+> **PURPOSE:** Before creating ANY new component, **CHECK THIS LIST** to see if it already exists and can be reused or extended.
+
+### 🎨 Design System Components (`lib/component/`)
+
+| Component | Path | Usage | Props |
+| :--- | :--- | :--- | :--- |
+| **PremiumButton** | `component/buttons/premium_button.dart` | Primary, Secondary, Outline, Danger buttons | `label`, `onPressed`, `isLoading`, `icon` |
+| **AppCard** | `component/cards/app_card.dart` | Consistent card wrapper | `child`, `padding`, `elevation` |
+| **AppTextField** | `component/inputs/app_text_field.dart` | Styled text input | `controller`, `label`, `hint`, `validator` |
+| **AppDropdown** | `component/inputs/app_dropdown.dart` | Dropdown selector | `items`, `value`, `onChanged` |
+| **CustomSnackbar** | Direct static call | Success, Error, Warning toasts | `CustomSnackbar.showSuccess(context, msg)` |
+
+### 🔀 Reusable Dialogs & Modals
+
+| Dialog | Path | When to Use | Key Props |
+| :--- | :--- | :--- | :--- |
+| **ApplyOfferDialog** | `features/orders/presentation/widgets/apply_offer_dialog.dart` | Select and apply offers to orders | `orderId`, `onApply(Offer)` |
+| **CustomerDetailsDialog** | `features/billing/ui/widgets/customer_details_dialog.dart` | Capture customer for loyalty | `onConfirm(Customer?)` |
+| **ConfirmationDialog** | `component/dialogs/confirmation_dialog.dart` | Yes/No prompts | `title`, `message`, `onConfirm` |
+
+### 📄 Full-Page Screens Reference
+
+| Screen | Route | Purpose | Key Features |
+| :--- | :--- | :--- | :--- |
+| **DashboardScreen** | `/dashboard` | Landing page with KPIs | Role-based metrics, real-time refresh |
+| **TableDashboardScreen** | `/tables` | Visual table floor plan | Table status, capacity, join tables |
+| **OrderTakingScreen** | `/order-taking` | Create new order | Menu grid, category filter, auto-merge for same table |
+| **OrderHistoryScreen** | `/order-history` | View all orders | Real-time KDS status, Apply Offer, Generate Bill, Payment |
+| **KitchenScreen** | `/kitchen` | Kitchen Display System | Course firing, SLA tracking, priority sorting |
+| **BillingScreen** | `/billing` | Generate bill | Tax calculation, offer application, loyalty redemption |
+| **RoomsScreen** | `/rooms` | Room bookings | Guest check-in, room service link |
+
+### 🔁 Common Business Flows (MUST FOLLOW)
+
+#### Flow 1: Dine-In Order to Payment
+```
+TableDashboardScreen → Select Table
+  ↓
+OrderTakingScreen → Add Menu Items → Save Order
+  ↓
+KitchenScreen → Fire Courses → Mark Ready → Serve
+  ↓
+OrderHistoryScreen → Apply Offer (Optional) → Generate Bill
+  ↓
+CustomerDetailsDialog → Link Customer for Loyalty (OR Skip)
+  ↓
+BillingCubit.createBill() → Tax Calculation with Discounts
+  ↓
+OrderHistoryScreen → Add Payment
+  ↓
+PaymentDialog → Select Method → Process
+  ↓
+Table Status → Cleaning → Auto-Create Checklist
+```
+
+#### Flow 2: Room Service Order
+```
+RoomsScreen → Select Room with Active Booking
+  ↓
+OrderTakingScreen → Add Items (roomId & bookingId auto-linked)
+  ↓
+[Same KDS flow as Dine-In]
+  ↓
+Generate Bill → Customer Details SKIPPED (fetch from Booking)
+  ↓
+BillingCubit.createBill(bookingId, customerId from booking)
+  ↓
+Payment → Bill to Room (adds to Folio)
+```
+
+#### Flow 3: Apply Offer to Order
+```
+OrderHistoryScreen → Select Order (status: Pending)
+  ↓
+Tap "Apply Offer" Button
+  ↓
+ApplyOfferDialog → Shows Active Offers
+  ↓
+Select Offer → OrderCubit.applyOfferToOrder(orderId, offer)
+  ↓
+OrderCubit Calculates Discount → Updates OrderItem.discountAmount
+  ↓
+Saves Order to Firebase
+  ↓
+UI Re-renders → Shows Discounted Price in Order Items
+  ↓
+Tax Summary (Est.) → Reflects Discount in Grand Total
+```
+
+### 🛠️ Core Services Reference
+
+| Service | Path | Key Methods |
+| :--- | :--- | :--- |
+| **DatabaseService** | `core/services/database_service.dart` | `streamOrders()`, `saveOrder()`, `updateOrderStatus()` |
+| **AuthService** | `core/services/auth_service.dart` | `signInWithPhone()`, `verifyOTP()` |
+| **DiscountCalculator** | `features/billing/logic/discount_calculator.dart` | `calculateTaxSummary(orders, taxRule, scRule, manualDiscounts)` |
+| **AuditService** | `core/services/audit_service.dart` | `log(userId, action, entity, metadata)` |
+
+### 📊 Centralized Models (`lib/core/models/`)
+
+**DO NOT create duplicate models. All domain models live here.**
+
+| Model | File | Critical Fields |
+| :--- | :--- | :--- |
+| **Order** | `order_model.dart` | `id`, `tableId`, `roomId`, `bookingId`, `customerId`, `items[]`, `status`, `paymentStatus` |
+| **OrderItem** | `order_model.dart` | `id`, `menuItemId`, `name`, `price`, `quantity`, `discountAmount`, `discountType`, `kdsStatus` |
+| **Bill** | `bill_model.dart` | `id`, `orderIds[]`, `customerId`, `redeemedPoints`, `taxSummary`, `payments[]`, `grandTotal` |
+| **BillTaxSummary** | `bill_model.dart` | `subTotal`, `cgstAmount`, `sgstAmount`, `serviceChargeAmount`, `totalDiscountAmount`, `grandTotal` |
+| **Offer** | `offer_model.dart` | `id`, `name`, `offerType`, `discountType`, `discountValue`, `maxDiscountAmount`, `applicableItemIds[]` |
+| **Customer** | `customer_model.dart` | `id`, `name`, `phone`, `email`, `loyaltyInfo` |
+| **LoyaltyInfo** | `loyalty_model.dart` | `tierId`, `totalPoints`, `availablePoints`, `lifetimeSpend` |
+| **Booking** | `booking_model.dart` | `id`, `roomId`, `guestName`, `phone`, `email`, `customerId` |
+
+---
+
+## 9. ⚠️ Common Issues & Solutions
+
+| Problem | Root Cause | Solution |
+| :--- | :--- | :--- |
+| **Offer not applying** | `discountAmount` not persisted in OrderItem | Ensure `OrderCubit.applyOfferToOrder()` saves updated order with `item.discountAmount` |
+| **Tax not reflecting discount** | `DiscountCalculator` not receiving updated order items | Pass order with `item.discountAmount` populated to `calculateTaxSummary()` |
+| **Customer dialog shows for room orders** | Logic doesn't check `order.roomId != null` | In `OrderHistoryScreen`, skip dialog if `order.roomId` exists; fetch customer from booking |
+| **Skip button doesn't close dialog** | `onConfirm(null)` doesn't dismiss dialog | Must call `Navigator.pop(context)` inside `onConfirm` callback |
+| **Dashboard TypeError** | Firebase RTDB returns `LinkedMap` instead of `Map` | Use safe casting: `Map<dynamic, dynamic>.from(value)` in `_mapList()` |
+| **Loyalty points not calculated** | `BillingCubit.createBill()` missing `customerId` | Ensure `customerId` is passed and loyalty logic runs post-bill |
+
+---
+
+## 10. Development Workflow Checklist
+
+Before committing ANY feature:
+- [ ] Checked this Quick Reference for existing components
+- [ ] Verified no duplicate models in `lib/core/models/`
+- [ ] Updated `database.rules.json` for new Firebase paths
+- [ ] Added unit tests for new Cubits
+- [ ] Ran `flutter analyze` with zero errors
+- [ ] Tested on mobile and web
+- [ ] Updated ARCHITECTURE.md if introducing new patterns
+
+---

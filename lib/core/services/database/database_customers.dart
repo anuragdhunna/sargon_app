@@ -3,6 +3,13 @@ part of '../database_service.dart';
 extension DatabaseCustomers on DatabaseService {
   DatabaseReference get customersRef => _ref('customers');
 
+  /// Get customer by ID
+  Future<Customer?> getCustomer(String customerId) async {
+    final snapshot = await customersRef.child(customerId).get();
+    if (!snapshot.exists || snapshot.value == null) return null;
+    return Customer.fromJson(_toMap(snapshot.value));
+  }
+
   /// Stream all customers (real-time)
   Stream<List<Customer>> streamCustomers() {
     return customersRef.onValue.map((event) {
