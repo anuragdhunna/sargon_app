@@ -94,7 +94,7 @@ Before creating a new file, check if the functionality belongs to an existing mo
 | **customers** | CRM, analytics, spending history | Active |
 
 ### Order Module Features (Production-Ready)
-- **Order Taking**: Responsive menu grid (2-3 columns), category filtering, search
+- **Order Taking**: Refactored to Clean Architecture with dedicated `OrderTakingCubit`. Features responsive menu grid, category filtering, search, and reactive cart management.
 - **Order Merging**: Auto-merges items for pending orders on same table (industry standard)
 - **Order Notes**: Item-level notes + overall order-level notes (e.g., "Birthday", "Rush")
 - **Digital KDS**: Production-grade Kitchen Display System with course-wise firing, ticket-based view, and priority sorting.

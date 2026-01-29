@@ -17,7 +17,7 @@ import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
 import 'package:hotel_manager/features/incidents/ui/incident_management_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/presentation/inventory_screen.dart';
 import 'package:hotel_manager/features/orders/ui/kitchen_screen.dart';
-import 'package:hotel_manager/features/orders/ui/order_taking_screen.dart';
+import 'package:hotel_manager/features/orders/presentation/order_taking/ui/order_taking_screen.dart';
 import 'package:hotel_manager/features/orders/ui/order_history_screen.dart';
 import 'package:hotel_manager/features/performance/ui/employee_performance_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';

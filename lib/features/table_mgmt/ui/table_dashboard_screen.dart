@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../orders/ui/order_taking_screen.dart';
+import 'package:hotel_manager/features/orders/presentation/order_taking/ui/order_taking_screen.dart';
 import '../../../core/models/models.dart';
 import '../../../theme/app_design.dart';
 import '../logic/table_cubit.dart';

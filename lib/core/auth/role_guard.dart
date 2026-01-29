@@ -3,7 +3,7 @@ import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/presentation/inventory_screen.dart';
-import 'package:hotel_manager/features/orders/ui/order_taking_screen.dart';
+import 'package:hotel_manager/features/orders/presentation/order_taking/ui/order_taking_screen.dart';
 import 'package:hotel_manager/features/orders/ui/kitchen_screen.dart';
 import 'package:hotel_manager/features/checklists/ui/checklist_list_screen.dart';
 import 'package:hotel_manager/features/attendance/ui/attendance_screen.dart';
