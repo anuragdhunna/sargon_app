@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
-import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/component/inputs/app_dropdown.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/widgets/add_customer_dialog.dart';
 
 class CustomerDetailsDialog extends StatefulWidget {
   final Function(Customer?) onConfirm;
@@ -15,8 +16,6 @@ class CustomerDetailsDialog extends StatefulWidget {
 }
 
 class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
-  final _phoneController = TextEditingController();
-  final _nameController = TextEditingController();
   Customer? _selectedCustomer;
 
   @override
@@ -26,54 +25,72 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Enter phone number to link this bill to a customer for loyalty points.',
+              'Select a customer to link this bill for loyalty points.',
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
             const SizedBox(height: 16),
-            AppTextField(
-              controller: _phoneController,
-              label: 'Phone Number',
-              hint: 'Search by phone...',
-              keyboardType: TextInputType.phone,
-              onChanged: (val) {
-                final state = context.read<CustomerCubit>().state;
+            BlocBuilder<CustomerCubit, CustomerState>(
+              builder: (context, state) {
                 if (state is CustomerLoaded) {
-                  final customer = state.customers
-                      .where((c) => c.phone == val)
-                      .toList();
-                  if (customer.isNotEmpty) {
-                    setState(() {
-                      _selectedCustomer = customer.first;
-                      _nameController.text = customer.first.name;
-                    });
-                  }
+                  return Row(
+                    children: [
+                      Expanded(
+                        child: AppDropdown<Customer?>(
+                          name: 'customer',
+                          label: 'Select Customer',
+                          initialValue: _selectedCustomer,
+                          items: state.customers.map((c) {
+                            return DropdownMenuItem(
+                              value: c,
+                              child: Text('${c.name} (${c.phone})'),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() => _selectedCustomer = val);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24),
+                        child: IconButton.filled(
+                          onPressed: () => _showAddCustomerDialog(context),
+                          icon: const Icon(Icons.add),
+                          tooltip: 'Add New Customer',
+                        ),
+                      ),
+                    ],
+                  );
                 }
+                return const Center(child: CircularProgressIndicator());
               },
-            ),
-            const SizedBox(height: 12),
-            AppTextField(
-              controller: _nameController,
-              label: 'Customer Name',
-              hint: 'Enter name...',
-              enabled: _selectedCustomer == null,
             ),
             if (_selectedCustomer != null)
               Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Row(
-                  children: [
-                    const Icon(Icons.stars, color: Colors.orange, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Points: ${_selectedCustomer!.loyaltyInfo?.availablePoints ?? 0}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
+                padding: const EdgeInsets.only(top: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.stars, color: Colors.orange),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Loyalty Points: ${_selectedCustomer!.loyaltyInfo?.availablePoints ?? 0}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
           ],
@@ -89,25 +106,28 @@ class _CustomerDetailsDialogState extends State<CustomerDetailsDialog> {
         ),
         PremiumButton.primary(
           label: 'Continue',
-          onPressed: () async {
-            if (_selectedCustomer == null && _phoneController.text.isNotEmpty) {
-              // Create new guest
-              final newCustomer = Customer(
-                id: 'cust_${DateTime.now().millisecondsSinceEpoch}',
-                name: _nameController.text.isNotEmpty
-                    ? _nameController.text
-                    : 'Walking Guest',
-                phone: _phoneController.text,
-              );
-              await context.read<CustomerCubit>().saveCustomer(newCustomer);
-              widget.onConfirm(newCustomer);
-            } else {
-              widget.onConfirm(_selectedCustomer);
-            }
+          onPressed: () {
+            widget.onConfirm(_selectedCustomer);
             Navigator.pop(context);
           },
         ),
       ],
     );
+  }
+
+  void _showAddCustomerDialog(BuildContext context) async {
+    final newCustomer = await showDialog<Customer>(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<CustomerCubit>(),
+        child: const AddCustomerDialog(),
+      ),
+    );
+
+    if (newCustomer != null && mounted) {
+      setState(() {
+        _selectedCustomer = newCustomer;
+      });
+    }
   }
 }

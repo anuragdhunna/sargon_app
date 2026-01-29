@@ -13,6 +13,8 @@ import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:intl/intl.dart';
 
+import 'package:hotel_manager/features/staff_mgmt/ui/widgets/add_customer_dialog.dart';
+
 /// Enhanced booking dialog with ID proofs and guest management
 class CreateBookingDialog extends StatefulWidget {
   final Room room;
@@ -113,42 +115,35 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                               state.customers.isNotEmpty) {
                             return Column(
                               children: [
-                                AppDropdown<Customer>(
-                                  name: 'customer_select',
-                                  label: 'Select Existing Customer (Optional)',
-                                  items: state.customers.map((c) {
-                                    return DropdownMenuItem(
-                                      value: c,
-                                      child: Text('${c.name} (${c.phone})'),
-                                    );
-                                  }).toList(),
-                                  onChanged: (customer) {
-                                    if (customer != null) {
-                                      setState(() {
-                                        _selectedCustomer = customer;
-                                        _formKey
-                                            .currentState
-                                            ?.fields['guestName']
-                                            ?.didChange(customer.name);
-                                        _formKey
-                                            .currentState
-                                            ?.fields['guestPhone']
-                                            ?.didChange(customer.phone);
-                                        _formKey
-                                            .currentState
-                                            ?.fields['guestEmail']
-                                            ?.didChange(customer.email);
-                                        _formKey
-                                            .currentState
-                                            ?.fields['idProofType']
-                                            ?.didChange(customer.idProofType);
-                                        _formKey
-                                            .currentState
-                                            ?.fields['idProofNumber']
-                                            ?.didChange(customer.idProofNumber);
-                                      });
-                                    }
-                                  },
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AppDropdown<Customer>(
+                                        name: 'customer_select',
+                                        label:
+                                            'Select Existing Customer (Optional)',
+                                        items: state.customers.map((c) {
+                                          return DropdownMenuItem(
+                                            value: c,
+                                            child: Text(
+                                              '${c.name} (${c.phone})',
+                                            ),
+                                          );
+                                        }).toList(),
+                                        onChanged: _onCustomerSelected,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 24),
+                                      child: IconButton.filled(
+                                        onPressed: () =>
+                                            _showAddCustomerDialog(context),
+                                        icon: const Icon(Icons.add),
+                                        tooltip: 'Add New Customer',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 16),
                               ],
@@ -711,5 +706,36 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
         ],
       ),
     );
+  }
+
+  void _onCustomerSelected(Customer? customer) {
+    if (customer != null) {
+      setState(() {
+        _selectedCustomer = customer;
+        _formKey.currentState?.fields['guestName']?.didChange(customer.name);
+        _formKey.currentState?.fields['guestPhone']?.didChange(customer.phone);
+        _formKey.currentState?.fields['guestEmail']?.didChange(customer.email);
+        _formKey.currentState?.fields['idProofType']?.didChange(
+          customer.idProofType,
+        );
+        _formKey.currentState?.fields['idProofNumber']?.didChange(
+          customer.idProofNumber,
+        );
+      });
+    }
+  }
+
+  void _showAddCustomerDialog(BuildContext context) async {
+    final newCustomer = await showDialog<Customer>(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<CustomerCubit>(),
+        child: const AddCustomerDialog(),
+      ),
+    );
+
+    if (newCustomer != null && mounted) {
+      _onCustomerSelected(newCustomer);
+    }
   }
 }
