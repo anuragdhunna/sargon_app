@@ -1,12 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotel_manager/component/buttons/premium_button.dart';
-import 'package:hotel_manager/core/models/models.dart';
-import 'package:hotel_manager/core/services/database_service.dart';
-import 'package:hotel_manager/features/billing/logic/billing_cubit.dart';
-import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
-import 'package:hotel_manager/theme/app_design.dart';
+import '../../../../core/models/models.dart';
+import '../../../../theme/app_design.dart';
 import 'package:intl/intl.dart';
 
 /// Order Detail Dialog showing complete order information
@@ -207,16 +201,18 @@ class OrderDetailDialog extends StatelessWidget {
                           ],
                         ),
                       );
-                    }).toList(),
+                    }),
 
                     if (hasDiscount) ...[
                       const Divider(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Total Discount',
-                            style: TextStyle(
+                          Text(
+                            order.appliedOfferName != null
+                                ? 'Total Discount (${order.appliedOfferName})'
+                                : 'Total Discount',
+                            style: const TextStyle(
                               color: Colors.green,
                               fontWeight: FontWeight.bold,
                             ),

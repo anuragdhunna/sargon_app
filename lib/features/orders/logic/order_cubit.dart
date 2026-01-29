@@ -90,7 +90,7 @@ class OrderCubit extends Cubit<OrderState> {
                 updatedItem.course == CourseType.drinks)) {
           updatedItem = updatedItem.copyWith(
             kdsStatus: KdsStatus.fired,
-            firedAt: DateTime.now(),
+            firedAt: Optional(DateTime.now()),
           );
         }
         return updatedItem;
@@ -123,7 +123,7 @@ class OrderCubit extends Cubit<OrderState> {
 
         final mergedOrder = existingOrder.copyWith(
           items: mergedItems,
-          orderNotes: combinedNotes,
+          orderNotes: Optional(combinedNotes),
           updatedAt: DateTime.now(),
           status: OrderStatus.cooking, // Items added, move to cooking
         );
@@ -155,7 +155,10 @@ class OrderCubit extends Cubit<OrderState> {
 
     final updatedItems = order.items.map((item) {
       if (item.course == course && item.kdsStatus == KdsStatus.pending) {
-        return item.copyWith(kdsStatus: KdsStatus.fired, firedAt: firedAt);
+        return item.copyWith(
+          kdsStatus: KdsStatus.fired,
+          firedAt: Optional(firedAt),
+        );
       }
       return item;
     }).toList();
@@ -337,7 +340,9 @@ class OrderCubit extends Cubit<OrderState> {
       } else if (offer.offerType == OfferType.item) {
         isApplicable = offer.applicableItemIds.contains(item.menuItemId);
       } else if (offer.offerType == OfferType.category) {
-        isApplicable = offer.applicableItemIds.contains(item.menuItemId);
+        isApplicable =
+            item.categoryId != null &&
+            offer.applicableCategoryIds.contains(item.categoryId);
       }
 
       if (isApplicable) {
@@ -354,14 +359,44 @@ class OrderCubit extends Cubit<OrderState> {
 
         return item.copyWith(
           discountAmount: discountAmount,
-          discountType: offer.discountType,
+          discountType: Optional(offer.discountType),
         );
       }
       return item;
     }).toList();
 
     await _databaseService.saveOrder(
-      order.copyWith(items: updatedItems, updatedAt: DateTime.now()),
+      order.copyWith(
+        items: updatedItems,
+        appliedOfferId: Optional(offer.id),
+        appliedOfferName: Optional(offer.name),
+        updatedAt: DateTime.now(),
+      ),
+    );
+  }
+
+  /// Remove an applied offer from an order
+  Future<void> removeOfferFromOrder(String orderId) async {
+    final currentState = state;
+    if (currentState is! OrderLoaded) return;
+
+    final order = currentState.orders.firstWhere((o) => o.id == orderId);
+
+    // Reset all item discounts
+    final resetItems = order.items.map((item) {
+      return item.copyWith(
+        discountAmount: 0.0,
+        discountType: const Optional(null),
+      );
+    }).toList();
+
+    await _databaseService.saveOrder(
+      order.copyWith(
+        items: resetItems,
+        appliedOfferId: const Optional(null),
+        appliedOfferName: const Optional(null),
+        updatedAt: DateTime.now(),
+      ),
     );
   }
 

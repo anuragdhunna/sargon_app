@@ -5,7 +5,6 @@ import 'package:hotel_manager/features/dashboard/logic/dashboard_state.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hotel_manager/core/models/models.dart';
 import 'package:intl/intl.dart';
 
 class DashboardScreen extends StatefulWidget {

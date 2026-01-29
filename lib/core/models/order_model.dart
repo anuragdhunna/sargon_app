@@ -6,6 +6,12 @@ import 'offer_model.dart';
 /// Overall Order status enum
 enum OrderStatus { pending, cooking, ready, served, cancelled }
 
+/// Wrapper to handle null values in copyWith
+class Optional<T> {
+  final T? value;
+  const Optional(this.value);
+}
+
 /// Extension for OrderStatus display names
 extension OrderStatusExtension on OrderStatus {
   String get displayName {
@@ -63,6 +69,8 @@ class Order extends Equatable {
   final String? phone;
   final PaymentMethod? paymentMethod;
   final PaymentStatus paymentStatus;
+  final String? appliedOfferId;
+  final String? appliedOfferName;
 
   const Order({
     required this.id,
@@ -85,6 +93,8 @@ class Order extends Equatable {
     this.phone,
     this.paymentMethod,
     this.paymentStatus = PaymentStatus.pending,
+    this.appliedOfferId,
+    this.appliedOfferName,
   });
 
   @override
@@ -109,6 +119,8 @@ class Order extends Equatable {
     phone,
     paymentMethod,
     paymentStatus,
+    appliedOfferId,
+    appliedOfferName,
   ];
 
   double get totalPrice {
@@ -126,16 +138,18 @@ class Order extends Equatable {
     DateTime? openedAt,
     int? paxCount,
     OrderPriority? priority,
-    String? orderNotes,
+    Optional<String>? orderNotes,
     String? createdBy,
     String? waiterName,
-    String? bookingId,
-    String? roomId,
-    String? guestName,
-    String? customerId,
-    String? phone,
+    Optional<String>? bookingId,
+    Optional<String>? roomId,
+    Optional<String>? guestName,
+    Optional<String>? customerId,
+    Optional<String>? phone,
     PaymentMethod? paymentMethod,
     PaymentStatus? paymentStatus,
+    Optional<String>? appliedOfferId,
+    Optional<String>? appliedOfferName,
   }) {
     return Order(
       id: id ?? this.id,
@@ -146,18 +160,26 @@ class Order extends Equatable {
       timestamp: timestamp ?? this.timestamp,
       updatedAt: updatedAt ?? this.updatedAt,
       openedAt: openedAt ?? this.openedAt,
-      paxCount: paxCount ?? this.paxCount,
+      paxCount:
+          paxCount ??
+          this.paxCount, // paxCount is not optional in current update logic
       priority: priority ?? this.priority,
-      orderNotes: orderNotes ?? this.orderNotes,
+      orderNotes: orderNotes != null ? orderNotes.value : this.orderNotes,
       createdBy: createdBy ?? this.createdBy,
       waiterName: waiterName ?? this.waiterName,
-      bookingId: bookingId ?? this.bookingId,
-      roomId: roomId ?? this.roomId,
-      guestName: guestName ?? this.guestName,
-      customerId: customerId ?? this.customerId,
-      phone: phone ?? this.phone,
+      bookingId: bookingId != null ? bookingId.value : this.bookingId,
+      roomId: roomId != null ? roomId.value : this.roomId,
+      guestName: guestName != null ? guestName.value : this.guestName,
+      customerId: customerId != null ? customerId.value : this.customerId,
+      phone: phone != null ? phone.value : this.phone,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentStatus: paymentStatus ?? this.paymentStatus,
+      appliedOfferId: appliedOfferId != null
+          ? appliedOfferId.value
+          : this.appliedOfferId,
+      appliedOfferName: appliedOfferName != null
+          ? appliedOfferName.value
+          : this.appliedOfferName,
     );
   }
 
@@ -183,6 +205,8 @@ class Order extends Equatable {
       'phone': phone,
       'paymentMethod': paymentMethod?.name,
       'paymentStatus': paymentStatus.name,
+      'appliedOfferId': appliedOfferId,
+      'appliedOfferName': appliedOfferName,
     };
   }
 
@@ -236,6 +260,8 @@ class Order extends Equatable {
         (e) => e.name == (json['paymentStatus'] ?? 'pending'),
         orElse: () => PaymentStatus.pending,
       ),
+      appliedOfferId: json['appliedOfferId']?.toString(),
+      appliedOfferName: json['appliedOfferName']?.toString(),
     );
   }
 }
@@ -243,6 +269,7 @@ class Order extends Equatable {
 class OrderItem extends Equatable {
   final String id;
   final String menuItemId;
+  final String? categoryId;
   final String name;
   final double price;
   final int quantity;
@@ -259,6 +286,7 @@ class OrderItem extends Equatable {
   const OrderItem({
     required this.id,
     required this.menuItemId,
+    this.categoryId,
     required this.name,
     required this.price,
     this.quantity = 1,
@@ -277,6 +305,7 @@ class OrderItem extends Equatable {
   List<Object?> get props => [
     id,
     menuItemId,
+    categoryId,
     name,
     price,
     quantity,
@@ -311,34 +340,38 @@ class OrderItem extends Equatable {
   OrderItem copyWith({
     String? id,
     String? menuItemId,
+    Optional<String>? categoryId,
     String? name,
     double? price,
     int? quantity,
-    String? notes,
-    List<OrderItemOption>? options,
+    Optional<String>? notes,
+    Optional<List<OrderItemOption>>? options,
     KdsStatus? kdsStatus,
-    DateTime? firedAt,
+    Optional<DateTime>? firedAt,
     CourseType? course,
     int? expectedPrepTimeMinutes,
     double? discountAmount,
-    DiscountType? discountType,
+    Optional<DiscountType>? discountType,
     bool? isComplimentary,
   }) {
     return OrderItem(
       id: id ?? this.id,
       menuItemId: menuItemId ?? this.menuItemId,
+      categoryId: categoryId != null ? categoryId.value : this.categoryId,
       name: name ?? this.name,
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
-      notes: notes ?? this.notes,
-      options: options ?? this.options,
+      notes: notes != null ? notes.value : this.notes,
+      options: options != null ? options.value : this.options,
       kdsStatus: kdsStatus ?? this.kdsStatus,
-      firedAt: firedAt ?? this.firedAt,
+      firedAt: firedAt != null ? firedAt.value : this.firedAt,
       course: course ?? this.course,
       expectedPrepTimeMinutes:
           expectedPrepTimeMinutes ?? this.expectedPrepTimeMinutes,
       discountAmount: discountAmount ?? this.discountAmount,
-      discountType: discountType ?? this.discountType,
+      discountType: discountType != null
+          ? discountType.value
+          : this.discountType,
       isComplimentary: isComplimentary ?? this.isComplimentary,
     );
   }
@@ -347,6 +380,7 @@ class OrderItem extends Equatable {
     return {
       'id': id,
       'menuItemId': menuItemId,
+      'categoryId': categoryId,
       'name': name,
       'price': price,
       'quantity': quantity,
@@ -366,6 +400,7 @@ class OrderItem extends Equatable {
     return OrderItem(
       id: json['id'],
       menuItemId: json['menuItemId'],
+      categoryId: json['categoryId'],
       name: json['name'],
       price: (json['price'] as num).toDouble(),
       quantity: json['quantity'] ?? 1,
@@ -402,6 +437,7 @@ class OrderItem extends Equatable {
     return OrderItem(
       id: 'item_${DateTime.now().millisecondsSinceEpoch}',
       menuItemId: item.id,
+      categoryId: item.category.name,
       name: item.name,
       price: item.price,
       quantity: quantity,

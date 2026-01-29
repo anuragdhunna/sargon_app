@@ -54,9 +54,10 @@ class HappyHourService {
 
     return item.copyWith(
       discountAmount: discountAmount,
-      discountType: hh.discountType,
-      notes:
-          '${item.notes != null ? '${item.notes}; ' : ''}Happy Hour: ${hh.name}',
+      discountType: Optional(hh.discountType),
+      notes: Optional(
+        '${item.notes != null ? '${item.notes}; ' : ''}Happy Hour: ${hh.name}',
+      ),
     );
   }
 }

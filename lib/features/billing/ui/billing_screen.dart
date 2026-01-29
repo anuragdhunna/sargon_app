@@ -110,6 +110,29 @@ class _BillingScreenState extends State<BillingScreen> {
                       const SizedBox(height: 20),
                       BillSummaryCard(
                         summary: summary,
+                        manualDiscounts: _appliedOffers.map((o) {
+                          double amount = 0;
+                          if (o.discountType == DiscountType.percent) {
+                            amount =
+                                (summary.subTotal -
+                                    summary.totalDiscountAmount +
+                                    o.discountValue) *
+                                (o.discountValue / 100);
+                          } else {
+                            amount = o.discountValue;
+                          }
+                          return BillDiscount(
+                            id: o.id,
+                            offerId: o.id,
+                            name: o.name,
+                            discountType: o.discountType,
+                            discountValue: o.discountValue,
+                            discountAmount: amount,
+                            appliedBy: 'staff',
+                            reason: 'Applied during billing',
+                            appliedAt: DateTime.now(),
+                          );
+                        }).toList(),
                         showServiceCharge: _includeServiceCharge,
                         onServiceChargeChanged: (val) {
                           setState(() => _includeServiceCharge = val);
@@ -129,8 +152,6 @@ class _BillingScreenState extends State<BillingScreen> {
   }
 
   Widget _buildOrderSummaryCard() {
-    final allItems = widget.orders.expand((o) => o.items).toList();
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -150,7 +171,7 @@ class _BillingScreenState extends State<BillingScreen> {
                 ),
               ),
               Text(
-                '${allItems.length} items',
+                '${widget.orders.fold(0, (sum, o) => sum + o.items.length)} items',
                 style: AppDesign.bodySmall.copyWith(
                   color: AppDesign.neutral500,
                 ),
@@ -158,40 +179,42 @@ class _BillingScreenState extends State<BillingScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          ...allItems.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${item.quantity}x ${item.name}',
-                          style: AppDesign.bodyLarge,
-                        ),
-                        if (item.discountAmount > 0)
+          ...widget.orders.expand((order) {
+            return order.items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            'Happy Hour Applied',
-                            style: AppDesign.bodySmall.copyWith(
-                              color: Colors.orange.shade700,
-                            ),
+                            '${item.quantity}x ${item.name}',
+                            style: AppDesign.bodyLarge,
                           ),
-                      ],
+                          if (item.discountAmount > 0)
+                            Text(
+                              order.appliedOfferName ?? 'Offer Applied',
+                              style: AppDesign.bodySmall.copyWith(
+                                color: Colors.orange.shade700,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  Text(
-                    '₹${item.totalPrice.toStringAsFixed(2)}',
-                    style: AppDesign.bodyLarge.copyWith(
-                      fontWeight: FontWeight.w600,
+                    Text(
+                      '₹${item.totalPrice.toStringAsFixed(2)}',
+                      style: AppDesign.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          }),
         ],
       ),
     );

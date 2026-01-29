@@ -14,9 +14,11 @@ class BillingCubit extends Cubit<BillingState> {
   List<Bill> _bills = [];
   List<TaxRule> _taxRules = [];
   List<ServiceChargeRule> _scRules = [];
+  List<Offer> _offers = [];
   StreamSubscription? _billsSubscription;
   StreamSubscription? _taxSubscription;
   StreamSubscription? _scSubscription;
+  StreamSubscription? _offersSubscription;
 
   BillingCubit({
     required IBillingDatabase databaseService,
@@ -36,6 +38,7 @@ class BillingCubit extends Cubit<BillingState> {
     _emitLoaded();
 
     _billsSubscription?.cancel();
+    _offersSubscription?.cancel();
 
     try {
       // Attempt to fetch live rules, but don't crash if it fails (permission-denied fallback)
@@ -61,6 +64,14 @@ class BillingCubit extends Cubit<BillingState> {
         },
       );
 
+      // Stream Offers (safely)
+      if (_databaseService is DatabaseService) {
+        _offersSubscription = _databaseService.streamOffers().listen((offers) {
+          _offers = offers;
+          _emitLoaded();
+        });
+      }
+
       _emitLoaded();
     } catch (e) {
       debugPrint('Billing data initialization failed, using defaults: $e');
@@ -74,6 +85,7 @@ class BillingCubit extends Cubit<BillingState> {
         bills: _bills,
         taxRules: _taxRules,
         serviceChargeRules: _scRules,
+        offers: _offers,
       ),
     );
   }
@@ -115,6 +127,30 @@ class BillingCubit extends Cubit<BillingState> {
       loyaltyPointsRedeemed: redeemedPoints,
     );
 
+    // Consolidate order-level discounts for tracking
+    final List<BillDiscount> trackingDiscounts = [];
+    for (var order in orders) {
+      if (order.appliedOfferId != null &&
+          !manualDiscounts.any((o) => o.id == order.appliedOfferId)) {
+        trackingDiscounts.add(
+          BillDiscount(
+            id: 'disc_tr_${order.id}_${DateTime.now().millisecondsSinceEpoch}',
+            offerId: order.appliedOfferId!,
+            name: order.appliedOfferName ?? 'Order Offer',
+            discountType: DiscountType.flat, // Amount already in items
+            discountValue: 0,
+            discountAmount: order.items.fold(
+              0.0,
+              (s, i) => s + i.discountAmount,
+            ),
+            reason: 'Applied at order level',
+            appliedAt: DateTime.now(),
+            appliedBy: 'system',
+          ),
+        );
+      }
+    }
+
     final bill = Bill(
       id: 'bill_${DateTime.now().millisecondsSinceEpoch}',
       tableId: tableId,
@@ -128,29 +164,32 @@ class BillingCubit extends Cubit<BillingState> {
       openedAt: DateTime.now(),
       customerId: customerId,
       redeemedPoints: redeemedPoints,
-      discounts: manualDiscounts.map((o) {
-        double discountAmount = 0.0;
-        if (o.discountType == DiscountType.percent) {
-          // Discount is calculated on taxable subtotal (pre-tax)
-          discountAmount =
-              (taxSummary.taxableAmount - taxSummary.serviceChargeAmount) *
-              (o.discountValue / 100);
-        } else {
-          discountAmount = o.discountValue;
-        }
+      discounts: [
+        ...trackingDiscounts,
+        ...manualDiscounts.map((o) {
+          double discountAmount = 0.0;
+          if (o.discountType == DiscountType.percent) {
+            // Discount is calculated on taxable subtotal (pre-tax)
+            discountAmount =
+                (taxSummary.taxableAmount - taxSummary.serviceChargeAmount) *
+                (o.discountValue / 100);
+          } else {
+            discountAmount = o.discountValue;
+          }
 
-        return BillDiscount(
-          id: 'disc_${DateTime.now().millisecondsSinceEpoch}',
-          offerId: o.id,
-          name: o.name,
-          discountType: o.discountType,
-          discountValue: o.discountValue,
-          discountAmount: discountAmount,
-          reason: o.description ?? 'Applied',
-          appliedAt: DateTime.now(),
-          appliedBy: 'system', // Replace with actual user ID
-        );
-      }).toList(),
+          return BillDiscount(
+            id: 'disc_${DateTime.now().millisecondsSinceEpoch}',
+            offerId: o.id,
+            name: o.name,
+            discountType: o.discountType,
+            discountValue: o.discountValue,
+            discountAmount: discountAmount,
+            reason: o.description ?? 'Applied',
+            appliedAt: DateTime.now(),
+            appliedBy: 'system', // Replace with actual user ID
+          );
+        }),
+      ],
     );
 
     await _databaseService.saveBill(bill);
@@ -488,6 +527,7 @@ class BillingCubit extends Cubit<BillingState> {
     _billsSubscription?.cancel();
     _taxSubscription?.cancel();
     _scSubscription?.cancel();
+    _offersSubscription?.cancel();
     return super.close();
   }
 }

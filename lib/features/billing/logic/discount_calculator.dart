@@ -28,7 +28,7 @@ class DiscountCalculator {
 
     double taxableAfterItemDiscounts = subTotal - totalItemDiscount;
 
-    // 2. Process Bill-Level Discounts
+    // 2. Process Manual Discounts (passed at billing/summary level)
     double totalBillDiscount = 0.0;
     for (var offer in manualDiscounts) {
       if (offer.offerType == OfferType.bill) {
@@ -37,6 +37,41 @@ class DiscountCalculator {
               taxableAfterItemDiscounts * (offer.discountValue / 100);
         } else {
           totalBillDiscount += offer.discountValue;
+        }
+      } else {
+        // Handle item/category level manual discounts if not already in order
+        for (var order in orders) {
+          for (var item in order.items) {
+            // Only apply if item doesn't have a discount yet
+            if (item.discountAmount == 0) {
+              bool isApplicable = false;
+              if (offer.offerType == OfferType.item) {
+                isApplicable = offer.applicableItemIds.contains(
+                  item.menuItemId,
+                );
+              } else if (offer.offerType == OfferType.category) {
+                isApplicable =
+                    item.categoryId != null &&
+                    offer.applicableCategoryIds.contains(item.categoryId);
+              }
+
+              if (isApplicable) {
+                double baseItemPrice =
+                    (item.price +
+                        (item.options?.fold(0.0, (s, o) => s! + o.price) ??
+                            0.0)) *
+                    item.quantity;
+
+                double disc = 0;
+                if (offer.discountType == DiscountType.percent) {
+                  disc = baseItemPrice * (offer.discountValue / 100);
+                } else {
+                  disc = offer.discountValue / order.items.length;
+                }
+                totalBillDiscount += disc;
+              }
+            }
+          }
         }
       }
     }

@@ -563,6 +563,13 @@ class _OrderHistoryCard extends StatelessWidget {
                                 order.paymentStatus == PaymentStatus.pending) &&
                             billingState is BillingLoaded) ...[
                           () {
+                            final appliedOffer = order.appliedOfferId != null
+                                ? billingState.offers.firstWhere(
+                                    (o) => o.id == order.appliedOfferId,
+                                    orElse: () => null as dynamic,
+                                  )
+                                : null;
+
                             final BillTaxSummary displayBill =
                                 bill?.taxSummary ??
                                 DiscountCalculator.calculateTaxSummary(
@@ -574,6 +581,9 @@ class _OrderHistoryCard extends StatelessWidget {
                                       billingState.serviceChargeRules.isNotEmpty
                                       ? billingState.serviceChargeRules.first
                                       : null,
+                                  manualDiscounts: appliedOffer != null
+                                      ? [appliedOffer]
+                                      : [],
                                 );
 
                             return Column(
@@ -595,24 +605,59 @@ class _OrderHistoryCard extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                if (displayBill.totalDiscountAmount > 0)
+                                if (order.appliedOfferName != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 4),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Promotion Applied',
+                                          style: AppDesign.bodySmall.copyWith(
+                                            color: AppDesign.primaryStart,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          order.appliedOfferName!,
+                                          style: AppDesign.bodySmall.copyWith(
+                                            color: AppDesign.primaryStart,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                if (displayBill.totalDiscountAmount > 0 ||
+                                    order.appliedOfferId != null)
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
-                                        'Discount',
+                                      Text(
+                                        order.appliedOfferName != null
+                                            ? 'Discount (${order.appliedOfferName})'
+                                            : 'Discount',
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.green,
+                                          color:
+                                              displayBill.totalDiscountAmount >
+                                                  0
+                                              ? Colors.green
+                                              : Colors.grey,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                       Text(
                                         '- ₹${displayBill.totalDiscountAmount.toStringAsFixed(2)}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.green,
+                                          color:
+                                              displayBill.totalDiscountAmount >
+                                                  0
+                                              ? Colors.green
+                                              : Colors.grey,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -716,10 +761,31 @@ class _OrderHistoryCard extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: PremiumButton.outline(
-                                label: 'Apply Offer',
+                                label: order.appliedOfferId != null
+                                    ? 'Change Offer'
+                                    : 'Apply Offer',
                                 icon: Icons.local_offer,
                                 isFullWidth: true,
                                 onPressed: () => _showApplyOfferDialog(context),
+                              ),
+                            ),
+                          if (order.paymentStatus == PaymentStatus.pending &&
+                              order.appliedOfferId != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: PremiumButton.danger(
+                                label: 'Remove Offer',
+                                icon: Icons.delete_outline,
+                                isFullWidth: true,
+                                onPressed: () {
+                                  context
+                                      .read<OrderCubit>()
+                                      .removeOfferFromOrder(order.id);
+                                  CustomSnackbar.showSuccess(
+                                    context,
+                                    'Offer removed!',
+                                  );
+                                },
                               ),
                             ),
                           PremiumButton.primary(

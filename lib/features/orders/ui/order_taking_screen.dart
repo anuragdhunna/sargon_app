@@ -853,9 +853,11 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
                 setState(() {
                   _cart[index] = item.copyWith(
                     quantity: quantity,
-                    notes: notesController.text.trim().isEmpty
-                        ? null
-                        : notesController.text.trim(),
+                    notes: Optional(
+                      notesController.text.trim().isEmpty
+                          ? null
+                          : notesController.text.trim(),
+                    ),
                   );
                 });
                 Navigator.pop(context);

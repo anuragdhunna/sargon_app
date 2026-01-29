@@ -41,12 +41,37 @@ class BillSummaryCard extends StatelessWidget {
           const SizedBox(height: 20),
           _SummaryRow(label: 'Subtotal', value: summary.subTotal),
 
-          if (summary.totalDiscountAmount > 0)
+          if (summary.totalDiscountAmount > 0) ...[
             _SummaryRow(
               label: 'Total Discount',
               value: -summary.totalDiscountAmount,
               valueColor: Colors.green.shade700,
             ),
+            if (manualDiscounts.isNotEmpty)
+              ...manualDiscounts.map(
+                (d) => Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '↳ ${d.name}',
+                        style: AppDesign.bodySmall.copyWith(
+                          color: Colors.green.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        '-₹${d.discountAmount.toStringAsFixed(2)}',
+                        style: AppDesign.bodySmall.copyWith(
+                          color: Colors.green.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
 
           const Divider(height: 32),
 
