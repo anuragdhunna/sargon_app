@@ -5,7 +5,7 @@ import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hotel_manager/features/orders/ui/kds_analytics_screen.dart';
+import 'package:hotel_manager/features/orders/presentation/kitchen/ui/kds_analytics_screen.dart';
 
 class KdsPerformanceWidget extends StatelessWidget {
   const KdsPerformanceWidget({super.key});

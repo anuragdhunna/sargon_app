@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
-import 'package:hotel_manager/features/orders/ui/order_history_screen.dart';
+import 'package:hotel_manager/features/orders/presentation/order_history/ui/order_history_screen.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
 import 'package:hotel_manager/features/table_mgmt/logic/table_cubit.dart';
 import 'package:hotel_manager/features/table_mgmt/logic/table_state.dart';

@@ -97,7 +97,7 @@ Before creating a new file, check if the functionality belongs to an existing mo
 - **Order Taking**: Refactored to Clean Architecture with dedicated `OrderTakingCubit`. Features responsive menu grid, category filtering, search, and reactive cart management.
 - **Order Merging**: Auto-merges items for pending orders on same table (industry standard)
 - **Order Notes**: Item-level notes + overall order-level notes (e.g., "Birthday", "Rush")
-- **Digital KDS**: Production-grade Kitchen Display System with course-wise firing, ticket-based view, and priority sorting.
+- **Digital KDS**: Production-grade Kitchen Display System refactored to Clean Architecture. Features ticket-based views, modular item status tracking (FIRE/PREP/READY/SERVE), and integrated performance analytics.
 - **SLA Tracking**: Real-time monitoring of preparation times with delay alerts and progress bars.
 - **Order Merging**: Auto-merges items for pending orders on same table (industry standard).
 - **Course Intelligence**: Granular management of Starters, Mains, Desserts, and Drinks.

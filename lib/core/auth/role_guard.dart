@@ -4,7 +4,7 @@ import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/presentation/inventory_screen.dart';
 import 'package:hotel_manager/features/orders/presentation/order_taking/ui/order_taking_screen.dart';
-import 'package:hotel_manager/features/orders/ui/kitchen_screen.dart';
+import 'package:hotel_manager/features/orders/presentation/kitchen/ui/kitchen_screen.dart';
 import 'package:hotel_manager/features/checklists/ui/checklist_list_screen.dart';
 import 'package:hotel_manager/features/attendance/ui/attendance_screen.dart';
 import 'package:hotel_manager/features/incidents/ui/incident_management_screen.dart';
@@ -12,7 +12,7 @@ import 'package:hotel_manager/features/performance/ui/employee_performance_scree
 import 'package:hotel_manager/features/audit/ui/audit_log_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/booking_history_screen.dart';
 import 'package:hotel_manager/features/table_mgmt/ui/table_dashboard_screen.dart';
-import 'package:hotel_manager/features/orders/ui/kds_analytics_screen.dart';
+import 'package:hotel_manager/features/orders/presentation/kitchen/ui/kds_analytics_screen.dart';
 import 'package:hotel_manager/features/billing/ui/billing_screen.dart';
 import 'package:hotel_manager/features/billing/ui/discount_report_screen.dart';
 
