@@ -4,6 +4,7 @@ import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
 import 'package:hotel_manager/theme/app_design.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/widgets/add_customer_dialog.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:intl/intl.dart';
@@ -31,6 +32,13 @@ class _CustomerAnalyticsScreenState extends State<CustomerAnalyticsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [_buildSortDropdown(), const SizedBox(width: 16)],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddCustomerDialog(context),
+        label: const Text('Add Customer'),
+        icon: const Icon(Icons.add),
+        backgroundColor: AppDesign.primaryStart,
+        foregroundColor: Colors.white,
       ),
       body: BlocBuilder<CustomerCubit, CustomerState>(
         builder: (context, state) {
@@ -198,6 +206,16 @@ class _CustomerAnalyticsScreenState extends State<CustomerAnalyticsScreen> {
       itemBuilder: (context, index) {
         return _CustomerCard(customer: customers[index]);
       },
+    );
+  }
+
+  void _showAddCustomerDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<CustomerCubit>(),
+        child: const AddCustomerDialog(),
+      ),
     );
   }
 }

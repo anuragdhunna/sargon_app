@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/widgets/add_customer_dialog.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
@@ -38,14 +39,9 @@ class CustomerSelectionSheet extends StatefulWidget {
 
 class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
   String _searchQuery = '';
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  bool _isAddingNew = false;
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
     super.dispose();
   }
 
@@ -65,11 +61,7 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
             _buildHandle(),
             _buildHeader(),
             const Divider(height: 1),
-            Expanded(
-              child: _isAddingNew
-                  ? _buildAddCustomerForm()
-                  : _buildCustomerList(scrollController),
-            ),
+            Expanded(child: _buildCustomerList(scrollController)),
           ],
         ),
       ),
@@ -97,21 +89,15 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            _isAddingNew ? 'New Customer' : 'Select Customer',
+            'Select Customer',
             style: AppDesign.headlineSmall.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
-          if (!_isAddingNew)
-            PremiumButton.primary(
-              label: 'Add New',
-              onPressed: () => setState(() => _isAddingNew = true),
-            )
-          else
-            IconButton(
-              onPressed: () => setState(() => _isAddingNew = false),
-              icon: const Icon(Icons.close),
-            ),
+          PremiumButton.primary(
+            label: 'Add New',
+            onPressed: () => _showAddCustomerDialog(context),
+          ),
         ],
       ),
     );
@@ -153,7 +139,7 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
                         Text('No customers found', style: AppDesign.bodyLarge),
                         const SizedBox(height: 8),
                         TextButton(
-                          onPressed: () => setState(() => _isAddingNew = true),
+                          onPressed: () => _showAddCustomerDialog(context),
                           child: const Text('Add new customer?'),
                         ),
                       ],
@@ -304,56 +290,18 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
     );
   }
 
-  Widget _buildAddCustomerForm() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          AppTextField(
-            controller: _nameController,
-            label: 'Customer Name',
-            hint: 'Enter full name',
-            prefixIcon: Icons.person,
-          ),
-          const SizedBox(height: 16),
-          AppTextField(
-            controller: _phoneController,
-            label: 'Phone Number',
-            hint: 'Enter 10-digit number',
-            prefixIcon: Icons.phone,
-            keyboardType: TextInputType.phone,
-          ),
-          const SizedBox(height: 32),
-          PremiumButton.primary(
-            label: 'Create & Select',
-            isFullWidth: true,
-            onPressed: () {
-              if (_nameController.text.isEmpty ||
-                  _phoneController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please fill all fields')),
-                );
-                return;
-              }
-
-              final newCustomer = Customer(
-                id: DateTime.now().millisecondsSinceEpoch.toString(),
-                name: _nameController.text.trim(),
-                phone: _phoneController.text.trim(),
-                loyaltyInfo: const LoyaltyInfo(
-                  tierId: 'bronze',
-                  totalPoints: 0,
-                  availablePoints: 0,
-                ),
-              );
-
-              context.read<CustomerCubit>().saveCustomer(newCustomer);
-              widget.onSelected(newCustomer);
-              Navigator.pop(context);
-            },
-          ),
-        ],
+  void _showAddCustomerDialog(BuildContext context) async {
+    final newCustomer = await showDialog<Customer>(
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<CustomerCubit>(),
+        child: const AddCustomerDialog(),
       ),
     );
+
+    if (newCustomer != null && mounted) {
+      widget.onSelected(newCustomer);
+      Navigator.pop(context);
+    }
   }
 }
