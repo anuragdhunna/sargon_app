@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'recipe_model.dart';
 
 /// Menu item categories
 enum MenuCategory { starter, mainCourse, dessert, drink, alcohol }
@@ -25,6 +26,26 @@ extension MenuCategoryExtension on MenuCategory {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
+/// Dietary preference type
+enum DietaryType { veg, nonVeg, eggiterian }
+
+extension DietaryTypeExtension on DietaryType {
+  String get displayName {
+    switch (this) {
+      case DietaryType.veg:
+        return 'Veg';
+      case DietaryType.nonVeg:
+        return 'Non-Veg';
+      case DietaryType.eggiterian:
+        return 'Eggiterian';
+    }
+  }
+}
+
+/// MenuItem model representing a dish/drink on the menu
+///
+/// This model is synced with Firebase Realtime Database.
+/// Schema version: 2
 class MenuItem extends Equatable {
   final String id;
   final String name;
@@ -33,12 +54,13 @@ class MenuItem extends Equatable {
   final MenuCategory category;
   final String imageUrl;
   final bool isAvailable;
-  final bool isVegetarian;
+  final DietaryType dietaryType; // Replaces isVegetarian
   final int preparationTimeMinutes;
   final String? notes; // Order-specific notes
+  final List<RecipeIngredient>? recipe; // Ingredients for stock deduction
 
   // Schema version for migrations
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   const MenuItem({
     required this.id,
@@ -48,9 +70,10 @@ class MenuItem extends Equatable {
     required this.category,
     required this.imageUrl,
     this.isAvailable = true,
-    this.isVegetarian = false,
+    this.dietaryType = DietaryType.veg,
     this.preparationTimeMinutes = 15,
     this.notes,
+    this.recipe,
   });
 
   MenuItem copyWith({
@@ -61,9 +84,10 @@ class MenuItem extends Equatable {
     MenuCategory? category,
     String? imageUrl,
     bool? isAvailable,
-    bool? isVegetarian,
+    DietaryType? dietaryType,
     int? preparationTimeMinutes,
     String? notes,
+    List<RecipeIngredient>? recipe,
   }) {
     return MenuItem(
       id: id ?? this.id,
@@ -73,10 +97,11 @@ class MenuItem extends Equatable {
       category: category ?? this.category,
       imageUrl: imageUrl ?? this.imageUrl,
       isAvailable: isAvailable ?? this.isAvailable,
-      isVegetarian: isVegetarian ?? this.isVegetarian,
+      dietaryType: dietaryType ?? this.dietaryType,
       preparationTimeMinutes:
           preparationTimeMinutes ?? this.preparationTimeMinutes,
       notes: notes ?? this.notes,
+      recipe: recipe ?? this.recipe,
     );
   }
 
@@ -90,15 +115,29 @@ class MenuItem extends Equatable {
       'category': category.name,
       'imageUrl': imageUrl,
       'isAvailable': isAvailable,
-      'isVegetarian': isVegetarian,
+      'dietaryType': dietaryType.name,
       'preparationTimeMinutes': preparationTimeMinutes,
       'notes': notes,
+      'recipe': recipe?.map((r) => r.toJson()).toList(),
       '_schemaVersion': schemaVersion,
     };
   }
 
   /// Create from Firebase JSON
   factory MenuItem.fromJson(Map<String, dynamic> json) {
+    // Migration for isVegetarian
+    DietaryType dietaryType = DietaryType.veg;
+    if (json['dietaryType'] != null) {
+      dietaryType = DietaryType.values.firstWhere(
+        (e) => e.name == json['dietaryType'],
+        orElse: () => DietaryType.veg,
+      );
+    } else if (json['isVegetarian'] != null) {
+      dietaryType = (json['isVegetarian'] as bool)
+          ? DietaryType.veg
+          : DietaryType.nonVeg;
+    }
+
     return MenuItem(
       id: json['id'] as String,
       name: json['name'] as String,
@@ -110,9 +149,12 @@ class MenuItem extends Equatable {
       ),
       imageUrl: json['imageUrl'] as String? ?? '',
       isAvailable: json['isAvailable'] as bool? ?? true,
-      isVegetarian: json['isVegetarian'] as bool? ?? false,
+      dietaryType: dietaryType,
       preparationTimeMinutes: json['preparationTimeMinutes'] as int? ?? 15,
       notes: json['notes'] as String?,
+      recipe: (json['recipe'] as List?)
+          ?.map((e) => RecipeIngredient.fromJson(e))
+          .toList(),
     );
   }
 
@@ -125,8 +167,9 @@ class MenuItem extends Equatable {
     category,
     imageUrl,
     isAvailable,
-    isVegetarian,
+    dietaryType,
     preparationTimeMinutes,
     notes,
+    recipe,
   ];
 }

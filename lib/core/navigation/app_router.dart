@@ -31,6 +31,10 @@ import 'package:hotel_manager/features/billing/ui/billing_screen.dart';
 import 'package:hotel_manager/features/billing/ui/discount_report_screen.dart';
 import 'package:hotel_manager/features/offers/presentation/screens/offer_management_screen.dart';
 import 'package:hotel_manager/features/loyalty/presentation/screens/loyalty_management_screen.dart';
+import 'package:hotel_manager/features/settings/presentation/settings_screen.dart';
+import 'package:hotel_manager/features/settings/presentation/menu/menu_management_screen.dart';
+import 'package:hotel_manager/features/settings/presentation/tables/table_management_screen.dart';
+import 'package:hotel_manager/features/settings/presentation/tax/tax_settings_screen.dart';
 import 'package:hotel_manager/core/models/models.dart';
 
 /// Auth state notifier for GoRouter refresh
@@ -221,6 +225,28 @@ GoRouter createRouter(AuthCubit authCubit) {
           GoRoute(
             path: LoyaltyManagementScreen.routeName,
             builder: (context, state) => const LoyaltyManagementScreen(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: SettingsScreen.routeName,
+        builder: (context, state) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'menu',
+            builder: (context, state) => const MenuManagementScreen(),
+          ),
+          GoRoute(
+            path: 'tables',
+            builder: (context, state) => const TableManagementScreen(),
+          ),
+          GoRoute(
+            path: 'tax',
+            builder: (context, state) => const TaxSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'analytics',
+            builder: (context, state) => const AuditLogScreen(),
           ),
         ],
       ),

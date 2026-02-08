@@ -31,6 +31,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: const Text('Executive Dashboard'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push('/settings'),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => context.read<DashboardCubit>().refresh(),
           ),

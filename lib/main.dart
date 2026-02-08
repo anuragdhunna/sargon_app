@@ -31,6 +31,8 @@ import 'package:hotel_manager/features/offers/logic/offer_cubit.dart';
 import 'package:hotel_manager/features/loyalty/domain/repositories/loyalty_repository.dart';
 import 'package:hotel_manager/features/loyalty/data/repositories/loyalty_repository_impl.dart';
 import 'package:hotel_manager/features/loyalty/logic/loyalty_cubit.dart';
+import 'package:hotel_manager/features/settings/data/repositories/settings_repository.dart';
+import 'package:hotel_manager/features/inventory/logic/stock_manager_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +53,7 @@ void main() async {
   // Create cubits
   final authCubit = AuthCubit(authService: authService);
   final checklistCubit = ChecklistCubit(databaseService: databaseService);
-  final inventoryCubit = InventoryCubit();
+  final inventoryCubit = InventoryCubit(databaseService: databaseService);
   final purchaseOrderCubit = PurchaseOrderCubit();
   final vendorCubit = VendorCubit();
   final tableCubit = TableCubit(databaseService: databaseService);
@@ -75,6 +77,16 @@ void main() async {
           create: (context) =>
               LoyaltyRepositoryImpl(databaseService: databaseService),
         ),
+        RepositoryProvider<SettingsRepository>(
+          create: (context) => SettingsRepository(
+            databaseService: databaseService,
+            auditService:
+                AuditService(), // AuditService is a singleton/static based on implementation
+          ),
+        ),
+        RepositoryProvider<StockManagerService>(
+          create: (context) => StockManagerService(databaseService),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -87,9 +99,10 @@ void main() async {
             create: (context) => OrderCubit(
               databaseService: databaseService,
               offerRepository: context.read<OfferRepository>(),
+              stockManagerService: context.read<StockManagerService>(),
             ),
           ),
-          BlocProvider<InventoryCubit>(create: (context) => inventoryCubit),
+          BlocProvider<InventoryCubit>.value(value: inventoryCubit),
           BlocProvider<PurchaseOrderCubit>(
             create: (context) => purchaseOrderCubit,
           ),
@@ -158,6 +171,7 @@ class HotelManagerApp extends StatelessWidget {
               context.read<BillingCubit>().loadBillingData();
               context.read<UserCubit>().loadUsers();
               context.read<RoomCubit>().loadRooms();
+              context.read<InventoryCubit>().loadInventory();
             }
           });
         }

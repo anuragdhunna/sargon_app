@@ -5,6 +5,7 @@ import '../../../core/models/models.dart';
 import '../../../core/services/database_service.dart';
 import '../../offers/domain/repositories/offer_repository.dart';
 import '../../offers/logic/happy_hour_service.dart';
+import '../../inventory/logic/stock_manager_service.dart';
 
 // States
 abstract class OrderState extends Equatable {
@@ -35,6 +36,7 @@ class OrderError extends OrderState {
 class OrderCubit extends Cubit<OrderState> {
   final DatabaseService _databaseService;
   final OfferRepository _offerRepository;
+  final StockManagerService _stockManagerService;
   StreamSubscription? _ordersSubscription;
   List<HappyHour> _happyHours = [];
   StreamSubscription? _hhSubscription;
@@ -42,8 +44,10 @@ class OrderCubit extends Cubit<OrderState> {
   OrderCubit({
     required DatabaseService databaseService,
     required OfferRepository offerRepository,
+    required StockManagerService stockManagerService,
   }) : _databaseService = databaseService,
        _offerRepository = offerRepository,
+       _stockManagerService = stockManagerService,
        super(OrderInitial());
 
   void loadOrders() {
@@ -166,6 +170,15 @@ class OrderCubit extends Cubit<OrderState> {
     await _databaseService.saveOrder(
       order.copyWith(items: updatedItems, status: OrderStatus.cooking),
     );
+
+    // Deduct stock for fired items
+    final itemsToDeduct = order.items.where((item) {
+      return item.course == course && item.kdsStatus == KdsStatus.pending;
+    }).toList();
+
+    if (itemsToDeduct.isNotEmpty) {
+      await _stockManagerService.deductStockForItems(itemsToDeduct);
+    }
   }
 
   /// Update individual item status in KDS
@@ -299,6 +312,14 @@ class OrderCubit extends Cubit<OrderState> {
     if (currentState is! OrderLoaded) return;
 
     final order = currentState.orders.firstWhere((o) => o.id == orderId);
+
+    // Revert stock for the item being removed
+    try {
+      final removedItem = order.items.firstWhere((item) => item.id == itemId);
+      await _stockManagerService.revertStockForItems([removedItem]);
+    } catch (_) {
+      // Item might not exist or be found, ignore
+    }
 
     // Remove the item from the list
     final updatedItems = order.items

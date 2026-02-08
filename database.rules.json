@@ -46,7 +46,7 @@
                 "name"
             ]
         },
-        "menuItems": {
+        "menu_items": {
             ".read": "auth != null",
             ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager')",
             ".indexOn": [
@@ -83,7 +83,7 @@
         },
         "tables": {
             ".read": "auth != null",
-            ".write": "auth != null",
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager')",
             ".indexOn": [
                 "status"
             ]

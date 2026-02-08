@@ -141,7 +141,8 @@ class InventoryItem extends Equatable {
       id: json['id'] as String,
       name: json['name'] as String,
       category: ItemCategory.values.firstWhere(
-        (e) => e.name == json['category'],
+        (e) =>
+            e.name.toLowerCase() == json['category'].toString().toLowerCase(),
         orElse: () => ItemCategory.other,
       ),
       quantity: (json['quantity'] as num).toDouble(),

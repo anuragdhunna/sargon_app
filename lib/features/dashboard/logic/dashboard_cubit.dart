@@ -57,8 +57,9 @@ class DashboardCubit extends Cubit<DashboardState> {
           if (p.method == PaymentMethod.cash) cashTotal += p.amount;
           if (p.method == PaymentMethod.card) cardTotal += p.amount;
           if (p.method == PaymentMethod.upi) upiTotal += p.amount;
-          if (p.method == PaymentMethod.bill_to_room)
+          if (p.method == PaymentMethod.bill_to_room) {
             billToRoomTotal += p.amount;
+          }
         }
       }
 

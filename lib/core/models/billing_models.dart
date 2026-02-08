@@ -20,6 +20,10 @@ class TaxRule extends Equatable {
     this.isActive = true,
   });
 
+  double getEffectiveTax() {
+    return cgstPercent + sgstPercent + igstPercent;
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
-import 'package:hotel_manager/core/models/happy_hour_model.dart';
 import '../domain/repositories/offer_repository.dart';
 import 'offer_state.dart';
 

@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import '../models/models.dart';
-
+import '../models/billing_models.dart';
 import 'database/interfaces/billing_database.dart';
 
 part 'database/database_users.dart';
@@ -21,16 +21,12 @@ part 'database/database_loyalty.dart';
 part 'database/database_utils.dart';
 
 /// Firebase Realtime Database service
-///
-/// Provides CRUD operations and real-time listeners for all data collections.
-/// Now broken down into part files for better maintainability.
 class DatabaseService implements IBillingDatabase {
   final FirebaseDatabase _database;
 
   DatabaseService({FirebaseDatabase? database})
     : _database = database ?? FirebaseDatabase.instance;
 
-  /// Get database reference for a path
   DatabaseReference _ref(String path) => _database.ref(path);
 
   // Implement IBillingDatabase
@@ -69,4 +65,42 @@ class DatabaseService implements IBillingDatabase {
   @override
   Future<List<Order>> getOrdersByIds(List<String> orderIds) =>
       DatabaseOrders(this).getOrdersByIds(orderIds);
+
+  Future<void> saveTaxRule(TaxRule rule) =>
+      DatabaseBilling(this).saveTaxRule(rule);
+  Future<void> deleteTaxRule(String id) =>
+      DatabaseBilling(this).deleteTaxRule(id);
+  Future<void> saveServiceChargeRule(ServiceChargeRule rule) =>
+      DatabaseBilling(this).saveServiceChargeRule(rule);
+
+  // Tables
+  Future<void> saveTable(TableEntity table) =>
+      DatabaseTables(this).saveTable(table);
+  Future<void> deleteTable(String id) => DatabaseTables(this).deleteTable(id);
+  Stream<List<TableEntity>> streamTables() =>
+      DatabaseTables(this).streamTables();
+
+  // Menu
+  Future<void> saveMenuItem(MenuItem item) =>
+      DatabaseMenu(this).saveMenuItem(item);
+  Future<void> deleteMenuItem(String id) =>
+      DatabaseMenu(this).deleteMenuItem(id);
+  Stream<List<MenuItem>> streamMenuItems() =>
+      DatabaseMenu(this).streamMenuItems();
+  Future<MenuItem?> getMenuItem(String id) =>
+      DatabaseMenu(this).getMenuItem(id);
+
+  // Inventory
+  Future<void> deductStock(String itemId, double qty) =>
+      DatabaseInventory(this).deductStock(itemId, qty);
+  Future<void> addStock(String itemId, double qty) =>
+      DatabaseInventory(this).addStock(itemId, qty);
+
+  // Initialization Helpers
+  Future<void> initializeBillingDefaults() =>
+      DatabaseBilling(this).initializeBillingDefaults();
+  Future<void> initializeDummyTables() =>
+      DatabaseTables(this).initializeDummyTables();
+  Future<void> initializeDummyRooms() =>
+      DatabaseRooms(this).initializeDummyRooms();
 }

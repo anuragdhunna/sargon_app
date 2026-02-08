@@ -1,16 +1,39 @@
+import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/features/settings/data/repositories/settings_repository.dart';
 import 'order_taking_state.dart';
 
 class OrderTakingCubit extends Cubit<OrderTakingState> {
-  OrderTakingCubit({String? initialTableId, String? initialRoomId})
-    : super(
-        OrderTakingState(
-          selectedTableId: initialTableId,
-          selectedRoom: initialRoomId,
-          orderType: initialRoomId != null ? 'Room' : 'Table',
-        ),
-      );
+  final SettingsRepository _settingsRepository;
+  StreamSubscription? _menuSubscription;
+
+  OrderTakingCubit({
+    required SettingsRepository settingsRepository,
+    String? initialTableId,
+    String? initialRoomId,
+  }) : _settingsRepository = settingsRepository,
+       super(
+         OrderTakingState(
+           selectedTableId: initialTableId,
+           selectedRoom: initialRoomId,
+           orderType: initialRoomId != null ? 'Room' : 'Table',
+         ),
+       ) {
+    _loadMenuItems();
+  }
+
+  void _loadMenuItems() {
+    _menuSubscription = _settingsRepository.streamMenuItems().listen((items) {
+      setMenuItems(items);
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _menuSubscription?.cancel();
+    return super.close();
+  }
 
   void setMenuItems(List<MenuItem> items) {
     emit(

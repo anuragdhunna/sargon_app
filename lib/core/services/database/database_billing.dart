@@ -28,6 +28,16 @@ extension DatabaseBilling on DatabaseService {
     await billsRef.child(bill.id).set(bill.toJson());
   }
 
+  /// Save or Update Tax Rule
+  Future<void> saveTaxRule(TaxRule rule) async {
+    await taxRulesRef.child(rule.id).set(rule.toJson());
+  }
+
+  /// Delete Tax Rule (or mark inactive)
+  Future<void> deleteTaxRule(String id) async {
+    await taxRulesRef.child(id).remove();
+  }
+
   /// stream tax rules
   Stream<List<TaxRule>> streamTaxRules() {
     return taxRulesRef.onValue.map((event) {
@@ -115,6 +125,11 @@ extension DatabaseBilling on DatabaseService {
           .map((e) => ServiceChargeRule.fromJson(_toMap(e.value)))
           .toList();
     });
+  }
+
+  /// Save or Update Service Charge Rule
+  Future<void> saveServiceChargeRule(ServiceChargeRule rule) async {
+    await serviceChargeRulesRef.child(rule.id).set(rule.toJson());
   }
 
   /// Get a bill by ID

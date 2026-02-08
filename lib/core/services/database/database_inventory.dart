@@ -107,4 +107,24 @@ extension DatabaseInventory on DatabaseService {
   Future<void> saveGoodsReceipt(GoodsReceiptNote grn) async {
     await goodsReceiptsRef.child(grn.id).set(grn.toJson());
   }
+
+  /// Deduct stock for an item
+  Future<void> deductStock(String itemId, double quantity) async {
+    final snapshot = await inventoryRef.child(itemId).get();
+    if (snapshot.value != null) {
+      final current = InventoryItem.fromJson(_toMap(snapshot.value));
+      final newQty = current.quantity - quantity;
+      await updateInventoryQuantity(itemId, newQty);
+    }
+  }
+
+  /// Add stock for an item
+  Future<void> addStock(String itemId, double quantity) async {
+    final snapshot = await inventoryRef.child(itemId).get();
+    if (snapshot.value != null) {
+      final current = InventoryItem.fromJson(_toMap(snapshot.value));
+      final newQty = current.quantity + quantity;
+      await updateInventoryQuantity(itemId, newQty);
+    }
+  }
 }

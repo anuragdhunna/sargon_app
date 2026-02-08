@@ -12,6 +12,7 @@ import 'package:hotel_manager/features/orders/presentation/widgets/order_item_di
 import 'package:hotel_manager/features/orders/presentation/widgets/order_selection_header.dart';
 import 'package:hotel_manager/features/orders/presentation/widgets/category_filter_chips.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/features/settings/data/repositories/settings_repository.dart';
 
 import '../cubit/order_taking_cubit.dart';
 import '../cubit/order_taking_state.dart';
@@ -35,66 +36,6 @@ class OrderTakingScreen extends StatefulWidget {
 class _OrderTakingScreenState extends State<OrderTakingScreen> {
   final TextEditingController _orderNotesController = TextEditingController();
 
-  // Mock Menu - In real app, this would come from a MenuCubit or Repository
-  final List<MenuItem> _allMenuItems = [
-    const MenuItem(
-      id: '1',
-      name: 'Butter Chicken',
-      description: 'Rich tomato gravy, chicken',
-      price: 350.0,
-      category: MenuCategory.mainCourse,
-      imageUrl: 'https://picsum.photos/200/300',
-    ),
-    const MenuItem(
-      id: '2',
-      name: 'Paneer Tikka',
-      description: 'Grilled cottage cheese',
-      price: 280.0,
-      category: MenuCategory.starter,
-      imageUrl: 'https://picsum.photos/200/300',
-    ),
-    const MenuItem(
-      id: '3',
-      name: 'Dal Makhani',
-      description: 'Black lentils, cream',
-      price: 220.0,
-      category: MenuCategory.mainCourse,
-      imageUrl: 'https://picsum.photos/200/300',
-    ),
-    const MenuItem(
-      id: '4',
-      name: 'Mojito',
-      description: 'Rum, mint, lime, soda',
-      price: 450.0,
-      category: MenuCategory.alcohol,
-      imageUrl: 'https://picsum.photos/200/300',
-    ),
-    const MenuItem(
-      id: '5',
-      name: 'Gulab Jamun',
-      description: 'Sweet dumplings',
-      price: 120.0,
-      category: MenuCategory.dessert,
-      imageUrl: 'https://picsum.photos/200/300',
-    ),
-    const MenuItem(
-      id: '6',
-      name: 'Chicken Biryani',
-      description: 'Aromatic rice with chicken',
-      price: 400.0,
-      category: MenuCategory.mainCourse,
-      imageUrl: 'https://picsum.photos/200/300',
-    ),
-    const MenuItem(
-      id: '7',
-      name: 'Masala Chai',
-      description: 'Spiced Indian tea',
-      price: 50.0,
-      category: MenuCategory.drink,
-      imageUrl: 'https://picsum.photos/200/300',
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -113,9 +54,10 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => OrderTakingCubit(
+        settingsRepository: context.read<SettingsRepository>(),
         initialTableId: widget.tableId,
         initialRoomId: widget.roomId,
-      )..setMenuItems(_allMenuItems),
+      ),
       child: BlocBuilder<OrderTakingCubit, OrderTakingState>(
         builder: (context, state) {
           final cubit = context.read<OrderTakingCubit>();

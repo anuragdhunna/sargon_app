@@ -24,9 +24,12 @@ extension TableStatusExtension on TableStatus {
 /// Table model representing a physical table in the restaurant/bar
 class TableEntity extends Equatable {
   final String id;
+  final String name; // Descriptive name e.g. "Front Lawn 1"
   final String tableCode; // T1, T2, B1 (Bar)
   final int minCapacity;
   final int maxCapacity;
+  final int
+  capacity; // Kept for backwards compatibility/simplicity, maps to maxCapacity usually
   final List<String> joinableTableIds;
   final TableStatus status;
   final bool isBarTable;
@@ -35,18 +38,20 @@ class TableEntity extends Equatable {
 
   const TableEntity({
     required this.id,
+    required this.name,
     required this.tableCode,
-    required this.minCapacity,
+    this.minCapacity = 1,
     required this.maxCapacity,
     this.joinableTableIds = const [],
     this.status = TableStatus.available,
     this.isBarTable = false,
     this.isActive = true,
     this.currentGroupId,
-  });
+  }) : capacity = maxCapacity;
 
   TableEntity copyWith({
     String? id,
+    String? name,
     String? tableCode,
     int? minCapacity,
     int? maxCapacity,
@@ -58,6 +63,7 @@ class TableEntity extends Equatable {
   }) {
     return TableEntity(
       id: id ?? this.id,
+      name: name ?? this.name,
       tableCode: tableCode ?? this.tableCode,
       minCapacity: minCapacity ?? this.minCapacity,
       maxCapacity: maxCapacity ?? this.maxCapacity,
@@ -72,6 +78,7 @@ class TableEntity extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'name': name,
       'tableCode': tableCode,
       'minCapacity': minCapacity,
       'maxCapacity': maxCapacity,
@@ -86,9 +93,13 @@ class TableEntity extends Equatable {
   factory TableEntity.fromJson(Map<String, dynamic> json) {
     return TableEntity(
       id: json['id']?.toString() ?? '',
+      name: json['name'] as String? ?? json['tableCode']?.toString() ?? 'Table',
       tableCode: json['tableCode']?.toString() ?? 'T-?',
       minCapacity: (json['minCapacity'] as num?)?.toInt() ?? 1,
-      maxCapacity: (json['maxCapacity'] as num?)?.toInt() ?? 4,
+      maxCapacity:
+          (json['maxCapacity'] as num?)?.toInt() ??
+          (json['capacity'] as num?)?.toInt() ??
+          4,
       joinableTableIds: List<String>.from(json['joinableTableIds'] ?? []),
       status: TableStatus.values.firstWhere(
         (e) => e.name == json['status'],
@@ -103,41 +114,15 @@ class TableEntity extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    name,
     tableCode,
     minCapacity,
     maxCapacity,
+    capacity,
     joinableTableIds,
     status,
     isBarTable,
     isActive,
     currentGroupId,
   ];
-}
-
-/// Represents a group of joined tables
-class TableGroup extends Equatable {
-  final String id;
-  final List<String> tableIds;
-  final int totalCapacity;
-
-  const TableGroup({
-    required this.id,
-    required this.tableIds,
-    required this.totalCapacity,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {'id': id, 'tableIds': tableIds, 'totalCapacity': totalCapacity};
-  }
-
-  factory TableGroup.fromJson(Map<String, dynamic> json) {
-    return TableGroup(
-      id: json['id'] as String,
-      tableIds: List<String>.from(json['tableIds']),
-      totalCapacity: json['totalCapacity'] as int,
-    );
-  }
-
-  @override
-  List<Object?> get props => [id, tableIds, totalCapacity];
 }
