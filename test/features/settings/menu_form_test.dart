@@ -2,24 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_state.dart';
 import 'package:hotel_manager/core/models/menu_item_model.dart';
-import 'package:hotel_manager/features/settings/presentation/menu/recipe_builder_widget.dart';
 import 'package:hotel_manager/core/models/inventory_item_model.dart';
+
+import 'package:hotel_manager/core/services/storage/image_storage_service.dart';
 
 class MockInventoryCubit extends MockCubit<InventoryState>
     implements InventoryCubit {}
 
-// Simple MockCubit to help with testing
-abstract class MockCubit<T> extends Mock implements BlocBase<T> {}
+class MockImageStorageService extends Mock implements ImageStorageService {}
 
 void main() {
   late MockInventoryCubit mockInventoryCubit;
+  late MockImageStorageService mockStorageService;
 
   setUp(() {
     mockInventoryCubit = MockInventoryCubit();
+    mockStorageService = MockImageStorageService();
+
+    // Set a large viewport to avoid "off-screen" tap issues
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.window.physicalSizeTestValue = const Size(800, 1200);
+    binding.window.devicePixelRatioTestValue = 1.0;
 
     // Provide a default state
     when(() => mockInventoryCubit.state).thenReturn(const InventoryLoaded([]));
@@ -35,7 +43,10 @@ void main() {
     return MaterialApp(
       home: BlocProvider<InventoryCubit>.value(
         value: mockInventoryCubit,
-        child: MenuFormScreen(onSave: onSave),
+        child: MenuFormScreen(
+          onSave: onSave,
+          storageService: mockStorageService,
+        ),
       ),
     );
   }
@@ -45,11 +56,19 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(createWidgetUnderTest(onSave: (_) async {}));
+      await tester.pumpAndSettle();
 
-      final priceField = find.widgetWithText(TextField, 'Price');
-      expect(priceField, findsOneWidget);
+      final priceField = find.byKey(const Key('item_price_field'));
+      await tester.ensureVisible(priceField);
 
-      await tester.enterText(priceField, 'abc123.45');
+      final priceTextFieldFinder = find.descendant(
+        of: priceField,
+        matching: find.byType(TextField),
+      );
+
+      expect(priceTextFieldFinder, findsOneWidget);
+
+      await tester.enterText(priceTextFieldFinder, 'abc123.45');
       await tester.pump();
 
       // Since we use FilteringTextInputFormatter, 'abc' should be blocked but '123.45' should stay
@@ -64,14 +83,26 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest(onSave: (_) async {}));
 
       // Fill in required fields
+      // Item Name
+      final nameField = find.byKey(const Key('item_name_field'));
+      await tester.ensureVisible(nameField);
       await tester.enterText(
-        find.widgetWithText(TextField, 'Item Name'),
+        find.descendant(of: nameField, matching: find.byType(TextField)),
         'Test Item',
       );
-      await tester.enterText(find.widgetWithText(TextField, 'Price'), '100');
+
+      // Price
+      final priceField = find.byKey(const Key('item_price_field'));
+      await tester.ensureVisible(priceField);
+      await tester.enterText(
+        find.descendant(of: priceField, matching: find.byType(TextField)),
+        '100',
+      );
 
       // Try to save
-      await tester.tap(find.text('Save Item'));
+      final saveBtn = find.text('Save Item');
+      await tester.ensureVisible(saveBtn);
+      await tester.tap(saveBtn);
       await tester.pumpAndSettle();
 
       expect(
@@ -97,19 +128,32 @@ void main() {
       );
 
       when(() => mockInventoryCubit.state).thenReturn(InventoryLoaded([item]));
+      when(
+        () => mockInventoryCubit.stream,
+      ).thenAnswer((_) => Stream.value(InventoryLoaded([item])));
 
       await tester.pumpWidget(createWidgetUnderTest(onSave: (_) async {}));
+      await tester.pumpAndSettle();
 
       // Open add ingredient sheet
-      await tester.tap(find.text('Add Ingredient'));
+      final addBtnFinder = find.byKey(const Key('add_ingredient_button'));
+      await tester.ensureVisible(addBtnFinder);
+      expect(addBtnFinder, findsOneWidget);
+      await tester.tap(addBtnFinder);
       await tester.pumpAndSettle();
 
       // Search or find ListTile
-      await tester.tap(find.text('Sugar'));
+      final sugarFinder = find.text('Sugar');
+      await tester.pumpAndSettle(); // Ensure sheet is built
+      expect(sugarFinder, findsOneWidget);
+      await tester.tap(sugarFinder);
       await tester.pumpAndSettle();
 
       // Check for SwitchListTile "Use Grams (g)"
-      final switchFinder = find.byType(SwitchListTile);
+      final switchFinder = find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.byType(SwitchListTile),
+      );
       expect(switchFinder, findsOneWidget);
 
       final SwitchListTile switchWidget = tester.widget(switchFinder);

@@ -114,6 +114,7 @@ class AppTextField extends StatelessWidget {
   Widget _buildFormBuilderField(String? hintText) {
     return FormBuilderTextField(
       name: name!,
+      controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
       validator: validator,
@@ -128,7 +129,7 @@ class AppTextField extends StatelessWidget {
       onTap: onTap,
       style: AppDesign.bodyMedium,
       decoration: _buildInputDecoration(hintText),
-      onChanged: onChanged, // Pass onChanged to FormBuilderTextField
+      onChanged: onChanged,
     );
   }
 

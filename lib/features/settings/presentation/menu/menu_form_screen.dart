@@ -16,8 +16,14 @@ import 'package:hotel_manager/core/services/storage/image_storage_service.dart';
 class MenuFormScreen extends StatefulWidget {
   final MenuItem? existingItem; // null = create mode
   final Future<void> Function(MenuItem) onSave;
+  final ImageStorageService? storageService;
 
-  const MenuFormScreen({super.key, this.existingItem, required this.onSave});
+  const MenuFormScreen({
+    super.key,
+    this.existingItem,
+    required this.onSave,
+    this.storageService,
+  });
 
   @override
   State<MenuFormScreen> createState() => _MenuFormScreenState();
@@ -39,11 +45,12 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
   XFile? _selectedImage;
   String? _currentImageUrl;
   bool _isUploading = false;
-  final ImageStorageService _imageService = ImageStorageService();
+  late final ImageStorageService _storageService;
 
   @override
   void initState() {
     super.initState();
+    _storageService = widget.storageService ?? ImageStorageService();
     if (widget.existingItem != null) {
       final item = widget.existingItem!;
       _nameController.text = item.name;
@@ -79,11 +86,9 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
   }
 
   void _save() async {
-    print('DEBUG: _save() called');
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       // 1. Validate Recipe
       if (_recipe.isEmpty) {
-        print('DEBUG: Recipe is empty, blocking save');
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Please add at least one ingredient to the recipe.'),
@@ -94,22 +99,18 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
       }
 
       if (_isUploading) {
-        print('DEBUG: Already uploading, ignoring click');
         return;
       }
       setState(() => _isUploading = true);
-      print('DEBUG: Setting _isUploading = true');
 
       try {
         String? imageUrl = _currentImageUrl;
 
         if (_selectedImage != null) {
-          print('DEBUG: Uploading new image: ${_selectedImage!.name}');
-          imageUrl = await _imageService.uploadImage(
+          imageUrl = await _storageService.uploadImage(
             _selectedImage!,
             'menu_items',
           );
-          print('DEBUG: Image upload successful: $imageUrl');
         }
 
         final item = MenuItem(
@@ -125,15 +126,12 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
           recipe: _recipe,
         );
 
-        print('DEBUG: Calling onSave callback for item: ${item.name}');
         await widget.onSave(item);
-        print('DEBUG: onSave callback completed');
 
         if (mounted) {
           Navigator.pop(context);
         }
       } catch (e) {
-        print('DEBUG: Error in _save(): $e');
         if (mounted) {
           ScaffoldMessenger.of(
             context,
@@ -141,13 +139,10 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
         }
       } finally {
         if (mounted) {
-          print('DEBUG: Finalizing _save(), setting _isUploading = false');
           setState(() => _isUploading = false);
         }
       }
-    } else {
-      print('DEBUG: Form validation failed');
-    }
+    } else {}
   }
 
   @override
@@ -214,6 +209,8 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
               const SizedBox(height: 16),
 
               AppTextField(
+                key: const Key('item_name_field'),
+                name: 'name',
                 controller: _nameController,
                 label: 'Item Name',
                 validator: FormBuilderValidators.compose([
@@ -231,6 +228,8 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
                 children: [
                   Expanded(
                     child: AppTextField(
+                      key: const Key('item_price_field'),
+                      name: 'price',
                       controller: _priceController,
                       label: 'Price',
                       keyboardType: const TextInputType.numberWithOptions(
@@ -251,21 +250,25 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: AppTextField(
+                      name: 'prep_time',
                       controller: _prepTimeController,
                       label: 'Prep Time (min)',
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.numeric(),
-                        FormBuilderValidators.min(0),
-                      ]),
+                      validator: (v) {
+                        if (v == null || v.isEmpty) return null;
+                        return FormBuilderValidators.compose([
+                          FormBuilderValidators.numeric(),
+                          FormBuilderValidators.min(0),
+                        ])(v);
+                      },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<MenuCategory>(
-                value: _category,
+                initialValue: _category,
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),
@@ -280,7 +283,7 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<DietaryType>(
-                value: _dietaryType,
+                initialValue: _dietaryType,
                 decoration: const InputDecoration(
                   labelText: 'Dietary Type',
                   border: OutlineInputBorder(),

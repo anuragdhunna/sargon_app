@@ -1,24 +1,27 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotel_manager/core/models/audit_log.dart';
-import 'package:hotel_manager/core/models/inventory_item_model.dart';
+import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/audit_service.dart';
-import 'package:hotel_manager/core/services/database_service.dart';
-import 'package:hotel_manager/features/inventory/stock/logic/inventory_state.dart';
+import '../../inventory_index.dart';
+import 'inventory_state.dart';
 
 /// Cubit for managing inventory operations
 class InventoryCubit extends Cubit<InventoryState> {
-  final DatabaseService _databaseService;
+  final IInventoryRepository _repository;
+  final AuditService _auditService;
   StreamSubscription? _inventorySubscription;
 
-  InventoryCubit({required DatabaseService databaseService})
-    : _databaseService = databaseService,
-      super(InventoryInitial());
+  InventoryCubit({
+    required IInventoryRepository repository,
+    AuditService? auditService,
+  }) : _repository = repository,
+       _auditService = auditService ?? AuditService(),
+       super(InventoryInitial());
 
   void loadInventory() {
     emit(InventoryLoading());
     _inventorySubscription?.cancel();
-    _inventorySubscription = _databaseService.streamInventory().listen(
+    _inventorySubscription = _repository.streamInventory().listen(
       (items) {
         emit(InventoryLoaded(items));
       },
@@ -35,9 +38,9 @@ class InventoryCubit extends Cubit<InventoryState> {
     required String userRole,
   }) async {
     try {
-      await _databaseService.saveInventoryItem(item);
+      await _repository.saveInventoryItem(item);
 
-      AuditService().log(
+      _auditService.log(
         userId: userId,
         userName: userName,
         userRole: userRole,
@@ -64,9 +67,9 @@ class InventoryCubit extends Cubit<InventoryState> {
         final item = items.firstWhere((i) => i.id == id);
         final diff = newQuantity - item.quantity;
 
-        await _databaseService.updateInventoryQuantity(id, newQuantity);
+        await _repository.updateInventoryQuantity(id, newQuantity);
 
-        AuditService().log(
+        _auditService.log(
           userId: userId,
           userName: userName,
           userRole: userRole,
@@ -91,13 +94,13 @@ class InventoryCubit extends Cubit<InventoryState> {
     required String userRole,
   }) async {
     try {
-      await _databaseService.addStock(inventoryItemId, quantity);
+      await _repository.addStock(inventoryItemId, quantity);
 
       if (state is InventoryLoaded) {
         final item = (state as InventoryLoaded).items.firstWhere(
           (i) => i.id == inventoryItemId,
         );
-        AuditService().log(
+        _auditService.log(
           userId: userId,
           userName: userName,
           userRole: userRole,

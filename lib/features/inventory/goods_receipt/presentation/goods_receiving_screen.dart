@@ -51,6 +51,7 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
         if (po != null) {
           setState(() {
             _selectedPO = po;
+            _vendorNameController.text = po.vendorName ?? '';
             _initializeReceivingItems(po);
           });
         }
@@ -256,14 +257,32 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Receive Goods'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           if (!_withoutPO && _selectedPO != null)
             Padding(
-              padding: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.only(right: AppDesign.space4),
               child: Center(
-                child: Chip(
-                  label: Text(_selectedPO!.poNumber),
-                  backgroundColor: Colors.blue.shade100,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDesign.space3,
+                    vertical: AppDesign.space1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppDesign.primaryStart.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusFull),
+                    border: Border.all(
+                      color: AppDesign.primaryStart.withOpacity(0.2),
+                    ),
+                  ),
+                  child: Text(
+                    _selectedPO!.poNumber,
+                    style: AppDesign.labelMedium.copyWith(
+                      color: AppDesign.primaryStart,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -313,9 +332,11 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
 
               if (_selectedPO != null || _withoutPO) ...[
                 const SizedBox(height: 24),
-                VendorInfoWidget(
-                  controller: _vendorNameController,
-                  enabled: _withoutPO,
+                AppCard(
+                  child: VendorInfoWidget(
+                    controller: _vendorNameController,
+                    enabled: _withoutPO,
+                  ),
                 ),
 
                 const SizedBox(height: 24),
@@ -345,17 +366,26 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
                   ],
                 ),
 
-                const SizedBox(height: 24),
-                const Text(
+                const SizedBox(height: AppDesign.space6),
+                Text(
                   'Items Received',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: AppDesign.headlineSmall.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppDesign.space3),
 
                 if (_selectedPO != null) ...[
                   ..._receivingItems.map(
-                    (input) =>
-                        ReceivingItemCardWidget(input: input, onRemove: () {}),
+                    (input) => ReceivingItemCardWidget(
+                      input: input,
+                      onRemove: () {},
+                      onQualityChanged: (value) {
+                        setState(() {
+                          input.qualityCheckPassed = value;
+                        });
+                      },
+                    ),
                   ),
                 ] else ...[
                   ..._manualItems.asMap().entries.map((entry) {
@@ -363,6 +393,16 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
                       index: entry.key,
                       input: entry.value,
                       onRemove: () => _removeManualItem(entry.key),
+                      onItemChanged: (value) {
+                        setState(() {
+                          entry.value.selectedItem = value;
+                        });
+                      },
+                      onQualityChanged: (value) {
+                        setState(() {
+                          entry.value.qualityCheckPassed = value;
+                        });
+                      },
                     );
                   }),
                   PremiumButton.secondary(

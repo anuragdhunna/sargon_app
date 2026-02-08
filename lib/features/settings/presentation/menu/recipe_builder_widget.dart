@@ -71,11 +71,15 @@ class _RecipeBuilderWidgetState extends State<RecipeBuilderWidget> {
   }
 
   void _showAddIngredientSheet() {
+    final cubit = context.read<InventoryCubit>();
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => _AddIngredientSheet(onAdd: _addIngredient),
+      builder: (bContext) => BlocProvider<InventoryCubit>.value(
+        value: cubit,
+        child: _AddIngredientSheet(onAdd: _addIngredient),
+      ),
     );
   }
 
@@ -89,6 +93,7 @@ class _RecipeBuilderWidgetState extends State<RecipeBuilderWidget> {
           children: [
             Text('Recipe / Ingredients', style: AppDesign.titleMedium),
             TextButton.icon(
+              key: const Key('add_ingredient_button'),
               onPressed: _showAddIngredientSheet,
               icon: const Icon(Icons.add),
               label: const Text('Add Ingredient'),

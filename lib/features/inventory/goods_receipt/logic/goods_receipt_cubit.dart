@@ -1,124 +1,37 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotel_manager/core/models/audit_log.dart';
-import 'package:hotel_manager/core/services/audit_service.dart';
-import 'package:hotel_manager/features/inventory/goods_receipt/data/goods_receipt_model.dart';
-import 'package:hotel_manager/features/inventory/goods_receipt/logic/goods_receipt_state.dart';
-import 'package:hotel_manager/features/inventory/stock/data/inventory_model.dart';
-import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
-import 'package:hotel_manager/features/inventory/purchase_orders/logic/purchase_order_cubit.dart';
 import 'package:uuid/uuid.dart';
+import '../../inventory_index.dart';
 
-/// Cubit for managing goods receipt operations
+/// Cubit for managing goods receipt notes
 class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
   final InventoryCubit inventoryCubit;
   final PurchaseOrderCubit purchaseOrderCubit;
+  final IInventoryRepository _repository;
+  final AuditService _auditService;
 
   GoodsReceiptCubit({
     required this.inventoryCubit,
     required this.purchaseOrderCubit,
-  }) : super(GoodsReceiptInitial()) {
+    IInventoryRepository? repository,
+    AuditService? auditService,
+  }) : _repository = repository ?? InventoryRepository(),
+       _auditService = auditService ?? AuditService(),
+       super(GoodsReceiptInitial()) {
     loadGoodsReceipts();
   }
 
   final _uuid = const Uuid();
-  final List<GoodsReceiptNote> _mockGRNs = [];
+  final List<GoodsReceiptNote> _receipts = [];
 
-  void loadGoodsReceipts() async {
+  Future<void> loadGoodsReceipts() async {
     emit(GoodsReceiptLoading());
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // Initialize with mock data
-    if (_mockGRNs.isEmpty) {
-      _initializeMockData();
+    try {
+      final receipts = await _repository.getGoodsReceipts();
+      _receipts.clear();
+      _receipts.addAll(receipts);
+      emit(GoodsReceiptLoaded(List.from(_receipts)));
+    } catch (e) {
+      emit(GoodsReceiptError('Failed to load goods receipts: ${e.toString()}'));
     }
-
-    emit(GoodsReceiptLoaded(List.from(_mockGRNs)));
-  }
-
-  void _initializeMockData() {
-    final now = DateTime.now();
-
-    // GRN for completed PO
-    _mockGRNs.add(
-      GoodsReceiptNote(
-        id: 'grn_001',
-        grnNumber: 'GRN-2025-001',
-        purchaseOrderId: 'po_001',
-        purchaseOrderNumber: 'PO-2025-001',
-        vendorId: 'vendor_001',
-        vendorName: 'Fresh Dairy Farms',
-        lineItems: [
-          GRNLineItem(
-            id: 'grnli_001',
-            inventoryItemId: '1',
-            itemName: 'Milk (Full Cream)',
-            unit: UnitType.liters,
-            quantityReceived: 50,
-            pricePerUnit: 60.0,
-            qualityCheckPassed: true,
-          ),
-          GRNLineItem(
-            id: 'grnli_002',
-            inventoryItemId: '2',
-            itemName: 'Paneer',
-            unit: UnitType.kg,
-            quantityReceived: 10,
-            pricePerUnit: 350.0,
-            qualityCheckPassed: true,
-          ),
-        ],
-        receivedAt: now.subtract(const Duration(days: 3)),
-        receivedBy: 'user_123',
-        receivedByName: 'John Manager',
-        deliveryPersonName: 'Rajesh Kumar',
-        deliveryPersonPhone: '+91 9876543210',
-        billImagePath: '/mock/images/bill_001.jpg',
-        goodsImagePath: '/mock/images/goods_001.jpg',
-        invoiceNumber: 'INV-DF-2025-001',
-        notes: 'All items in good condition',
-      ),
-    );
-
-    // Partial GRN
-    _mockGRNs.add(
-      GoodsReceiptNote(
-        id: 'grn_002',
-        grnNumber: 'GRN-2025-002',
-        purchaseOrderId: 'po_002',
-        purchaseOrderNumber: 'PO-2025-002',
-        vendorId: 'vendor_002',
-        vendorName: 'Green Valley Vegetables',
-        lineItems: [
-          GRNLineItem(
-            id: 'grnli_003',
-            inventoryItemId: '3',
-            itemName: 'Tomatoes',
-            unit: UnitType.kg,
-            quantityReceived: 15,
-            pricePerUnit: 40.0,
-            qualityCheckPassed: true,
-            notes: 'Partial delivery - rest coming tomorrow',
-          ),
-          GRNLineItem(
-            id: 'grnli_004',
-            inventoryItemId: '4',
-            itemName: 'Onions',
-            unit: UnitType.kg,
-            quantityReceived: 25,
-            pricePerUnit: 35.0,
-            qualityCheckPassed: true,
-          ),
-        ],
-        receivedAt: now.subtract(const Duration(hours: 6)),
-        receivedBy: 'user_456',
-        receivedByName: 'Sarah Chef',
-        deliveryPersonName: 'Amit Singh',
-        deliveryPersonPhone: '+91 9876543211',
-        billImagePath: '/mock/images/bill_002.jpg',
-        invoiceNumber: 'INV-GV-2025-045',
-        notes: 'Partial delivery - potatoes pending',
-      ),
-    );
   }
 
   Future<void> createGoodsReceipt({
@@ -139,32 +52,14 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
     required String userRole,
   }) async {
     try {
-      emit(GoodsReceiptLoading());
-
-      final grnNumber = 'GRN-${DateTime.now().year}-${_mockGRNs.length + 1}'
-          .padLeft(12, '0');
       String? poNumber;
-
-      // Get PO details if linked
       if (purchaseOrderId != null) {
         final po = purchaseOrderCubit.getPOById(purchaseOrderId);
-        if (po == null) {
-          emit(const GoodsReceiptError('Purchase Order not found'));
-          return;
-        }
-        poNumber = po.poNumber;
-        vendorId ??= po.vendorId;
-        vendorName ??= po.vendorName;
-
-        // Update PO line items with received quantities
-        for (var grnItem in lineItems) {
-          purchaseOrderCubit.updateLineItemReceived(
-            purchaseOrderId,
-            grnItem.inventoryItemId,
-            grnItem.quantityReceived,
-          );
-        }
+        poNumber = po?.poNumber;
       }
+
+      final grnNumber = 'GRN-${DateTime.now().year}-${_receipts.length + 1}'
+          .padLeft(13, '0');
 
       final grn = GoodsReceiptNote(
         id: _uuid.v4(),
@@ -185,22 +80,34 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
         notes: notes,
       );
 
-      _mockGRNs.insert(0, grn);
+      await _repository.saveGoodsReceipt(grn);
+      _receipts.insert(0, grn);
+      emit(GoodsReceiptLoaded(List.from(_receipts)));
 
-      // Update inventory for each line item
+      // Update inventory stock
       for (var item in lineItems) {
-        inventoryCubit.receiveStock(
+        await inventoryCubit.receiveStock(
           inventoryItemId: item.inventoryItemId,
           quantity: item.quantityReceived,
-          grnNumber: grnNumber,
+          grnNumber: grn.grnNumber,
           userId: userId,
           userName: userName,
           userRole: userRole,
         );
       }
 
-      // Log the receiving action
-      AuditService().log(
+      // Update PO line item received quantity
+      if (purchaseOrderId != null) {
+        for (var item in lineItems) {
+          await purchaseOrderCubit.updateLineItemReceived(
+            purchaseOrderId,
+            item.inventoryItemId,
+            item.quantityReceived,
+          );
+        }
+      }
+
+      _auditService.log(
         userId: userId,
         userName: userName,
         userRole: userRole,
@@ -208,43 +115,28 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
         entity: 'goods_receipt',
         entityId: grn.id,
         description:
-            'Received ${lineItems.length} items via $grnNumber${purchaseOrderId != null ? ' against $poNumber' : ' (without PO)'}',
-        metadata: {
-          'grnNumber': grnNumber,
-          'poNumber': poNumber,
-          'vendorName': vendorName,
-          'totalValue': grn.totalValue,
-        },
+            'Received goods ${grn.grnNumber} ${poNumber != null ? '(against $poNumber)' : ''} from ${vendorName ?? 'Unknown Vendor'} with ${lineItems.length} items',
       );
-
-      emit(GoodsReceiptLoaded(List.from(_mockGRNs)));
     } catch (e) {
-      emit(GoodsReceiptError('Failed to create GRN: ${e.toString()}'));
+      emit(
+        GoodsReceiptError('Failed to create goods receipt: ${e.toString()}'),
+      );
     }
   }
 
   GoodsReceiptNote? getGRNById(String id) {
     try {
-      return _mockGRNs.firstWhere((grn) => grn.id == id);
+      return _receipts.firstWhere((grn) => grn.id == id);
     } catch (e) {
       return null;
     }
   }
 
   List<GoodsReceiptNote> getGRNsByPO(String poId) {
-    return _mockGRNs.where((grn) => grn.purchaseOrderId == poId).toList();
+    return _receipts.where((grn) => grn.purchaseOrderId == poId).toList();
   }
 
   List<GoodsReceiptNote> getGRNsByVendor(String vendorId) {
-    return _mockGRNs.where((grn) => grn.vendorId == vendorId).toList();
-  }
-
-  List<GoodsReceiptNote> getGRNsByDateRange(DateTime start, DateTime end) {
-    return _mockGRNs
-        .where(
-          (grn) =>
-              grn.receivedAt.isAfter(start) && grn.receivedAt.isBefore(end),
-        )
-        .toList();
+    return _receipts.where((grn) => grn.vendorId == vendorId).toList();
   }
 }

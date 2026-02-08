@@ -60,6 +60,21 @@ extension DatabaseInventory on DatabaseService {
     });
   }
 
+  /// Get all vendors once
+  Future<List<Vendor>> getVendors() async {
+    final snapshot = await vendorsRef.get();
+    if (snapshot.value == null) return <Vendor>[];
+    final dynamic value = snapshot.value;
+    final Map<dynamic, dynamic> data = (value is Map)
+        ? value
+        : (value is List ? value.asMap() : {});
+
+    return data.entries.map((e) {
+      final vendorData = _toMap(e.value);
+      return Vendor.fromJson(vendorData);
+    }).toList();
+  }
+
   /// Save vendor
   Future<void> saveVendor(Vendor vendor) async {
     await vendorsRef.child(vendor.id).set(vendor.toJson());
@@ -82,6 +97,21 @@ extension DatabaseInventory on DatabaseService {
     });
   }
 
+  /// Get all purchase orders once
+  Future<List<PurchaseOrder>> getPurchaseOrders() async {
+    final snapshot = await purchaseOrdersRef.get();
+    if (snapshot.value == null) return <PurchaseOrder>[];
+    final dynamic value = snapshot.value;
+    final Map<dynamic, dynamic> data = (value is Map)
+        ? value
+        : (value is List ? value.asMap() : {});
+
+    return data.entries.map((e) {
+      final poData = _toMap(e.value);
+      return PurchaseOrder.fromJson(poData);
+    }).toList();
+  }
+
   /// Save purchase order
   Future<void> savePurchaseOrder(PurchaseOrder po) async {
     await purchaseOrdersRef.child(po.id).set(po.toJson());
@@ -101,6 +131,19 @@ extension DatabaseInventory on DatabaseService {
         return GoodsReceiptNote.fromJson(grnData);
       }).toList();
     });
+  }
+
+  /// Get all goods receipts once
+  Future<List<GoodsReceiptNote>> getGoodsReceipts() async {
+    final snapshot = await goodsReceiptsRef.get();
+    if (snapshot.value == null) return <GoodsReceiptNote>[];
+    final dynamic value = snapshot.value;
+    final data = (value is Map) ? value : (value is List ? value.asMap() : {});
+
+    return data.entries.map((e) {
+      final grnData = _toMap(e.value);
+      return GoodsReceiptNote.fromJson(grnData);
+    }).toList();
   }
 
   /// Save goods receipt

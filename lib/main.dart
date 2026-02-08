@@ -14,9 +14,7 @@ import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
 import 'package:hotel_manager/features/dashboard/logic/dashboard_cubit.dart';
 import 'package:hotel_manager/features/incidents/logic/incident_cubit.dart';
 import 'package:hotel_manager/features/inventory/goods_receipt/logic/goods_receipt_cubit.dart';
-import 'package:hotel_manager/features/inventory/purchase_orders/logic/purchase_order_cubit.dart';
-import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
-import 'package:hotel_manager/features/inventory/vendors/logic/vendor_cubit.dart';
+import 'package:hotel_manager/features/inventory/inventory_index.dart';
 import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
 import 'package:hotel_manager/features/performance/logic/performance_cubit.dart';
 import 'package:hotel_manager/features/rooms/data/room_repository.dart';
@@ -50,12 +48,8 @@ void main() async {
   // Initialize Services
   AuditService.init(databaseService);
 
-  // Create cubits
   final authCubit = AuthCubit(authService: authService);
   final checklistCubit = ChecklistCubit(databaseService: databaseService);
-  final inventoryCubit = InventoryCubit(databaseService: databaseService);
-  final purchaseOrderCubit = PurchaseOrderCubit();
-  final vendorCubit = VendorCubit();
   final tableCubit = TableCubit(databaseService: databaseService);
 
   // Create router with auth cubit for refresh
@@ -102,15 +96,23 @@ void main() async {
               stockManagerService: context.read<StockManagerService>(),
             ),
           ),
-          BlocProvider<InventoryCubit>.value(value: inventoryCubit),
-          BlocProvider<PurchaseOrderCubit>(
-            create: (context) => purchaseOrderCubit,
+          BlocProvider(
+            create: (context) =>
+                InventoryCubit(repository: InventoryRepository())
+                  ..loadInventory(),
           ),
-          BlocProvider<VendorCubit>(create: (context) => vendorCubit),
-          BlocProvider<GoodsReceiptCubit>(
+          BlocProvider(
+            create: (context) =>
+                PurchaseOrderCubit(repository: InventoryRepository()),
+          ),
+          BlocProvider(
+            create: (context) => VendorCubit(repository: InventoryRepository()),
+          ),
+          BlocProvider(
             create: (context) => GoodsReceiptCubit(
-              inventoryCubit: inventoryCubit,
-              purchaseOrderCubit: purchaseOrderCubit,
+              inventoryCubit: context.read<InventoryCubit>(),
+              purchaseOrderCubit: context.read<PurchaseOrderCubit>(),
+              repository: InventoryRepository(),
             ),
           ),
           BlocProvider<AttendanceCubit>(create: (context) => AttendanceCubit()),

@@ -1,1001 +1,736 @@
-00:00 +0: loading /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart                                                                               00:00 +0: DashboardScreen renders correctly                                                                                                                                                            00:00 +0: DashboardScreen renders correctly                                                                                                                                                            
+[  +16 ms] executing: sysctl hw.optional.arm64
+[   +3 ms] Exit code 0 from: sysctl hw.optional.arm64
+[        ] hw.optional.arm64: 1
+[   +2 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[        ] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[        ] executing: [/Users/anuragdhunna/Downloads/flutter/] git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[  +10 ms] Exit code 0 from: git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[        ] 2025-11-11 15:00:09 -0600
+[   +4 ms] Found 1 files which will be executed as Widget Tests.
+[   +1 ms] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[  +27 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[        ] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[   +7 ms] Skipping pub get: version match.
+[  +56 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +8 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[   +1 ms] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[   +1 ms] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[   +1 ms] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[   +6 ms] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +8 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[   +1 ms] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[   +1 ms] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[   +1 ms] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[   +1 ms] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[  +23 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +2 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[        ] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[        ] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[        ] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[   +1 ms] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +2 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[        ] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[        ] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[        ] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[        ] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[   +5 ms] Skipping generating web_plugin_registrant.dart because it is up-to-date.
+[  +11 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +2 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[        ] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[        ] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[        ] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[   +1 ms] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +2 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[        ] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[        ] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[        ] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[        ] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[   +3 ms] Generating /Users/anuragdhunna/Downloads/Workspaces/sargon_app/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+[        ] Skipping generating GeneratedPluginRegistrant.java because it is up-to-date.
+[   +1 ms] Skipping generating GeneratedPluginRegistrant.h because it is up-to-date.
+[        ] Skipping generating GeneratedPluginRegistrant.m because it is up-to-date.
+[        ] Skipping generating GeneratedPluginRegistrant.swift because it is up-to-date.
+[   +5 ms] executing: sysctl hw.optional.arm64
+[   +2 ms] Exit code 0 from: sysctl hw.optional.arm64
+[        ] hw.optional.arm64: 1
+[        ] executing: /usr/bin/arch -arm64e xcrun xcodebuild -version
+[  +38 ms] Exit code 0 from: /usr/bin/arch -arm64e xcrun xcodebuild -version
+[        ] Xcode 16.3
+           Build version 16E140
+[  +21 ms] No packages with native assets. Skipping native assets compilation.
+[        ] Writing native assets json to file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/native_assets/macos/native_assets.json.
+[        ] Writing /Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/native_assets/macos/native_assets.json done.
+[  +63 ms] running test package with arguments: [--no-color, --chain-stack-traces, --, file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart?]
+00:00 +0: loading /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart                                                                                       [  +58 ms] test 0: starting test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart
+[   +1 ms] Stopping scan for flutter_test_config.dart; found project root at /Users/anuragdhunna/Downloads/Workspaces/sargon_app
+[   +1 ms] Compiler will use the following file as its incremental dill file: /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_compiler.LfB2VT/output.dill
+[        ] Listening to compiler controller...
+[   +2 ms] Compiling file:///var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_listener.bmlOtL/listener.dart
+[  +15 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +2 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[        ] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[        ] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[        ] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[   +1 ms] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +1 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[        ] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[        ] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[        ] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[        ] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[   +2 ms] Skipping generating dart_plugin_registrant.dart because it is up-to-date.
+[   +1 ms] /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dartaotruntime /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/snapshots/frontend_server_aot.dart.snapshot --sdk-root /Users/anuragdhunna/Downloads/flutter/bin/cache/artifacts/engine/common/flutter_patched_sdk/ --incremental --no-print-incremental-dependencies --target=flutter --experimental-emit-debug-metadata -DFLUTTER_VERSION=3.38.0 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=a0e9b9dbf7 -DFLUTTER_ENGINE_REVISION=cb467e31a5 -DFLUTTER_DART_VERSION=3.10.0 (build 3.10.0-290.4.beta) --output-dill /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_compiler.LfB2VT/output.dill --packages /Users/anuragdhunna/Downloads/Workspaces/sargon_app/.dart_tool/package_config.json -Ddart.vm.profile=false -Ddart.vm.product=false --enable-asserts --track-widget-creation --initialize-from-dill /Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/test_cache/build/5ea6485a7b804373545bc224cb20230b.cache.dill.track.dill --verbosity=error
+[   +5 ms] <- compile file:///var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_listener.bmlOtL/listener.dart
+[ +661 ms] <- accept
+[        ] <- reset
+[        ] Compiling file:///var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_listener.bmlOtL/listener.dart took 700ms
+[        ] test 0: starting test device
+[   +1 ms] test 0: awaiting connection to test device
+[        ] test 0: VM Service uri is not available
+[   +1 ms] test 0: test harness socket server is running at port:61445
+[        ] Using this directory for fonts configuration: /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_fonts.s2iPYn
+[        ] test 0: Starting flutter_tester process with command=[/Users/anuragdhunna/Downloads/flutter/bin/cache/artifacts/engine/darwin-x64/flutter_tester, --disable-vm-service, --enable-checked-mode, --verify-entry-points, --enable-software-rendering, --skia-deterministic-rendering, --enable-dart-profiling, --non-interactive, --use-test-fonts, --disable-asset-fonts, --packages=/Users/anuragdhunna/Downloads/Workspaces/sargon_app/.dart_tool/package_config.json, --flutter-assets-dir=/Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/unit_test_assets, /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_listener.bmlOtL/listener.dart.dill], environment={FLUTTER_TEST: true, FONTCONFIG_FILE: /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_fonts.s2iPYn/fonts.conf, SERVER_PORT: 61445, APP_NAME: hotel_manager, UNIT_TEST_ASSETS: /Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/unit_test_assets}
+[   +2 ms] test 0: Started flutter_tester process at pid 49739
+00:01 +0: loading /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart                                                                                       [ +368 ms] test 0: connected to test device, now awaiting test result
+[        ] test 0: Waiting for test harness or tests to finish
+00:01 +0: MenuFormScreen Validation Tests Price field should block non-numeric characters                                                                                                              00:01 +0: MenuFormScreen Validation Tests Price field should block non-numeric characters                                                                                                              
 ══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
+The following FirebaseException was thrown building _InheritedProviderScope<InventoryCubit?>:
+[core/no-app] No Firebase App '[DEFAULT]' has been created - call Firebase.initializeApp()
+
+The relevant error-causing widget was:
+  _InheritedProviderScope<InventoryCubit?>
+  _InheritedProviderScope:file:///Users/anuragdhunna/.pub-cache/hosted/pub.dev/provider-6.1.5+1/lib/src/inherited_provider.dart:164:12
 
 When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
+#0      MethodChannelFirebase.app (package:firebase_core_platform_interface/src/method_channel/method_channel_firebase.dart:190:5)
+#1      Firebase.app (package:firebase_core/src/firebase.dart:79:41)
+#2      FirebaseStorage.instance (package:firebase_storage/src/firebase_storage.dart:51:21)
+#3      new ImageStorageService (package:hotel_manager/core/services/storage/image_storage_service.dart:11:45)
+#4      new _MenuFormScreenState (package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart:42:45)
+#5      MenuFormScreen.createState (package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart:23:42)
+#6      new StatefulElement (package:flutter/src/widgets/framework.dart:5905:60)
+#7      StatefulWidget.createElement (package:flutter/src/widgets/framework.dart:779:38)
 ...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
+#14     _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
 ...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
+#21     SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
 ...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
+#28     SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
 ...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
+#288    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#289    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#290    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
 ...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:30:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+#755    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#756    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#757    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#758    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#759    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#760    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#761    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#762    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#763    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#764    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#765    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#766    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#767    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#768    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#769    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#770    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#771    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#772    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#773    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#775    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#778    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#779    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#780    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#781    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#782    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#783    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#784    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#785    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#786    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#787    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#788    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#789    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#790    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#791    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#792    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#793    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#794    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#795    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#797    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#798    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#799    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#800    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#801    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#802    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#803    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#804    StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
+#805    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#806    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#807    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#808    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#809    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#810    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#811    RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
+#812    RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
+#813    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
+#814    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#815    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#816    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#817    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#818    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#819    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#820    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#821    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#822    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#825    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#826    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#827    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#830    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#831    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#832    main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:46:20)
+#833    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+#834    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
 <asynchronous suspension>
 <asynchronous suspension>
 (elided 5 frames from dart:async and package:stack_trace)
+
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
 
 When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
-...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:30:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:868:30)
+#2      WidgetController.ensureVisible (package:flutter_test/src/controller.dart:2305:32)
+#3      main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:50:20)
 <asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
 <asynchronous suspension>
 <asynchronous suspension>
-(elided 5 frames from dart:async and package:stack_trace)
-════════════════════════════════════════════════════════════════════════════════════════════════════
-══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
+(elided one frame from package:stack_trace)
 
-When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
-...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:30:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
-<asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
-<asynchronous suspension>
-<asynchronous suspension>
-(elided 5 frames from dart:async and package:stack_trace)
-════════════════════════════════════════════════════════════════════════════════════════════════════
-══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
-
-When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
-...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:30:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
-<asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
-<asynchronous suspension>
-<asynchronous suspension>
-(elided 5 frames from dart:async and package:stack_trace)
+The test description was:
+  Price field should block non-numeric characters
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following message was thrown:
-Multiple exceptions (4) were detected during the running of the current test, and at least one was
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
 unexpected.
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-00:00 +0 -1: DashboardScreen renders correctly [E]                                                                                                                                                     
+00:01 +0 -1: MenuFormScreen Validation Tests Price field should block non-numeric characters [E]                                                                                                       
   Test failed. See exception logs above.
-  The test description was: DashboardScreen renders correctly
+  The test description was: Price field should block non-numeric characters
   
 
-To run this test again: /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dart test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart -p vm --plain-name 'DashboardScreen renders correctly'
-00:00 +0 -1: DashboardStatsGrid renders 4 items on desktop                                                                                                                                             00:01 +0 -1: DashboardStatsGrid renders 4 items on desktop                                                                                                                                             00:01 +0 -1: DashboardStatsGrid renders 4 items on desktop                                                                                                                                             
+To run this test again: /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dart test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart -p vm --plain-name 'MenuFormScreen Validation Tests Price field should block non-numeric characters'
+00:01 +0 -1: MenuFormScreen Validation Tests Saving without ingredients should show error snackbar                                                                                                     00:01 +0 -1: MenuFormScreen Validation Tests Saving without ingredients should show error snackbar                                                                                                     
 ══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
+The following FirebaseException was thrown building _InheritedProviderScope<InventoryCubit?>:
+[core/no-app] No Firebase App '[DEFAULT]' has been created - call Firebase.initializeApp()
+
+The relevant error-causing widget was:
+  _InheritedProviderScope<InventoryCubit?>
+  _InheritedProviderScope:file:///Users/anuragdhunna/.pub-cache/hosted/pub.dev/provider-6.1.5+1/lib/src/inherited_provider.dart:164:12
 
 When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
+#0      MethodChannelFirebase.app (package:firebase_core_platform_interface/src/method_channel/method_channel_firebase.dart:190:5)
+#1      Firebase.app (package:firebase_core/src/firebase.dart:79:41)
+#2      FirebaseStorage.instance (package:firebase_storage/src/firebase_storage.dart:51:21)
+#3      new ImageStorageService (package:hotel_manager/core/services/storage/image_storage_service.dart:11:45)
+#4      new _MenuFormScreenState (package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart:42:45)
+#5      MenuFormScreen.createState (package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart:23:42)
+#6      new StatefulElement (package:flutter/src/widgets/framework.dart:5905:60)
+#7      StatefulWidget.createElement (package:flutter/src/widgets/framework.dart:779:38)
 ...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
+#14     _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
 ...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
+#21     SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
 ...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
+#28     SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
 ...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
+#288    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#289    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#290    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
 ...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:45:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+#755    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#756    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#757    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#758    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#759    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#760    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#761    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#762    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#763    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#764    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#765    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#766    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#767    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#768    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#769    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#770    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#771    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#772    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#773    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#775    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#778    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#779    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#780    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#781    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#782    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#783    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#784    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#785    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#786    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#787    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#788    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#789    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#790    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#791    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#792    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#793    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#794    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#795    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#797    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#798    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#799    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#800    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#801    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#802    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#803    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#804    StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
+#805    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#806    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#807    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#808    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#809    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#810    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#811    RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
+#812    RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
+#813    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
+#814    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#815    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#816    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#817    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#818    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#819    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#820    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#821    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#822    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#825    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#826    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#827    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#830    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#831    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#832    main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:71:20)
+#833    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
 <asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+#834    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
 <asynchronous suspension>
 <asynchronous suspension>
 (elided 5 frames from dart:async and package:stack_trace)
+
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
 
 When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
-...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:45:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:868:30)
+#2      WidgetController.ensureVisible (package:flutter_test/src/controller.dart:2305:32)
+#3      main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:76:20)
 <asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
 <asynchronous suspension>
 <asynchronous suspension>
-(elided 5 frames from dart:async and package:stack_trace)
-════════════════════════════════════════════════════════════════════════════════════════════════════
-══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
+(elided one frame from package:stack_trace)
 
-When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
-...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:45:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
-<asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
-<asynchronous suspension>
-<asynchronous suspension>
-(elided 5 frames from dart:async and package:stack_trace)
-════════════════════════════════════════════════════════════════════════════════════════════════════
-══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
-The following assertion was thrown while applying parent data.:
-Incorrect use of ParentDataWidget.
-The ParentDataWidget StaggeredGridTile wants to apply ParentData of type StaggeredGridParentData to
-a RenderObject, which has been set up to accept ParentData of incompatible type ParentData.
-Usually, this means that the StaggeredGridTile widget has the wrong ancestor RenderObjectWidget.
-Typically, StaggeredGridTile widgets are placed directly inside StaggeredGrid widgets.
-The offending StaggeredGridTile is currently placed inside a FadeTransition widget.
-The ownership chain for the RenderObject that received the incompatible parent data was:
-  DecoratedBox ← Container ← StatCard ← StaggeredGridTile ← FadeTransition ← FadeIn ← StaggeredGrid
-← DashboardStatsGrid ← Column ← Padding ← ⋯
-
-When the exception was thrown, this was the stack:
-#0      RenderObjectElement._updateParentData.<anonymous closure> (package:flutter/src/widgets/framework.dart:6885:11)
-#1      RenderObjectElement._updateParentData (package:flutter/src/widgets/framework.dart:6902:6)
-#2      RenderObjectElement.attachRenderObject (package:flutter/src/widgets/framework.dart:6948:7)
-#3      RenderObjectElement.mount (package:flutter/src/widgets/framework.dart:6804:5)
-#4      SingleChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7117:11)
-...     Normal element mounting (30 frames)
-#34     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#35     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#36     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (7 frames)
-#43     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#44     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#45     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (123 frames)
-#168    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#169    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#170    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (117 frames)
-#287    _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
-...     Normal element mounting (7 frames)
-#294    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (7 frames)
-#301    SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
-...     Normal element mounting (260 frames)
-#561    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#562    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
-#563    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
-...     Normal element mounting (465 frames)
-#1028   Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
-#1029   Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
-#1030   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1031   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1032   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1033   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1034   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1035   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1036   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1037   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1038   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1039   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1040   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1041   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1042   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1043   _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
-#1044   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1045   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1046   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1047   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1048   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1049   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1050   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1051   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1052   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1053   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1054   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1055   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1056   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1057   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1058   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1059   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1060   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1061   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1062   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1063   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1064   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1065   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1066   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1067   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1068   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1069   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1070   ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
-#1071   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1072   _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
-#1073   _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
-#1074   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1075   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1076   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1077   StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
-#1078   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1079   ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
-#1080   StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
-#1081   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1082   StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
-#1083   Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
-#1084   RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
-#1085   RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
-#1086   RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
-#1087   Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
-#1088   BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
-#1089   BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
-#1090   BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
-#1091   AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
-#1092   RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
-#1093   SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
-#1094   SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
-#1095   AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
-#1098   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1099   AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
-#1100   WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
-#1103   TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
-#1104   WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
-#1105   main.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart:45:18)
-#1106   testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
-<asynchronous suspension>
-#1107   TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
-<asynchronous suspension>
-<asynchronous suspension>
-(elided 5 frames from dart:async and package:stack_trace)
+The test description was:
+  Saving without ingredients should show error snackbar
 ════════════════════════════════════════════════════════════════════════════════════════════════════
 ══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
 The following message was thrown:
-Multiple exceptions (4) were detected during the running of the current test, and at least one was
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
 unexpected.
 ════════════════════════════════════════════════════════════════════════════════════════════════════
-00:01 +0 -2: DashboardStatsGrid renders 4 items on desktop [E]                                                                                                                                         
+00:01 +0 -2: MenuFormScreen Validation Tests Saving without ingredients should show error snackbar [E]                                                                                                 
   Test failed. See exception logs above.
-  The test description was: DashboardStatsGrid renders 4 items on desktop
+  The test description was: Saving without ingredients should show error snackbar
   
 
-To run this test again: /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dart test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/dashboard/dashboard_screen_test.dart -p vm --plain-name 'DashboardStatsGrid renders 4 items on desktop'
-00:01 +0 -2: Some tests failed.                                                                                                                                                                        
+To run this test again: /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dart test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart -p vm --plain-name 'MenuFormScreen Validation Tests Saving without ingredients should show error snackbar'
+00:01 +0 -2: RecipeBuilderWidget Tests Grams toggle should be enabled by default                                                                                                                       00:01 +0 -2: RecipeBuilderWidget Tests Grams toggle should be enabled by default                                                                                                                       
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following FirebaseException was thrown building _InheritedProviderScope<InventoryCubit?>:
+[core/no-app] No Firebase App '[DEFAULT]' has been created - call Firebase.initializeApp()
+
+The relevant error-causing widget was:
+  _InheritedProviderScope<InventoryCubit?>
+  _InheritedProviderScope:file:///Users/anuragdhunna/.pub-cache/hosted/pub.dev/provider-6.1.5+1/lib/src/inherited_provider.dart:164:12
+
+When the exception was thrown, this was the stack:
+#0      MethodChannelFirebase.app (package:firebase_core_platform_interface/src/method_channel/method_channel_firebase.dart:190:5)
+#1      Firebase.app (package:firebase_core/src/firebase.dart:79:41)
+#2      FirebaseStorage.instance (package:firebase_storage/src/firebase_storage.dart:51:21)
+#3      new ImageStorageService (package:hotel_manager/core/services/storage/image_storage_service.dart:11:45)
+#4      new _MenuFormScreenState (package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart:42:45)
+#5      MenuFormScreen.createState (package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart:23:42)
+#6      new StatefulElement (package:flutter/src/widgets/framework.dart:5905:60)
+#7      StatefulWidget.createElement (package:flutter/src/widgets/framework.dart:779:38)
+...     Normal element mounting (7 frames)
+#14     _InheritedProviderScopeElement.mount (package:provider/src/inherited_provider.dart:424:11)
+...     Normal element mounting (7 frames)
+#21     SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
+...     Normal element mounting (7 frames)
+#28     SingleChildWidgetElementMixin.mount (package:nested/nested.dart:222:11)
+...     Normal element mounting (260 frames)
+#288    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#289    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#290    MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
+...     Normal element mounting (465 frames)
+#755    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#756    Element.updateChild (package:flutter/src/widgets/framework.dart:4053:20)
+#757    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#758    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#759    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#760    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#761    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#762    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#763    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#764    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#765    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#766    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#767    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#768    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#769    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#770    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#771    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#772    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#773    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#774    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#775    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#776    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#777    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#778    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#779    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#780    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#781    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#782    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#783    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#784    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#785    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#786    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#787    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#788    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#789    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#790    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#791    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#792    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#793    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#794    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#795    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#796    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#797    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#798    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#799    _RawViewElement._updateChild (package:flutter/src/widgets/view.dart:481:16)
+#800    _RawViewElement.update (package:flutter/src/widgets/view.dart:568:5)
+#801    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#802    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#803    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#804    StatelessElement.update (package:flutter/src/widgets/framework.dart:5898:5)
+#805    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#806    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#807    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#808    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#809    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#810    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#811    RootElement._rebuild (package:flutter/src/widgets/binding.dart:1782:16)
+#812    RootElement.update (package:flutter/src/widgets/binding.dart:1760:5)
+#813    RootElement.performRebuild (package:flutter/src/widgets/binding.dart:1774:7)
+#814    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#815    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#816    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#817    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#818    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#819    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#820    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#821    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#822    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#825    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#826    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#827    WidgetTester.pumpWidget.<anonymous closure> (package:flutter_test/src/widget_tester.dart:598:22)
+#830    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#831    WidgetTester.pumpWidget (package:flutter_test/src/widget_tester.dart:595:27)
+#832    main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:118:20)
+#833    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#834    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following StateError was thrown running a test:
+Bad state: No element
+
+When the exception was thrown, this was the stack:
+#0      Iterable.single (dart:core/iterable.dart:694:25)
+#1      WidgetController.element (package:flutter_test/src/controller.dart:868:30)
+#2      WidgetController.ensureVisible (package:flutter_test/src/controller.dart:2305:32)
+#3      main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:123:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Grams toggle should be enabled by default
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (2) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -3: RecipeBuilderWidget Tests Grams toggle should be enabled by default [E]                                                                                                                   
+  Test failed. See exception logs above.
+  The test description was: Grams toggle should be enabled by default
+  
+
+To run this test again: /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dart test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart -p vm --plain-name 'RecipeBuilderWidget Tests Grams toggle should be enabled by default'
+[ +418 ms] test 0: Test harness is no longer needed by test process
+[        ] test 0: finished
+[        ] test 0: cleaning up...
+[        ] test 0: ensuring test device is terminated.
+[        ] test 0: Terminating flutter_tester process
+[        ] test 0: Shutting down DevTools server
+[        ] test 0: Test process is no longer needed by test harness
+[        ] test 0: Shutting down test harness socket server
+[   +6 ms] test 0: flutter_tester process at pid 49739 exited with code=-9
+[        ] test 0: deleting temporary directory
+[        ] test 0: finished
+00:01 +0 -3: Some tests failed.                                                                                                                                                                        
+[   +1 ms] Deleting /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_compiler.LfB2VT...
+[        ] killing pid 49733
+[  +11 ms] Deleting /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.vMwSwR/flutter_test_fonts.s2iPYn...
+[        ] test package returned with exit code 1
+[        ] Runtime for phase TestRunner: Wall-clock: 0:00:01.585464; combined: 0:00:01.585479.
+[        ] Runtime for phase Compile: Wall-clock: 0:00:00.701090; combined: 0:00:00.701104.
+[        ] Runtime for phase Run: Wall-clock: 0:00:00.792778; combined: 0:00:00.792778.
+[        ] Runtime for phase CoverageTotal: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageCollect: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageParseJson: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageAddHitmap: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageDataCollect: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase WatcherFinishedTest: Wall-clock: 0:00:00.000341; combined: 0:00:00.000341.
+[        ] "flutter test" took 1,941ms.
+[   +2 ms] executing: sw_vers -productName
+[   +7 ms] Exit code 0 from: sw_vers -productName
+[        ] macOS
+[        ] executing: sw_vers -productVersion
+[   +6 ms] Exit code 0 from: sw_vers -productVersion
+[        ] 15.5
+[        ] executing: sw_vers -buildVersion
+[   +6 ms] Exit code 0 from: sw_vers -buildVersion
+[        ] 24F74
+[        ] executing: uname -m
+[   +2 ms] Exit code 0 from: uname -m
+[        ] arm64
+[   +4 ms] 
+           #0      throwToolExit (package:flutter_tools/src/base/common.dart:34:3)
+           #1      TestCommand.runCommand (package:flutter_tools/src/commands/test.dart:714:7)
+           <asynchronous suspension>
+           #2      FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1559:27)
+           <asynchronous suspension>
+           #3      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+           <asynchronous suspension>
+           #4      CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+           <asynchronous suspension>
+           #5      FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:487:9)
+           <asynchronous suspension>
+           #6      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+           <asynchronous suspension>
+           #7      FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:422:5)
+           <asynchronous suspension>
+           #8      run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:101:11)
+           <asynchronous suspension>
+           #9      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+           <asynchronous suspension>
+           #10     main (package:flutter_tools/executable.dart:103:3)
+           <asynchronous suspension>
+
+
+[        ] Running 3 shutdown hooks
+[        ] Shutdown hooks complete
+[        ] exiting with code 1

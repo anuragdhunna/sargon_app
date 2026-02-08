@@ -1,0 +1,722 @@
+[  +14 ms] executing: sysctl hw.optional.arm64
+[   +3 ms] Exit code 0 from: sysctl hw.optional.arm64
+[        ] hw.optional.arm64: 1
+[   +3 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[        ] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[        ] executing: [/Users/anuragdhunna/Downloads/flutter/] git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[  +10 ms] Exit code 0 from: git -c log.showSignature=false log HEAD -n 1 --pretty=format:%ad --date=iso
+[        ] 2025-11-11 15:00:09 -0600
+[   +5 ms] Found 1 files which will be executed as Widget Tests.
+[   +1 ms] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[  +17 ms] Artifact Instance of 'MaterialFonts' is not required, skipping update.
+[        ] Artifact Instance of 'GradleWrapper' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidGenSnapshotArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'AndroidInternalBuildArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterWebSdk' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterEngineStamp' is not required, skipping update.
+[        ] Artifact Instance of 'LegacyCanvasKitRemover' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterSdk' is not required, skipping update.
+[        ] Artifact Instance of 'WindowsEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxEngineArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'LinuxFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'MacOSFuchsiaSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerSDKArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FlutterRunnerDebugSymbols' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'IosUsbArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'FontSubsetArtifacts' is not required, skipping update.
+[        ] Artifact Instance of 'PubDependencies' is not required, skipping update.
+[   +5 ms] Skipping pub get: version match.
+[  +49 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +6 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[        ] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[        ] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[        ] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[   +4 ms] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +9 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[        ] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[   +1 ms] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[        ] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[        ] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[  +25 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +2 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[        ] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[        ] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[        ] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[   +1 ms] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +2 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[        ] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[        ] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[        ] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[        ] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[   +4 ms] Skipping generating web_plugin_registrant.dart because it is up-to-date.
+[  +11 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +2 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[        ] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[        ] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[        ] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[        ] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +1 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[        ] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[        ] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[        ] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[        ] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[   +1 ms] Generating /Users/anuragdhunna/Downloads/Workspaces/sargon_app/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+[        ] Skipping generating GeneratedPluginRegistrant.java because it is up-to-date.
+[        ] Skipping generating GeneratedPluginRegistrant.h because it is up-to-date.
+[        ] Skipping generating GeneratedPluginRegistrant.m because it is up-to-date.
+[        ] Skipping generating GeneratedPluginRegistrant.swift because it is up-to-date.
+[   +4 ms] executing: sysctl hw.optional.arm64
+[   +2 ms] Exit code 0 from: sysctl hw.optional.arm64
+[        ] hw.optional.arm64: 1
+[        ] executing: /usr/bin/arch -arm64e xcrun xcodebuild -version
+[  +33 ms] Exit code 0 from: /usr/bin/arch -arm64e xcrun xcodebuild -version
+[        ] Xcode 16.3
+           Build version 16E140
+[  +19 ms] No packages with native assets. Skipping native assets compilation.
+[        ] Writing native assets json to file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/native_assets/macos/native_assets.json.
+[        ] Writing /Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/native_assets/macos/native_assets.json done.
+[  +45 ms] running test package with arguments: [--no-color, --chain-stack-traces, --, file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart?]
+00:00 +0: loading /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart                                                                                       [  +52 ms] test 0: starting test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart
+[   +1 ms] Stopping scan for flutter_test_config.dart; found project root at /Users/anuragdhunna/Downloads/Workspaces/sargon_app
+[   +1 ms] Compiler will use the following file as its incremental dill file: /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_compiler.CyShAp/output.dill
+[        ] Listening to compiler controller...
+[   +2 ms] Compiling file:///var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_listener.BtjWUq/listener.dart
+[  +13 ms] Found plugin printing at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/printing-5.14.2/
+[   +2 ms] Found plugin path_provider at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
+[        ] Found plugin path_provider_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_windows-2.3.0/
+[        ] Found plugin path_provider_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_linux-2.2.1/
+[        ] Found plugin path_provider_foundation at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_foundation-2.5.0/
+[        ] Found plugin objective_c at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/objective_c-9.1.0/
+[        ] Found plugin path_provider_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/path_provider_android-2.2.22/
+[        ] Found plugin image_picker at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker-1.2.1/
+[        ] Found plugin image_picker_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.2/
+[        ] Found plugin file_selector_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+5/
+[        ] Found plugin image_picker_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_macos-0.2.2+1/
+[        ] Found plugin file_selector_macos at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.5/
+[        ] Found plugin image_picker_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.2/
+[        ] Found plugin file_selector_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.4/
+[        ] Found plugin image_picker_ios at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_ios-0.8.13+2/
+[        ] Found plugin image_picker_for_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_for_web-3.1.1/
+[        ] Found plugin image_picker_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/image_picker_android-0.8.13+10/
+[        ] Found plugin flutter_plugin_android_lifecycle at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.33/
+[        ] Found plugin geolocator at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator-14.0.2/
+[        ] Found plugin geolocator_windows at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5/
+[        ] Found plugin geolocator_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3/
+[        ] Found plugin geolocator_linux at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3/
+[        ] Found plugin package_info_plus at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/package_info_plus-8.3.1/
+[        ] Found plugin geolocator_apple at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13/
+[        ] Found plugin geolocator_android at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2/
+[   +1 ms] Found plugin firebase_storage at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage-12.4.10/
+[        ] Found plugin firebase_storage_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_storage_web-3.10.17/
+[        ] Found plugin firebase_core at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core-3.15.2/
+[        ] Found plugin firebase_core_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_core_web-2.24.1/
+[        ] Found plugin firebase_database at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database-11.3.10/
+[        ] Found plugin firebase_database_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_database_web-0.2.6+16/
+[        ] Found plugin firebase_auth at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth-5.7.0/
+[        ] Found plugin firebase_auth_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/firebase_auth_web-5.15.3/
+[        ] Found plugin cloud_firestore at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.12/
+[        ] Found plugin cloud_firestore_web at /Users/anuragdhunna/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.12/
+[   +1 ms] Skipping generating dart_plugin_registrant.dart because it is up-to-date.
+[   +1 ms] /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dartaotruntime /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/snapshots/frontend_server_aot.dart.snapshot --sdk-root /Users/anuragdhunna/Downloads/flutter/bin/cache/artifacts/engine/common/flutter_patched_sdk/ --incremental --no-print-incremental-dependencies --target=flutter --experimental-emit-debug-metadata -DFLUTTER_VERSION=3.38.0 -DFLUTTER_CHANNEL=stable -DFLUTTER_GIT_URL=https://github.com/flutter/flutter.git -DFLUTTER_FRAMEWORK_REVISION=a0e9b9dbf7 -DFLUTTER_ENGINE_REVISION=cb467e31a5 -DFLUTTER_DART_VERSION=3.10.0 (build 3.10.0-290.4.beta) --output-dill /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_compiler.CyShAp/output.dill --packages /Users/anuragdhunna/Downloads/Workspaces/sargon_app/.dart_tool/package_config.json -Ddart.vm.profile=false -Ddart.vm.product=false --enable-asserts --track-widget-creation --initialize-from-dill /Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/test_cache/build/5ea6485a7b804373545bc224cb20230b.cache.dill.track.dill --verbosity=error
+[   +5 ms] <- compile file:///var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_listener.BtjWUq/listener.dart
+[ +437 ms] <- accept
+[        ] <- reset
+[        ] Compiling file:///var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_listener.BtjWUq/listener.dart took 473ms
+[        ] test 0: starting test device
+[   +1 ms] test 0: awaiting connection to test device
+[        ] test 0: VM Service uri is not available
+[   +1 ms] test 0: test harness socket server is running at port:61510
+[        ] Using this directory for fonts configuration: /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_fonts.k15236
+[        ] test 0: Starting flutter_tester process with command=[/Users/anuragdhunna/Downloads/flutter/bin/cache/artifacts/engine/darwin-x64/flutter_tester, --disable-vm-service, --enable-checked-mode, --verify-entry-points, --enable-software-rendering, --skia-deterministic-rendering, --enable-dart-profiling, --non-interactive, --use-test-fonts, --disable-asset-fonts, --packages=/Users/anuragdhunna/Downloads/Workspaces/sargon_app/.dart_tool/package_config.json, --flutter-assets-dir=/Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/unit_test_assets, /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_listener.BtjWUq/listener.dart.dill], environment={FLUTTER_TEST: true, FONTCONFIG_FILE: /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_fonts.k15236/fonts.conf, SERVER_PORT: 61510, APP_NAME: hotel_manager, UNIT_TEST_ASSETS: /Users/anuragdhunna/Downloads/Workspaces/sargon_app/build/unit_test_assets}
+[   +2 ms] test 0: Started flutter_tester process at pid 50165
+[ +224 ms] test 0: connected to test device, now awaiting test result
+[        ] test 0: Waiting for test harness or tests to finish
+00:00 +0: MenuFormScreen Validation Tests Price field should block non-numeric characters                                                                                                              00:01 +0: MenuFormScreen Validation Tests Price field should block non-numeric characters                                                                                                              00:01 +1: MenuFormScreen Validation Tests Price field should block non-numeric characters                                                                                                              00:01 +1: MenuFormScreen Validation Tests Saving without ingredients should show error snackbar                                                                                                        00:01 +1: MenuFormScreen Validation Tests Saving without ingredients should show error snackbar                                                                                                        
+
+Warning: A call to tap() with finder "Found 1 widget with text "Save Item": [
+  Text("Save Item", inherit: true, color: Color(alpha: 1.0000, red: 1.0000, green: 1.0000, blue: 1.0000, colorSpace: ColorSpace.sRGB), size: 14.0, weight: 600, letterSpacing: 0.1, dependencies: [DefaultSelectionStyle, DefaultTextStyle, MediaQuery]),
+]" derived an Offset (Offset(400.0, 558.0)) that would not hit test on the specified widget.
+Maybe the widget is actually off-screen, or another widget is obscuring it, or the widget cannot receive pointer events.
+The finder corresponds to this RenderBox: RenderParagraph#b4225 relayoutBoundary=up28
+The hit test result at that offset is: HitTestResult(RenderPointerListener#ec984@Offset(400.0, 502.0), RenderSemanticsGestureHandler#74a13@Offset(400.0, 502.0), RenderPointerListener#2f723@Offset(400.0, 502.0), _RenderScrollSemantics#9a4c8@Offset(400.0, 502.0), RenderClipRect#c58af@Offset(400.0, 502.0), RenderCustomMultiChildLayoutBox#7bb0e@Offset(400.0, 558.0), _RenderInkFeatures#cae44@Offset(400.0, 558.0), RenderPhysicalModel#78c5e@Offset(400.0, 558.0), RenderSemanticsAnnotations#2cb8c@Offset(400.0, 558.0), RenderRepaintBoundary#fc2d5@Offset(400.0, 558.0), RenderIgnorePointer#ff5d4@Offset(400.0, 558.0), RenderAnimatedOpacity#d380d@Offset(400.0, 558.0), RenderAnimatedOpacity#10a79@Offset(400.0, 558.0), _RenderColoredBox#e547c@Offset(400.0, 558.0), RenderAnimatedOpacity#33877@Offset(400.0, 558.0), RenderIgnorePointer#37317@Offset(400.0, 558.0), RenderAnimatedOpacity#e4121@Offset(400.0, 558.0), RenderRepaintBoundary#76546@Offset(400.0, 558.0), RenderSemanticsAnnotations#85994@Offset(400.0, 558.0), RenderOffstage#53e67@Offset(400.0, 558.0), RenderSemanticsAnnotations#19e86@Offset(400.0, 558.0), _RenderTheater#a6930@Offset(400.0, 558.0), RenderAbsorbPointer#636a9@Offset(400.0, 558.0), RenderPointerListener#8024d@Offset(400.0, 558.0), RenderSemanticsAnnotations#78785@Offset(400.0, 558.0), RenderCustomPaint#e9645@Offset(400.0, 558.0), RenderSemanticsAnnotations#4912c@Offset(400.0, 558.0), RenderSemanticsAnnotations#5e1c6@Offset(400.0, 558.0), RenderTapRegionSurface#b9e33@Offset(400.0, 558.0), RenderSemanticsAnnotations#1290d@Offset(400.0, 558.0), RenderSemanticsAnnotations#43a4c@Offset(400.0, 558.0), RenderSemanticsAnnotations#3da5f@Offset(400.0, 558.0), HitTestEntry<HitTestTarget>#fc994(_ReusableRenderView#0cf9a), HitTestEntry<HitTestTarget>#3201d(<AutomatedTestWidgetsFlutterBinding>))
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2081:25)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1865:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1045:7)
+#3      main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:100:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+#6      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+To silence this warning, pass "warnIfMissed: false" to "tap()".
+To make this warning fatal, set WidgetController.hitTestWarningShouldBeFatal to true.
+
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following TestFailure was thrown running a test:
+Expected: exactly one matching candidate
+  Actual: _TextWidgetFinder:<Found 0 widgets with text "Please add at least one ingredient to the
+recipe.": []>
+   Which: means none were found but one was expected
+
+When the exception was thrown, this was the stack:
+#4      main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:103:7)
+<asynchronous suspension>
+#5      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#6      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+This was caught by the test expectation on the following line:
+  file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart line 103
+The test description was:
+  Saving without ingredients should show error snackbar
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +1 -1: MenuFormScreen Validation Tests Saving without ingredients should show error snackbar [E]                                                                                                 
+  Test failed. See exception logs above.
+  The test description was: Saving without ingredients should show error snackbar
+  
+
+To run this test again: /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dart test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart -p vm --plain-name 'MenuFormScreen Validation Tests Saving without ingredients should show error snackbar'
+00:01 +1 -1: RecipeBuilderWidget Tests Grams toggle should be enabled by default                                                                                                                       00:01 +1 -1: RecipeBuilderWidget Tests Grams toggle should be enabled by default                                                                                                                       
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following ProviderNotFoundException was thrown building _AddIngredientSheet(dependencies:
+[MediaQuery], state: _AddIngredientSheetState#b9e75):
+Error: Could not find the correct Provider<InventoryCubit> above this BlocBuilder<InventoryCubit,
+InventoryState> Widget
+
+This happens because you used a `BuildContext` that does not include the provider
+of your choice. There are a few common scenarios:
+
+- You added a new provider in your `main.dart` and performed a hot-reload.
+  To fix, perform a hot-restart.
+
+- The provider you are trying to read is in a different route.
+
+  Providers are "scoped". So if you insert of provider inside a route, then
+  other routes will not be able to access that provider.
+
+- You used a `BuildContext` that is an ancestor of the provider you are trying to read.
+
+  Make sure that BlocBuilder<InventoryCubit, InventoryState> is under your
+MultiProvider/Provider<InventoryCubit>.
+  This usually happens when you are creating a provider and trying to read it immediately.
+
+  For example, instead of:
+
+  ```
+  Widget build(BuildContext context) {
+    return Provider<Example>(
+      create: (_) => Example(),
+      // Will throw a ProviderNotFoundError, because `context` is associated
+      // to the widget that is the parent of `Provider<Example>`
+      child: Text(context.watch<Example>().toString()),
+    );
+  }
+  ```
+
+  consider using `builder` like so:
+
+  ```
+  Widget build(BuildContext context) {
+    return Provider<Example>(
+      create: (_) => Example(),
+      // we use `builder` to obtain a new `BuildContext` that has access to the provider
+      builder: (context, child) {
+        // No longer throws
+        return Text(context.watch<Example>().toString());
+      }
+    );
+  }
+  ```
+
+If none of these solutions work, consider asking for help on StackOverflow:
+https://stackoverflow.com/questions/tagged/flutter
+
+The relevant error-causing widget was:
+  _AddIngredientSheet
+  _AddIngredientSheet:file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/lib/features/settings/presentation/menu/recipe_builder_widget.dart:78:29
+
+When the exception was thrown, this was the stack:
+#0      Provider._inheritedElementOf (package:provider/src/provider.dart:377:7)
+#1      Provider.of (package:provider/src/provider.dart:327:30)
+#2      ReadContext.read (package:provider/src/provider.dart:683:21)
+#3      _BlocBuilderBaseState.initState (package:flutter_bloc/src/bloc_builder.dart:152:36)
+#4      StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5953:55)
+#5      ComponentElement.mount (package:flutter/src/widgets/framework.dart:5796:5)
+...     Normal element mounting (4 frames)
+#9      Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#10     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#11     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285:32)
+...     Normal element mounting (329 frames)
+#340    Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590:20)
+#341    MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269:36)
+#342    Element.updateChild (package:flutter/src/widgets/framework.dart:4059:18)
+#343    Element.updateChildren (package:flutter/src/widgets/framework.dart:4258:32)
+#344    MultiChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7302:17)
+#345    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#346    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#347    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#348    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#349    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#350    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#351    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#352    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#353    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#354    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#355    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#356    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#357    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#358    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#359    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#360    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#361    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#362    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#363    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#364    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#365    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#366    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#367    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#368    _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#369    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#370    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#371    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#372    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#373    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#374    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#375    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#376    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#377    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#378    StatefulElement.update (package:flutter/src/widgets/framework.dart:6010:5)
+#379    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#380    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#381    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#382    SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#383    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#384    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#385    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#386    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#387    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#388    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#389    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#390    ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#391    Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#392    ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#393    StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#394    Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#395    BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#396    BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#397    BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#398    AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#399    RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#400    SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#401    SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#402    AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#405    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#406    AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#407    WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:719:23)
+#410    TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#411    WidgetTester.pumpAndSettle (package:flutter_test/src/widget_tester.dart:712:27)
+#412    main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:135:20)
+<asynchronous suspension>
+#413    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#414    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following assertion was thrown building _FocusInheritedScope(dirty):
+'package:flutter/src/widgets/framework.dart': Failed assertion: line 6420 pos 14: '() {
+        // check that it really is our descendant
+        Element? ancestor = dependent._parent;
+        while (ancestor != this && ancestor != null) {
+          ancestor = ancestor._parent;
+        }
+        return ancestor == this;
+      }()': is not true.
+
+Either the assertion indicates an error in the framework itself, or we should provide substantially
+more information in this error message to help you determine and fix the underlying cause.
+In either case, please report this assertion by filing a bug on GitHub:
+  https://github.com/flutter/flutter/issues/new?template=02_bug.yml
+
+The relevant error-causing widget was:
+  MaterialApp
+  MaterialApp:file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:40:12
+
+When the exception was thrown, this was the stack:
+#2      InheritedElement.notifyClients (package:flutter/src/widgets/framework.dart:6420:14)
+#3      _InheritedNotifierElement.notifyClients (package:flutter/src/widgets/inherited_notifier.dart:126:11)
+#4      _InheritedNotifierElement.build (package:flutter/src/widgets/inherited_notifier.dart:114:7)
+#5      ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5820:15)
+#6      Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#7      ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#8      _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#9      Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#10     SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#11     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#12     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#13     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#14     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#15     BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#16     BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#17     BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#18     AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#19     RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#20     SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#21     SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#22     AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#25     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#26     AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#27     WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:719:23)
+<asynchronous suspension>
+#28     TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#29     main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:135:7)
+<asynchronous suspension>
+#30     testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#31     TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from class _AssertionError, dart:async, and package:stack_trace)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY WIDGETS LIBRARY ╞═══════════════════════════════════════════════════════════
+The following assertion was thrown building _FocusInheritedScope:
+'package:flutter/src/widgets/framework.dart': Failed assertion: line 6271 pos 12:
+'_dependents.isEmpty': is not true.
+
+Either the assertion indicates an error in the framework itself, or we should provide substantially
+more information in this error message to help you determine and fix the underlying cause.
+In either case, please report this assertion by filing a bug on GitHub:
+  https://github.com/flutter/flutter/issues/new?template=02_bug.yml
+
+The relevant error-causing widget was:
+  MaterialApp
+  MaterialApp:file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:40:12
+
+When the exception was thrown, this was the stack:
+#2      InheritedElement.debugDeactivated (package:flutter/src/widgets/framework.dart:6271:12)
+#3      _InactiveElements._deactivateRecursively.<anonymous closure> (package:flutter/src/widgets/framework.dart:2143:15)
+#4      _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2145:6)
+#5      ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#6      _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#7      SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#8      _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#9      ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#10     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#11     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#12     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#13     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#14     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#15     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#16     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#17     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#18     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#19     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#20     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#21     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#22     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#23     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#24     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#25     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#26     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#27     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#28     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#29     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#30     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#31     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#32     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#33     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#34     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#35     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#36     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#37     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#38     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#39     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#40     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#41     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#42     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#43     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#44     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#45     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#46     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#47     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#48     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#49     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#50     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#51     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#52     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#53     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#54     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#55     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#56     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#57     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#58     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#59     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#60     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#61     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#62     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#63     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#64     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#65     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#66     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#67     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#68     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#69     ComponentElement.visitChildren (package:flutter/src/widgets/framework.dart:5874:14)
+#70     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#71     SingleChildRenderObjectElement.visitChildren (package:flutter/src/widgets/framework.dart:7104:14)
+#72     _InactiveElements._deactivateRecursively (package:flutter/src/widgets/framework.dart:2141:13)
+#73     _InactiveElements.add (package:flutter/src/widgets/framework.dart:2155:9)
+#74     Element.deactivateChild (package:flutter/src/widgets/framework.dart:4639:30)
+#75     Element.updateChild (package:flutter/src/widgets/framework.dart:4048:9)
+#76     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#77     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#78     ProxyElement.update (package:flutter/src/widgets/framework.dart:6152:5)
+#79     _InheritedNotifierElement.update (package:flutter/src/widgets/inherited_notifier.dart:108:11)
+#80     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#81     SingleChildRenderObjectElement.update (package:flutter/src/widgets/framework.dart:7125:14)
+#82     Element.updateChild (package:flutter/src/widgets/framework.dart:4037:15)
+#83     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844:16)
+#84     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985:11)
+#85     Element.rebuild (package:flutter/src/widgets/framework.dart:5532:7)
+#86     BuildScope._tryRebuild (package:flutter/src/widgets/framework.dart:2750:15)
+#87     BuildScope._flushDirtyElements (package:flutter/src/widgets/framework.dart:2807:11)
+#88     BuildOwner.buildScope (package:flutter/src/widgets/framework.dart:3111:18)
+#89     AutomatedTestWidgetsFlutterBinding.drawFrame (package:flutter_test/src/binding.dart:1506:19)
+#90     RendererBinding._handlePersistentFrameCallback (package:flutter/src/rendering/binding.dart:495:5)
+#91     SchedulerBinding._invokeFrameCallback (package:flutter/src/scheduler/binding.dart:1434:15)
+#92     SchedulerBinding.handleDrawFrame (package:flutter/src/scheduler/binding.dart:1347:9)
+#93     AutomatedTestWidgetsFlutterBinding.pump.<anonymous closure> (package:flutter_test/src/binding.dart:1335:9)
+#96     TestAsyncUtils.guard (package:flutter_test/src/test_async_utils.dart:74:41)
+#97     AutomatedTestWidgetsFlutterBinding.pump (package:flutter_test/src/binding.dart:1324:27)
+#98     WidgetTester.pumpAndSettle.<anonymous closure> (package:flutter_test/src/widget_tester.dart:719:23)
+<asynchronous suspension>
+#99     TestAsyncUtils.guard.<anonymous closure> (package:flutter_test/src/test_async_utils.dart:130:27)
+<asynchronous suspension>
+#100    main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:135:7)
+<asynchronous suspension>
+#101    testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#102    TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided 5 frames from class _AssertionError, dart:async, and package:stack_trace)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following assertion was thrown running a test:
+The finder "Found 0 widgets with text "Sugar": []" (used in a call to "tap()") could not find any
+matching widgets.
+
+When the exception was thrown, this was the stack:
+#0      WidgetController._getElementPoint (package:flutter_test/src/controller.dart:2013:7)
+#1      WidgetController.getCenter (package:flutter_test/src/controller.dart:1865:12)
+#2      WidgetController.tap (package:flutter_test/src/controller.dart:1045:7)
+#3      main.<anonymous closure>.<anonymous closure> (file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart:138:20)
+<asynchronous suspension>
+#4      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:15)
+<asynchronous suspension>
+#5      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1059:5)
+<asynchronous suspension>
+<asynchronous suspension>
+(elided one frame from package:stack_trace)
+
+The test description was:
+  Grams toggle should be enabled by default
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (4) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +1 -2: RecipeBuilderWidget Tests Grams toggle should be enabled by default [E]                                                                                                                   
+  Test failed. See exception logs above.
+  The test description was: Grams toggle should be enabled by default
+  
+
+To run this test again: /Users/anuragdhunna/Downloads/flutter/bin/cache/dart-sdk/bin/dart test /Users/anuragdhunna/Downloads/Workspaces/sargon_app/test/features/settings/menu_form_test.dart -p vm --plain-name 'RecipeBuilderWidget Tests Grams toggle should be enabled by default'
+[ +836 ms] test 0: Test harness is no longer needed by test process
+[        ] test 0: finished
+[        ] test 0: cleaning up...
+[        ] test 0: ensuring test device is terminated.
+[        ] test 0: Terminating flutter_tester process
+[        ] test 0: Shutting down DevTools server
+[        ] test 0: Test process is no longer needed by test harness
+[        ] test 0: Shutting down test harness socket server
+[   +6 ms] test 0: flutter_tester process at pid 50165 exited with code=-9
+[        ] test 0: deleting temporary directory
+[        ] test 0: finished
+00:01 +1 -2: Some tests failed.                                                                                                                                                                        
+[   +1 ms] Deleting /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_compiler.CyShAp...
+[        ] killing pid 50161
+[   +7 ms] Deleting /var/folders/bd/y5n0r3l1479cvcy99035sqd00000gn/T/flutter_tools.AhnZEh/flutter_test_fonts.k15236...
+[   +1 ms] test package returned with exit code 1
+[        ] Runtime for phase TestRunner: Wall-clock: 0:00:01.621096; combined: 0:00:01.621110.
+[        ] Runtime for phase Compile: Wall-clock: 0:00:00.474089; combined: 0:00:00.474099.
+[        ] Runtime for phase Run: Wall-clock: 0:00:01.066853; combined: 0:00:01.066854.
+[        ] Runtime for phase CoverageTotal: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageCollect: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageParseJson: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageAddHitmap: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase CoverageDataCollect: Wall-clock: 0:00:00.000000; combined: 0:00:00.000000.
+[        ] Runtime for phase WatcherFinishedTest: Wall-clock: 0:00:00.000274; combined: 0:00:00.000275.
+[        ] "flutter test" took 1,914ms.
+[   +1 ms] executing: sw_vers -productName
+[   +7 ms] Exit code 0 from: sw_vers -productName
+[        ] macOS
+[        ] executing: sw_vers -productVersion
+[   +6 ms] Exit code 0 from: sw_vers -productVersion
+[        ] 15.5
+[        ] executing: sw_vers -buildVersion
+[   +5 ms] Exit code 0 from: sw_vers -buildVersion
+[        ] 24F74
+[        ] executing: uname -m
+[   +2 ms] Exit code 0 from: uname -m
+[        ] arm64
+[   +4 ms] 
+           #0      throwToolExit (package:flutter_tools/src/base/common.dart:34:3)
+           #1      TestCommand.runCommand (package:flutter_tools/src/commands/test.dart:714:7)
+           <asynchronous suspension>
+           #2      FlutterCommand.run.<anonymous closure> (package:flutter_tools/src/runner/flutter_command.dart:1559:27)
+           <asynchronous suspension>
+           #3      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+           <asynchronous suspension>
+           #4      CommandRunner.runCommand (package:args/command_runner.dart:212:13)
+           <asynchronous suspension>
+           #5      FlutterCommandRunner.runCommand.<anonymous closure> (package:flutter_tools/src/runner/flutter_command_runner.dart:487:9)
+           <asynchronous suspension>
+           #6      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+           <asynchronous suspension>
+           #7      FlutterCommandRunner.runCommand (package:flutter_tools/src/runner/flutter_command_runner.dart:422:5)
+           <asynchronous suspension>
+           #8      run.<anonymous closure>.<anonymous closure> (package:flutter_tools/runner.dart:101:11)
+           <asynchronous suspension>
+           #9      AppContext.run.<anonymous closure> (package:flutter_tools/src/base/context.dart:154:19)
+           <asynchronous suspension>
+           #10     main (package:flutter_tools/executable.dart:103:3)
+           <asynchronous suspension>
+
+
+[        ] Running 3 shutdown hooks
+[        ] Shutdown hooks complete
+[        ] exiting with code 1

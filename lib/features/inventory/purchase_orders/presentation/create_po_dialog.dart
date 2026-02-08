@@ -12,27 +12,26 @@ class CreatePODialog extends StatefulWidget {
 
 class _CreatePODialogState extends State<CreatePODialog> {
   final _formKey = GlobalKey<FormState>();
-  final _vendorNameController = TextEditingController();
   final _notesController = TextEditingController();
   final _shippingCostController = TextEditingController();
-  final _taxController = TextEditingController();
+  final _taxAmountController = TextEditingController();
 
-  DateTime? _expectedDeliveryDate;
-  final List<_POLineItemInput> _lineItems = [];
+  Vendor? _selectedVendor;
+  DateTime _expectedDeliveryDate = DateTime.now(); // Default to today
+  final List<_POLineItemInput> _lineItems = [_POLineItemInput()];
 
   @override
   void initState() {
     super.initState();
-    // Add one empty line item to start
-    _addLineItem();
+    // Refresh vendors to ensure we have latest data
+    context.read<VendorCubit>().loadVendors();
   }
 
   @override
   void dispose() {
-    _vendorNameController.dispose();
     _notesController.dispose();
     _shippingCostController.dispose();
-    _taxController.dispose();
+    _taxAmountController.dispose();
     for (var item in _lineItems) {
       item.dispose();
     }
@@ -50,6 +49,20 @@ class _CreatePODialogState extends State<CreatePODialog> {
       _lineItems[index].dispose();
       _lineItems.removeAt(index);
     });
+  }
+
+  void _selectDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _expectedDeliveryDate,
+      firstDate: DateTime.now().subtract(const Duration(minutes: 1)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked != null && picked != _expectedDeliveryDate) {
+      setState(() {
+        _expectedDeliveryDate = picked;
+      });
+    }
   }
 
   void _createPO() {
@@ -102,18 +115,18 @@ class _CreatePODialogState extends State<CreatePODialog> {
     }
 
     context.read<PurchaseOrderCubit>().createPurchaseOrder(
-      vendorId: uuid.v4(),
-      vendorName: _vendorNameController.text,
+      vendorId: _selectedVendor!.id,
+      vendorName: _selectedVendor!.name,
       lineItems: poLineItems,
       createdBy: authState.userName,
       expectedDeliveryDate: _expectedDeliveryDate,
       notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       shippingCost: _shippingCostController.text.isNotEmpty
-          ? double.tryParse(_shippingCostController.text)
-          : null,
-      taxAmount: _taxController.text.isNotEmpty
-          ? double.tryParse(_taxController.text)
-          : null,
+          ? (double.tryParse(_shippingCostController.text) ?? 0.0)
+          : 0.0,
+      taxAmount: _taxAmountController.text.isNotEmpty
+          ? (double.tryParse(_taxAmountController.text) ?? 0.0)
+          : 0.0,
       userId: authState.userId,
       userName: authState.userName,
       userRole: authState.role.name,
@@ -172,41 +185,42 @@ class _CreatePODialogState extends State<CreatePODialog> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Vendor Name
-                      TextFormField(
-                        controller: _vendorNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Vendor Name *',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.business),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter vendor name';
-                          }
-                          return null;
-                        },
+                      // Vendor Selection
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: VendorSelectionDropdown(
+                              selectedVendorId: _selectedVendor?.id,
+                              onVendorSelected: (vendor) {
+                                setState(() {
+                                  _selectedVendor = vendor;
+                                });
+                              },
+                              label: 'Vendor *',
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2),
+                            child: IconButton.filledTonal(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      const CreateVendorDialog(),
+                                );
+                              },
+                              tooltip: 'Add New Vendor',
+                              icon: const Icon(Icons.add),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       // Expected Delivery Date
                       InkWell(
-                        onTap: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now().add(
-                              const Duration(days: 7),
-                            ),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime.now().add(
-                              const Duration(days: 365),
-                            ),
-                          );
-                          if (date != null) {
-                            setState(() {
-                              _expectedDeliveryDate = date;
-                            });
-                          }
-                        },
+                        onTap: _selectDate,
                         child: InputDecorator(
                           decoration: const InputDecoration(
                             labelText: 'Expected Delivery Date',
@@ -214,14 +228,8 @@ class _CreatePODialogState extends State<CreatePODialog> {
                             prefixIcon: Icon(Icons.calendar_today),
                           ),
                           child: Text(
-                            _expectedDeliveryDate != null
-                                ? '${_expectedDeliveryDate!.day}/${_expectedDeliveryDate!.month}/${_expectedDeliveryDate!.year}'
-                                : 'Select date',
-                            style: TextStyle(
-                              color: _expectedDeliveryDate != null
-                                  ? Colors.black
-                                  : Colors.grey,
-                            ),
+                            '${_expectedDeliveryDate.day}/${_expectedDeliveryDate.month}/${_expectedDeliveryDate.year}',
+                            style: const TextStyle(color: Colors.black),
                           ),
                         ),
                       ),
@@ -268,7 +276,7 @@ class _CreatePODialogState extends State<CreatePODialog> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: TextFormField(
-                              controller: _taxController,
+                              controller: _taxAmountController,
                               decoration: const InputDecoration(
                                 labelText: 'Tax Amount',
                                 border: OutlineInputBorder(),
