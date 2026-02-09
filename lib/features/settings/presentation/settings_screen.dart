@@ -57,8 +57,83 @@ class SettingsScreen extends StatelessWidget {
               color: Colors.purple,
               onTap: () => context.push('/settings/analytics'),
             ),
+            const SizedBox(height: 16),
+            _SettingsNavCard(
+              title: 'Procurement Settings',
+              description: 'Configure PO approval workflow and limits.',
+              icon: Icons.shopping_cart_checkout,
+              color: Colors.teal,
+              onTap: () => _showProcurementSettings(context),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showProcurementSettings(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const _ProcurementSettingsSheet(),
+    );
+  }
+}
+
+class _ProcurementSettingsSheet extends StatefulWidget {
+  const _ProcurementSettingsSheet();
+
+  @override
+  State<_ProcurementSettingsSheet> createState() =>
+      _ProcurementSettingsSheetState();
+}
+
+class _ProcurementSettingsSheetState extends State<_ProcurementSettingsSheet> {
+  bool _requiresApproval = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Procurement Settings',
+                style: AppDesign.headlineSmall.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SwitchListTile(
+            title: const Text('Require Manager Approval for PO'),
+            subtitle: const Text(
+              'When enabled, all purchase orders must be approved by a manager before being sent to vendors.',
+            ),
+            value: _requiresApproval,
+            activeColor: AppDesign.primaryStart,
+            onChanged: (value) {
+              setState(() => _requiresApproval = value);
+              // TODO: Sync with AppSettings in Firebase
+            },
+          ),
+          const SizedBox(height: 32),
+        ],
       ),
     );
   }

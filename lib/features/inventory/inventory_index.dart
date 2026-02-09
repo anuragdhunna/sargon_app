@@ -5,6 +5,7 @@ export 'package:flutter_bloc/flutter_bloc.dart';
 // Core
 export 'package:hotel_manager/core/models/audit_log.dart';
 export 'package:hotel_manager/core/services/audit_service.dart';
+export 'package:hotel_manager/core/models/app_settings_model.dart';
 export 'package:hotel_manager/theme/app_design.dart';
 
 // Components

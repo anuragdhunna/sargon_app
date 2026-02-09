@@ -1,35 +1,47 @@
+import 'dart:async';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../core/models/models.dart';
+import '../../data/inventory_repository.dart';
 import '../../inventory_index.dart';
+import '../../../notifications/data/repositories/notification_repository.dart';
+import 'purchase_order_state.dart';
 
-/// Cubit for managing purchase order logic
 class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
   final IInventoryRepository _repository;
-  final AuditService _auditService;
+  final INotificationRepository _notificationRepository;
+  final IAuditService _auditService;
+  final List<PurchaseOrder> _orders = [];
+  final _uuid = const Uuid();
+  StreamSubscription? _subscription;
 
   PurchaseOrderCubit({
-    IInventoryRepository? repository,
-    AuditService? auditService,
-  }) : _repository = repository ?? InventoryRepository(),
+    required IInventoryRepository repository,
+    INotificationRepository? notificationRepository,
+    IAuditService? auditService,
+  }) : _repository = repository,
+       _notificationRepository =
+           notificationRepository ?? NotificationRepository(),
        _auditService = auditService ?? AuditService(),
-       super(PurchaseOrderInitial()) {
-    loadPurchaseOrders();
-  }
+       super(PurchaseOrderInitial());
 
-  final _uuid = const Uuid();
-  final List<PurchaseOrder> _orders = [];
-
-  Future<void> loadPurchaseOrders() async {
+  void loadPurchaseOrders() {
     emit(PurchaseOrderLoading());
-    try {
-      final orders = await _repository.getPurchaseOrders();
-      _orders.clear();
-      _orders.addAll(orders);
-      emit(PurchaseOrderLoaded(List.from(_orders)));
-    } catch (e) {
-      emit(
-        PurchaseOrderError('Failed to load purchase orders: ${e.toString()}'),
-      );
-    }
+    _subscription?.cancel();
+    _subscription = _repository.streamPurchaseOrders().listen(
+      (orders) {
+        _orders.clear();
+        _orders.addAll(orders);
+        _orders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        emit(PurchaseOrderLoaded(List.from(_orders)));
+      },
+      onError: (e) {
+        emit(
+          PurchaseOrderError('Failed to load purchase orders: ${e.toString()}'),
+        );
+      },
+    );
   }
 
   Future<void> createPurchaseOrder({
@@ -45,10 +57,14 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     required String userName,
     required String userRole,
   }) async {
-    final poNumber = 'PO-${DateTime.now().year}-${_orders.length + 1}'.padLeft(
-      12,
-      '0',
-    );
+    final dateStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final sequence = (_orders.length + 1).toString().padLeft(4, '0');
+    final poNumber = 'PO-$dateStr-$sequence';
+
+    final settings = await _repository.getAppSettings();
+    final status = settings.requiresPOApproval
+        ? POStatus.pendingApproval
+        : POStatus.sent;
 
     final po = PurchaseOrder(
       id: _uuid.v4(),
@@ -56,7 +72,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
       vendorId: vendorId,
       vendorName: vendorName,
       lineItems: lineItems,
-      status: POStatus.sent,
+      status: status,
       createdAt: DateTime.now(),
       createdBy: createdBy,
       expectedDeliveryDate: expectedDeliveryDate,
@@ -67,6 +83,21 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
 
     try {
       await _repository.savePurchaseOrder(po);
+
+      if (status == POStatus.pendingApproval) {
+        await _notificationRepository.addNotification(
+          NotificationModel(
+            id: _uuid.v4(),
+            title: 'PO Approval Required',
+            body:
+                'Purchase Order ${po.poNumber} from $vendorName requires approval.',
+            type: NotificationType.inventory,
+            createdAt: DateTime.now(),
+            targetRoute: '/inventory/purchase-orders/${po.id}',
+          ),
+        );
+      }
+
       _orders.insert(0, po);
       emit(PurchaseOrderLoaded(List.from(_orders)));
 
@@ -78,7 +109,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
         entity: 'purchase_order',
         entityId: po.id,
         description:
-            'Created PO ${po.poNumber} for vendor $vendorName with ${lineItems.length} items',
+            'Created PO ${po.poNumber} ($status) for vendor $vendorName with ${lineItems.length} items',
       );
     } catch (e) {
       emit(
@@ -121,6 +152,61 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     }
   }
 
+  Future<void> receivePOLineItem(
+    String poId,
+    String inventoryItemId,
+    double quantityReceived,
+  ) async {
+    try {
+      final index = _orders.indexWhere((o) => o.id == poId);
+      if (index != -1) {
+        final order = _orders[index];
+        final lineItems = List<POLineItem>.from(order.lineItems);
+        final itemIndex = lineItems.indexWhere(
+          (li) => li.inventoryItemId == inventoryItemId,
+        );
+
+        if (itemIndex != -1) {
+          final item = lineItems[itemIndex];
+          lineItems[itemIndex] = item.copyWith(
+            receivedQuantity: item.receivedQuantity + quantityReceived,
+          );
+
+          // Check if PO should be marked as completed or partial
+          var allReceived = true;
+          var anyReceived = false;
+          for (var li in lineItems) {
+            if (li.receivedQuantity < li.orderedQuantity && !li.isCancelled) {
+              allReceived = false;
+            }
+            if (li.receivedQuantity > 0) {
+              anyReceived = true;
+            }
+          }
+
+          POStatus newStatus = order.status;
+          if (allReceived) {
+            newStatus = POStatus.completed;
+          } else if (anyReceived) {
+            newStatus = POStatus.partial;
+          }
+
+          final updatedPO = order.copyWith(
+            lineItems: lineItems,
+            status: newStatus,
+          );
+          await _repository.savePurchaseOrder(updatedPO);
+          _orders[index] = updatedPO;
+          emit(PurchaseOrderLoaded(List.from(_orders)));
+        }
+      }
+    } catch (e) {
+      emit(
+        PurchaseOrderError('Failed to receive PO line item: ${e.toString()}'),
+      );
+    }
+  }
+
   Future<void> updatePOStatus(
     String poId,
     POStatus status, {
@@ -151,49 +237,46 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     }
   }
 
-  Future<void> updateLineItemReceived(
+  Future<void> cancelPOLineItem(
     String poId,
-    String inventoryItemId,
-    double quantityReceived,
-  ) async {
+    String inventoryItemId, {
+    required String userId,
+    required String userName,
+    required String userRole,
+  }) async {
     try {
       final index = _orders.indexWhere((o) => o.id == poId);
       if (index != -1) {
         final order = _orders[index];
         final lineItems = List<POLineItem>.from(order.lineItems);
         final itemIndex = lineItems.indexWhere(
-          (i) => i.inventoryItemId == inventoryItemId,
+          (li) => li.inventoryItemId == inventoryItemId,
         );
 
         if (itemIndex != -1) {
           final item = lineItems[itemIndex];
-          final newReceived = item.receivedQuantity + quantityReceived;
-          lineItems[itemIndex] = item.copyWith(receivedQuantity: newReceived);
+          lineItems[itemIndex] = item.copyWith(isCancelled: true);
 
-          // Check if PO is fully received
-          bool allReceived = true;
-          for (var li in lineItems) {
-            if (li.receivedQuantity < li.orderedQuantity) {
-              allReceived = false;
-              break;
-            }
-          }
-
-          final updatedPO = order.copyWith(
-            lineItems: lineItems,
-            status: allReceived ? POStatus.completed : POStatus.partial,
-          );
-
+          final updatedPO = order.copyWith(lineItems: lineItems);
           await _repository.savePurchaseOrder(updatedPO);
           _orders[index] = updatedPO;
           emit(PurchaseOrderLoaded(List.from(_orders)));
+
+          _auditService.log(
+            userId: userId,
+            userName: userName,
+            userRole: userRole,
+            action: AuditAction.update,
+            entity: 'purchase_order',
+            entityId: poId,
+            description:
+                'Cancelled item ${item.itemName} in PO ${updatedPO.poNumber}',
+          );
         }
       }
     } catch (e) {
       emit(
-        PurchaseOrderError(
-          'Failed to update PO received quantity: ${e.toString()}',
-        ),
+        PurchaseOrderError('Failed to cancel PO line item: ${e.toString()}'),
       );
     }
   }
@@ -204,5 +287,11 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     } catch (e) {
       return null;
     }
+  }
+
+  @override
+  Future<void> close() {
+    _subscription?.cancel();
+    return super.close();
   }
 }

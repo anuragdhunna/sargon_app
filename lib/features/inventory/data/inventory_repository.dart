@@ -1,3 +1,4 @@
+import '../../../core/models/models.dart';
 import '../../../core/services/database_service.dart';
 import '../vendors/data/vendor_model.dart';
 import '../purchase_orders/data/purchase_order_model.dart';
@@ -22,6 +23,7 @@ abstract class IInventoryRepository {
   Future<void> updateInventoryQuantity(String itemId, double quantity);
   Future<void> addStock(String itemId, double quantity);
   Future<void> deductStock(String itemId, double quantity);
+  Future<AppSettings> getAppSettings();
 }
 
 class InventoryRepository implements IInventoryRepository {
@@ -82,4 +84,7 @@ class InventoryRepository implements IInventoryRepository {
   @override
   Future<void> deductStock(String itemId, double quantity) =>
       _databaseService.deductStock(itemId, quantity);
+
+  @override
+  Future<AppSettings> getAppSettings() => _databaseService.getAppSettings();
 }

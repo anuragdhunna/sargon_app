@@ -1,6 +1,5 @@
 import 'package:hotel_manager/features/inventory/goods_receipt/presentation/widgets/delivery_details_widget.dart';
 import 'package:hotel_manager/features/inventory/goods_receipt/presentation/widgets/image_capture_card_widget.dart';
-import 'package:hotel_manager/features/inventory/goods_receipt/presentation/widgets/manual_item_card_widget.dart';
 import 'package:hotel_manager/features/inventory/goods_receipt/presentation/widgets/receiving_inputs.dart';
 import 'package:hotel_manager/features/inventory/goods_receipt/presentation/widgets/receiving_item_card_widget.dart';
 import 'package:hotel_manager/features/inventory/purchase_orders/presentation/widgets/po_selection_widget.dart';
@@ -11,9 +10,7 @@ import '../../inventory_index.dart';
 
 /// Screen for receiving goods from vendors
 ///
-/// Supports two modes:
-/// 1. Receiving against a Purchase Order
-/// 2. Receiving without a Purchase Order (manual item selection)
+/// Strictly requires a Purchase Order to receive goods.
 class GoodsReceivingScreen extends StatefulWidget {
   final String? purchaseOrderId;
 
@@ -33,16 +30,13 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
 
   PurchaseOrder? _selectedPO;
   List<ReceivingItemInput> _receivingItems = [];
-  final List<ManualItemInput> _manualItems = [];
   String? _billImagePath;
-  String? _goodsImagePath;
-  bool _withoutPO = false;
+  final List<String> _goodsImages = [];
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    _withoutPO = widget.purchaseOrderId == null;
     if (widget.purchaseOrderId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final po = context.read<PurchaseOrderCubit>().getPOById(
@@ -80,9 +74,6 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
     for (var input in _receivingItems) {
       input.dispose();
     }
-    for (var input in _manualItems) {
-      input.dispose();
-    }
     super.dispose();
   }
 
@@ -94,27 +85,14 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
       if (isBill) {
         _billImagePath = '/mock/images/bill_$timestamp.jpg';
       } else {
-        _goodsImagePath = '/mock/images/goods_$timestamp.jpg';
+        _goodsImages.add(
+          '/mock/images/goods_${_goodsImages.length}_$timestamp.jpg',
+        );
       }
     });
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${isBill ? 'Bill' : 'Goods'} image captured')),
     );
-  }
-
-  /// Add a new manual item row for receiving without PO
-  void _addManualItem() {
-    setState(() {
-      _manualItems.add(ManualItemInput());
-    });
-  }
-
-  /// Remove a manual item row
-  void _removeManualItem(int index) {
-    setState(() {
-      _manualItems[index].dispose();
-      _manualItems.removeAt(index);
-    });
   }
 
   /// Submit the goods receipt note
@@ -129,6 +107,28 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
       return;
     }
 
+    if (_selectedPO == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select a Purchase Order first'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final hasPoorQuality = _receivingItems.any((i) => !i.qualityCheckPassed);
+
+    if (hasPoorQuality && _goodsImages.length < 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Minimum 3 photos required for poor quality items'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_isSubmitting) return;
 
     final authState = context.read<AuthCubit>().state;
@@ -136,63 +136,22 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
 
     /// Collect line items with received quantities
     final grnLineItems = <GRNLineItem>[];
-    final uuid = const Uuid();
 
-    if (_withoutPO) {
-      /// Validate vendor name is provided
-      if (_vendorNameController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Please enter vendor name'),
-            backgroundColor: Colors.red,
+    for (var input in _receivingItems) {
+      final quantity = double.tryParse(input.quantityController.text) ?? 0;
+      if (quantity > 0) {
+        grnLineItems.add(
+          GRNLineItem(
+            id: const Uuid().v4(),
+            inventoryItemId: input.lineItem.inventoryItemId,
+            itemName: input.lineItem.itemName,
+            unit: input.lineItem.unit,
+            quantityReceived: quantity,
+            pricePerUnit: input.lineItem.pricePerUnit,
+            qualityCheckPassed: input.qualityCheckPassed,
+            notes: input.notesController.text,
           ),
         );
-        return;
-      }
-
-      /// Collect manual items
-      for (var input in _manualItems) {
-        if (input.selectedItem == null) continue;
-
-        final quantity = double.tryParse(input.quantityController.text) ?? 0;
-        final price = double.tryParse(input.priceController.text) ?? 0;
-
-        if (quantity > 0 && price > 0) {
-          grnLineItems.add(
-            GRNLineItem(
-              id: uuid.v4(),
-              inventoryItemId: input.selectedItem!.id,
-              itemName: input.selectedItem!.name,
-              unit: input.selectedItem!.unit,
-              quantityReceived: quantity,
-              pricePerUnit: price,
-              qualityCheckPassed: input.qualityCheckPassed,
-              notes: input.notesController.text.isNotEmpty
-                  ? input.notesController.text
-                  : null,
-            ),
-          );
-        }
-      }
-    } else {
-      if (_selectedPO != null) {
-        for (var input in _receivingItems) {
-          final quantity = double.tryParse(input.quantityController.text) ?? 0;
-          if (quantity > 0) {
-            grnLineItems.add(
-              GRNLineItem(
-                id: const Uuid().v4(),
-                inventoryItemId: input.lineItem.inventoryItemId,
-                itemName: input.lineItem.itemName,
-                unit: input.lineItem.unit,
-                quantityReceived: quantity,
-                pricePerUnit: input.lineItem.pricePerUnit,
-                qualityCheckPassed: input.qualityCheckPassed,
-                notes: input.notesController.text,
-              ),
-            );
-          }
-        }
       }
     }
 
@@ -213,10 +172,8 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
     /// Create GRN
     await context.read<GoodsReceiptCubit>().createGoodsReceipt(
       purchaseOrderId: _selectedPO?.id,
-      vendorId: _withoutPO ? uuid.v4() : _selectedPO?.vendorId,
-      vendorName: _withoutPO
-          ? _vendorNameController.text.trim()
-          : _selectedPO?.vendorName,
+      vendorId: _selectedPO?.vendorId,
+      vendorName: _selectedPO?.vendorName,
       lineItems: grnLineItems,
       receivedBy: authState.userId,
       receivedByName: authState.userName,
@@ -227,7 +184,7 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
           ? _deliveryPersonPhoneController.text
           : null,
       billImagePath: _billImagePath,
-      goodsImagePath: _goodsImagePath,
+      goodsImagePath: _goodsImages.isNotEmpty ? _goodsImages.first : null,
       invoiceNumber: _invoiceNumberController.text.isNotEmpty
           ? _invoiceNumberController.text
           : null,
@@ -261,7 +218,7 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          if (!_withoutPO && _selectedPO != null)
+          if (_selectedPO != null)
             Padding(
               padding: const EdgeInsets.only(right: AppDesign.space4),
               child: Center(
@@ -302,7 +259,6 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
                     setState(() {
                       _selectedPO = po;
                       if (po != null) {
-                        _withoutPO = false;
                         _initializeReceivingItems(po);
                         _vendorNameController.text = po.vendorName ?? '';
                       } else {
@@ -313,29 +269,12 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
                   },
                 ),
 
-              if (_selectedPO == null && widget.purchaseOrderId == null) ...[
-                CheckboxListTile(
-                  title: const Text('Receive without Purchase Order'),
-                  value: _withoutPO,
-                  onChanged: (value) {
-                    setState(() {
-                      _withoutPO = value ?? false;
-                      if (_withoutPO) {
-                        _selectedPO = null;
-                        _receivingItems.clear();
-                        _vendorNameController.clear();
-                      }
-                    });
-                  },
-                ),
-              ],
-
-              if (_selectedPO != null || _withoutPO) ...[
+              if (_selectedPO != null) ...[
                 const SizedBox(height: 24),
                 AppCard(
                   child: VendorInfoWidget(
                     controller: _vendorNameController,
-                    enabled: _withoutPO,
+                    enabled: false,
                   ),
                 ),
 
@@ -358,8 +297,10 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ImageCaptureCardWidget(
-                        label: 'Goods Image',
-                        imagePath: _goodsImagePath,
+                        label: 'Goods Images (${_goodsImages.length})',
+                        imagePath: _goodsImages.isNotEmpty
+                            ? _goodsImages.last
+                            : null,
                         onCapture: () => _captureImage(false),
                       ),
                     ),
@@ -375,42 +316,17 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
                 ),
                 const SizedBox(height: AppDesign.space3),
 
-                if (_selectedPO != null) ...[
-                  ..._receivingItems.map(
-                    (input) => ReceivingItemCardWidget(
-                      input: input,
-                      onRemove: () {},
-                      onQualityChanged: (value) {
-                        setState(() {
-                          input.qualityCheckPassed = value;
-                        });
-                      },
-                    ),
+                ..._receivingItems.map(
+                  (input) => ReceivingItemCardWidget(
+                    input: input,
+                    onRemove: () {},
+                    onQualityChanged: (value) {
+                      setState(() {
+                        input.qualityCheckPassed = value;
+                      });
+                    },
                   ),
-                ] else ...[
-                  ..._manualItems.asMap().entries.map((entry) {
-                    return ManualItemCardWidget(
-                      index: entry.key,
-                      input: entry.value,
-                      onRemove: () => _removeManualItem(entry.key),
-                      onItemChanged: (value) {
-                        setState(() {
-                          entry.value.selectedItem = value;
-                        });
-                      },
-                      onQualityChanged: (value) {
-                        setState(() {
-                          entry.value.qualityCheckPassed = value;
-                        });
-                      },
-                    );
-                  }),
-                  PremiumButton.secondary(
-                    onPressed: _addManualItem,
-                    label: 'Add Item',
-                    icon: Icons.add,
-                  ),
-                ],
+                ),
 
                 const SizedBox(height: 32),
                 PremiumButton.primary(
@@ -419,6 +335,27 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
                   isLoading: _isSubmitting,
                 ),
                 const SizedBox(height: 32),
+              ] else ...[
+                const SizedBox(height: 100),
+                Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.inventory_2_outlined,
+                        size: 64,
+                        color: AppDesign.neutral300,
+                      ),
+                      const SizedBox(height: AppDesign.space3),
+                      Text(
+                        'Select a Purchase Order to start receiving goods',
+                        style: AppDesign.bodyMedium.copyWith(
+                          color: AppDesign.neutral500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ],
           ),

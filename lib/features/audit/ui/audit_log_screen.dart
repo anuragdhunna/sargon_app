@@ -14,6 +14,8 @@ class AuditLogScreen extends StatefulWidget {
 
 class _AuditLogScreenState extends State<AuditLogScreen> {
   String _searchQuery = '';
+  String? _selectedEntity;
+  AuditAction? _selectedAction;
 
   @override
   Widget build(BuildContext context) {
@@ -24,19 +26,67 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
           // Search/Filter Header
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Search logs...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+            child: Column(
+              children: [
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Search logs...',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() => _searchQuery = value);
+                  },
                 ),
-              ),
-              onChanged: (value) {
-                setState(() => _searchQuery = value);
-              },
+                const SizedBox(height: 12),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      FilterChip(
+                        label: const Text('All'),
+                        selected:
+                            _selectedEntity == null && _selectedAction == null,
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() {
+                              _selectedEntity = null;
+                              _selectedAction = null;
+                            });
+                          }
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      ...[
+                        'inventory',
+                        'order',
+                        'room',
+                        'booking',
+                        'checklists',
+                        'user',
+                      ].map((entity) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            label: Text(entity.toUpperCase()),
+                            selected: _selectedEntity == entity,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedEntity = selected ? entity : null;
+                                if (selected) _selectedAction = null;
+                              });
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -56,9 +106,21 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
                 final filteredLogs = logs
                     .where((log) {
                       final query = _searchQuery.toLowerCase();
-                      return log.description.toLowerCase().contains(query) ||
+                      final matchesQuery =
+                          log.description.toLowerCase().contains(query) ||
                           log.userName.toLowerCase().contains(query) ||
                           log.entity.toLowerCase().contains(query);
+
+                      final matchesEntity =
+                          _selectedEntity == null ||
+                          log.entity.toLowerCase() ==
+                              _selectedEntity!.toLowerCase();
+
+                      final matchesAction =
+                          _selectedAction == null ||
+                          log.action == _selectedAction;
+
+                      return matchesQuery && matchesEntity && matchesAction;
                     })
                     .toList()
                     .reversed

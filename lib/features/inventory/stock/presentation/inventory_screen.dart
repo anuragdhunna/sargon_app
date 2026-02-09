@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
-import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/inventory/purchase_orders/presentation/purchase_orders_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/data/inventory_model.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
@@ -17,7 +15,6 @@ import 'package:hotel_manager/component/badges/status_badge.dart';
 import 'package:hotel_manager/component/states/empty_state.dart';
 import 'package:hotel_manager/component/cards/premium_info_card.dart';
 import 'package:hotel_manager/component/inputs/premium_search_bar.dart';
-import 'package:hotel_manager/component/feedback/custom_snackbar.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 /// Premium Inventory Management Screen
@@ -367,29 +364,11 @@ class _InventoryScreenState extends State<InventoryScreen> {
           if (item.isLowStock)
             StatusBadge.error(label: 'Low Stock', showGlow: false),
           const SizedBox(width: AppDesign.space3),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.remove_circle_outline),
-                onPressed: () => _adjustStock(context, item, -1),
-                color: AppDesign.error,
-                iconSize: 20,
-              ),
-              Text(
-                '${item.quantity.toStringAsFixed(0)} ${item.unit.name}',
-                style: AppDesign.titleSmall.copyWith(
-                  color: item.isLowStock
-                      ? AppDesign.error
-                      : AppDesign.neutral900,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                onPressed: () => _adjustStock(context, item, 1),
-                color: AppDesign.success,
-                iconSize: 20,
-              ),
-            ],
+          Text(
+            '${item.quantity.toStringAsFixed(0)} ${item.unit.name}',
+            style: AppDesign.titleSmall.copyWith(
+              color: item.isLowStock ? AppDesign.error : AppDesign.neutral900,
+            ),
           ),
         ],
       ),
@@ -409,25 +388,6 @@ class _InventoryScreenState extends State<InventoryScreen> {
       case ItemCategory.other:
         return Icons.spa;
     }
-  }
-
-  void _adjustStock(BuildContext context, InventoryItem item, double delta) {
-    final authState = context.read<AuthCubit>().state;
-    if (authState is! AuthVerified) return;
-
-    final newQuantity = (item.quantity + delta).clamp(0.0, double.infinity);
-    context.read<InventoryCubit>().updateStock(
-      item.id,
-      newQuantity,
-      userId: authState.userId,
-      userName: authState.userName,
-      userRole: authState.role.name,
-    );
-
-    CustomSnackbar.showSuccess(
-      context,
-      'Updated ${item.name} quantity to ${newQuantity.toStringAsFixed(0)}',
-    );
   }
 
   void _showFilterDialog(BuildContext context) {

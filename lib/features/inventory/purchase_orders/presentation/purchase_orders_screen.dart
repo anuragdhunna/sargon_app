@@ -286,6 +286,12 @@ class _PurchaseOrdersScreenState extends State<PurchaseOrdersScreen> {
           type: StatusType.info,
           icon: Icons.send,
         );
+      case POStatus.pendingApproval:
+        return StatusBadge(
+          label: status.displayName,
+          type: StatusType.warning,
+          icon: Icons.approval,
+        );
       case POStatus.partial:
         return StatusBadge(
           label: status.displayName,
@@ -388,6 +394,8 @@ class _PurchaseOrdersScreenState extends State<PurchaseOrdersScreen> {
         return Icons.timelapse;
       case POStatus.completed:
         return Icons.check_circle;
+      case POStatus.pendingApproval:
+        return Icons.approval;
       case POStatus.cancelled:
         return Icons.cancel;
     }

@@ -6,6 +6,7 @@ import 'package:hotel_manager/core/navigation/app_router.dart';
 import 'package:hotel_manager/core/services/firebase_service.dart';
 import 'package:hotel_manager/core/services/auth_service.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
+import 'package:hotel_manager/core/services/notification_service.dart';
 import 'package:hotel_manager/core/services/audit_service.dart';
 import 'package:hotel_manager/features/attendance/logic/attendance_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
@@ -31,6 +32,8 @@ import 'package:hotel_manager/features/loyalty/data/repositories/loyalty_reposit
 import 'package:hotel_manager/features/loyalty/logic/loyalty_cubit.dart';
 import 'package:hotel_manager/features/settings/data/repositories/settings_repository.dart';
 import 'package:hotel_manager/features/inventory/logic/stock_manager_service.dart';
+import 'package:hotel_manager/features/notifications/data/repositories/notification_repository.dart';
+import 'package:hotel_manager/features/notifications/logic/notification_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,6 +84,11 @@ void main() async {
         RepositoryProvider<StockManagerService>(
           create: (context) => StockManagerService(databaseService),
         ),
+        RepositoryProvider<INotificationRepository>(
+          create: (context) => NotificationRepository(
+            service: NotificationService(databaseService: databaseService),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -102,8 +110,10 @@ void main() async {
                   ..loadInventory(),
           ),
           BlocProvider(
-            create: (context) =>
-                PurchaseOrderCubit(repository: InventoryRepository()),
+            create: (context) => PurchaseOrderCubit(
+              repository: InventoryRepository(),
+              notificationRepository: context.read<INotificationRepository>(),
+            )..loadPurchaseOrders(),
           ),
           BlocProvider(
             create: (context) => VendorCubit(repository: InventoryRepository()),
@@ -147,6 +157,11 @@ void main() async {
             create: (context) => LoyaltyCubit(
               loyaltyRepository: context.read<LoyaltyRepository>(),
             )..loadLoyaltyData(),
+          ),
+          BlocProvider<NotificationCubit>(
+            create: (context) => NotificationCubit(
+              notificationRepository: context.read<INotificationRepository>(),
+            ),
           ),
         ],
         child: HotelManagerApp(router: router),

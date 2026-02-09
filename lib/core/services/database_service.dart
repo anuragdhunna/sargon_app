@@ -19,6 +19,7 @@ part 'database/database_audit.dart';
 part 'database/database_offers.dart';
 part 'database/database_loyalty.dart';
 part 'database/database_utils.dart';
+part 'database/database_settings.dart';
 
 /// Firebase Realtime Database service
 class DatabaseService implements IBillingDatabase {
@@ -103,4 +104,12 @@ class DatabaseService implements IBillingDatabase {
       DatabaseTables(this).initializeDummyTables();
   Future<void> initializeDummyRooms() =>
       DatabaseRooms(this).initializeDummyRooms();
+
+  // Settings
+  Future<AppSettings> getAppSettings() =>
+      DatabaseSettings(this).getAppSettings();
+  Stream<AppSettings> streamAppSettings() =>
+      DatabaseSettings(this).streamAppSettings();
+  Future<void> updateAppSettings(AppSettings settings) =>
+      DatabaseSettings(this).updateAppSettings(settings);
 }

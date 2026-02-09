@@ -337,6 +337,21 @@ class _VendorPaymentScreenState extends State<VendorPaymentScreen> {
             style: AppDesign.labelSmall.copyWith(color: AppDesign.success),
           ),
         );
+      case POStatus.pendingApproval:
+        return Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDesign.space2,
+            vertical: 2,
+          ),
+          decoration: BoxDecoration(
+            color: AppDesign.warning.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(AppDesign.radiusSm),
+          ),
+          child: Text(
+            'Approval Req.',
+            style: AppDesign.labelSmall.copyWith(color: AppDesign.warning),
+          ),
+        );
       case POStatus.cancelled:
         return Container(
           padding: const EdgeInsets.symmetric(

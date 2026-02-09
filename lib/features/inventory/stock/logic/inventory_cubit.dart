@@ -8,12 +8,12 @@ import 'inventory_state.dart';
 /// Cubit for managing inventory operations
 class InventoryCubit extends Cubit<InventoryState> {
   final IInventoryRepository _repository;
-  final AuditService _auditService;
+  final IAuditService _auditService;
   StreamSubscription? _inventorySubscription;
 
   InventoryCubit({
     required IInventoryRepository repository,
-    AuditService? auditService,
+    IAuditService? auditService,
   }) : _repository = repository,
        _auditService = auditService ?? AuditService(),
        super(InventoryInitial());

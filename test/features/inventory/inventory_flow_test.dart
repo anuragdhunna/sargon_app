@@ -1,11 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:hotel_manager/features/inventory/inventory_index.dart';
+import 'package:hotel_manager/features/notifications/data/repositories/notification_repository.dart';
+import 'package:hotel_manager/core/models/models.dart';
 import 'dart:async';
 
 class MockInventoryRepository extends Mock implements InventoryRepository {}
 
-class MockAuditService extends Mock implements AuditService {}
+class MockAuditService extends Mock implements IAuditService {}
+
+class MockNotificationRepository extends Mock
+    implements INotificationRepository {}
 
 class FakeVendor extends Fake implements Vendor {}
 
@@ -15,9 +20,12 @@ class FakeGoodsReceiptNote extends Fake implements GoodsReceiptNote {}
 
 class FakeInventoryItem extends Fake implements InventoryItem {}
 
+class FakeNotificationModel extends Fake implements NotificationModel {}
+
 void main() {
   late MockInventoryRepository mockRepo;
   late MockAuditService mockAudit;
+  late MockNotificationRepository mockNotifications;
   late VendorCubit vendorCubit;
   late PurchaseOrderCubit poCubit;
   late InventoryCubit inventoryCubit;
@@ -28,17 +36,22 @@ void main() {
     registerFallbackValue(FakePurchaseOrder());
     registerFallbackValue(FakeGoodsReceiptNote());
     registerFallbackValue(FakeInventoryItem());
+    registerFallbackValue(FakeNotificationModel());
     registerFallbackValue(AuditAction.createPO);
   });
 
   setUp(() {
     mockRepo = MockInventoryRepository();
     mockAudit = MockAuditService();
+    mockNotifications = MockNotificationRepository();
 
     // Setup default responses
     when(() => mockRepo.getVendors()).thenAnswer((_) async => []);
     when(() => mockRepo.getPurchaseOrders()).thenAnswer((_) async => []);
     when(() => mockRepo.getGoodsReceipts()).thenAnswer((_) async => []);
+    when(
+      () => mockRepo.getAppSettings(),
+    ).thenAnswer((_) async => const AppSettings());
     when(() => mockRepo.streamInventory()).thenAnswer((_) => Stream.value([]));
     when(() => mockRepo.saveVendor(any())).thenAnswer((_) async => {});
     when(() => mockRepo.savePurchaseOrder(any())).thenAnswer((_) async => {});
@@ -61,8 +74,16 @@ void main() {
       ),
     ).thenAnswer((_) async => {});
 
+    when(
+      () => mockNotifications.addNotification(any()),
+    ).thenAnswer((_) async => {});
+
     vendorCubit = VendorCubit(repository: mockRepo);
-    poCubit = PurchaseOrderCubit(repository: mockRepo, auditService: mockAudit);
+    poCubit = PurchaseOrderCubit(
+      repository: mockRepo,
+      auditService: mockAudit,
+      notificationRepository: mockNotifications,
+    );
     inventoryCubit = InventoryCubit(
       repository: mockRepo,
       auditService: mockAudit,

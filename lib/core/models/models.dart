@@ -4,6 +4,7 @@ library;
 
 // User & Auth
 export 'user_model.dart';
+export 'app_settings_model.dart';
 
 // Orders, Billing & Menu
 export 'order_model.dart';
@@ -28,6 +29,7 @@ export 'checklist_model.dart';
 export 'incident_model.dart';
 export 'attendance_model.dart';
 export 'audit_log.dart';
+export 'notification_model.dart';
 
 // Performance
 export 'performance_model.dart';

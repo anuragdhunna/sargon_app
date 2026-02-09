@@ -2,9 +2,23 @@ import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:uuid/uuid.dart';
 
+abstract class IAuditService {
+  Future<void> log({
+    required String userId,
+    required String userName,
+    required String userRole,
+    required AuditAction action,
+    required String entity,
+    required String entityId,
+    required String description,
+    Map<String, dynamic>? metadata,
+  });
+  Stream<List<AuditLog>> streamAllLogs();
+}
+
 /// Service for managing audit logs
 /// Logs are stored in Firebase Realtime Database
-class AuditService {
+class AuditService implements IAuditService {
   static AuditService? _instance;
   final DatabaseService _databaseService;
   final _uuid = const Uuid();
@@ -26,6 +40,7 @@ class AuditService {
   }
 
   /// Log an action with automatic timestamp
+  @override
   Future<void> log({
     required String userId,
     required String userName,
@@ -54,6 +69,7 @@ class AuditService {
   }
 
   /// Stream all logs (for admin view)
+  @override
   Stream<List<AuditLog>> streamAllLogs() {
     return _databaseService.streamAuditLogs();
   }

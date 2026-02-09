@@ -6,13 +6,13 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
   final InventoryCubit inventoryCubit;
   final PurchaseOrderCubit purchaseOrderCubit;
   final IInventoryRepository _repository;
-  final AuditService _auditService;
+  final IAuditService _auditService;
 
   GoodsReceiptCubit({
     required this.inventoryCubit,
     required this.purchaseOrderCubit,
     IInventoryRepository? repository,
-    AuditService? auditService,
+    IAuditService? auditService,
   }) : _repository = repository ?? InventoryRepository(),
        _auditService = auditService ?? AuditService(),
        super(GoodsReceiptInitial()) {
@@ -99,7 +99,7 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
       // Update PO line item received quantity
       if (purchaseOrderId != null) {
         for (var item in lineItems) {
-          await purchaseOrderCubit.updateLineItemReceived(
+          await purchaseOrderCubit.receivePOLineItem(
             purchaseOrderId,
             item.inventoryItemId,
             item.quantityReceived,

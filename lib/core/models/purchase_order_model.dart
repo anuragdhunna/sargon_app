@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'inventory_item_model.dart';
 
 /// PO Status enum
-enum POStatus { draft, sent, partial, completed, cancelled }
+enum POStatus { draft, pendingApproval, sent, partial, completed, cancelled }
 
 /// Extension for POStatus
 extension POStatusExtension on POStatus {
@@ -10,6 +10,8 @@ extension POStatusExtension on POStatus {
     switch (this) {
       case POStatus.draft:
         return 'Draft';
+      case POStatus.pendingApproval:
+        return 'Pending Approval';
       case POStatus.sent:
         return 'Sent';
       case POStatus.partial:
@@ -32,6 +34,7 @@ class POLineItem extends Equatable {
   final double receivedQuantity;
   final double pricePerUnit;
   final String? notes;
+  final bool isCancelled;
 
   const POLineItem({
     required this.id,
@@ -42,6 +45,7 @@ class POLineItem extends Equatable {
     this.receivedQuantity = 0,
     required this.pricePerUnit,
     this.notes,
+    this.isCancelled = false,
   });
 
   double get pendingQuantity => orderedQuantity - receivedQuantity;
@@ -50,7 +54,11 @@ class POLineItem extends Equatable {
   bool get isPartiallyReceived =>
       receivedQuantity > 0 && receivedQuantity < orderedQuantity;
 
-  POLineItem copyWith({double? receivedQuantity, String? notes}) {
+  POLineItem copyWith({
+    double? receivedQuantity,
+    String? notes,
+    bool? isCancelled,
+  }) {
     return POLineItem(
       id: id,
       inventoryItemId: inventoryItemId,
@@ -60,6 +68,7 @@ class POLineItem extends Equatable {
       receivedQuantity: receivedQuantity ?? this.receivedQuantity,
       pricePerUnit: pricePerUnit,
       notes: notes ?? this.notes,
+      isCancelled: isCancelled ?? this.isCancelled,
     );
   }
 
@@ -73,6 +82,7 @@ class POLineItem extends Equatable {
     receivedQuantity,
     pricePerUnit,
     notes,
+    isCancelled,
   ];
 
   Map<String, dynamic> toJson() {
@@ -85,6 +95,7 @@ class POLineItem extends Equatable {
       'receivedQuantity': receivedQuantity,
       'pricePerUnit': pricePerUnit,
       'notes': notes,
+      'isCancelled': isCancelled,
     };
   }
 
@@ -101,6 +112,7 @@ class POLineItem extends Equatable {
       receivedQuantity: (json['receivedQuantity'] as num?)?.toDouble() ?? 0,
       pricePerUnit: (json['pricePerUnit'] as num).toDouble(),
       notes: json['notes'] as String?,
+      isCancelled: json['isCancelled'] as bool? ?? false,
     );
   }
 }

@@ -351,21 +351,25 @@ class _CreatePODialogState extends State<CreatePODialog> {
                 Row(
                   children: [
                     Expanded(
-                      flex: 3,
+                      flex: 4,
                       child: DropdownButtonFormField<InventoryItem>(
                         value: item.selectedItem,
                         decoration: const InputDecoration(
                           labelText: 'Item *',
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 8,
                             vertical: 8,
                           ),
                         ),
                         items: state.items.map((inventoryItem) {
                           return DropdownMenuItem(
                             value: inventoryItem,
-                            child: Text(inventoryItem.name),
+                            child: Text(
+                              inventoryItem.name,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 12),
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -377,26 +381,23 @@ class _CreatePODialogState extends State<CreatePODialog> {
                             }
                           });
                         },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Select item';
-                          }
-                          return null;
-                        },
+                        validator: (value) => value == null ? 'Required' : null,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Expanded(
+                      flex: 2,
                       child: TextFormField(
                         controller: item.quantityController,
                         decoration: InputDecoration(
                           labelText: 'Qty *',
                           border: const OutlineInputBorder(),
                           contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 8,
                             vertical: 8,
                           ),
-                          suffix: Text(item.selectedItem?.unit.name ?? ''),
+                          suffixText: item.selectedItem?.unit.name,
+                          suffixStyle: const TextStyle(fontSize: 10),
                         ),
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -407,29 +408,28 @@ class _CreatePODialogState extends State<CreatePODialog> {
                           ),
                         ],
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Required';
-                          }
+                          if (value == null || value.isEmpty) return 'Req';
                           if (double.tryParse(value) == null ||
-                              double.parse(value) <= 0) {
-                            return 'Invalid';
-                          }
+                              double.parse(value) <= 0)
+                            return 'Inv';
                           return null;
                         },
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 4),
                     Expanded(
+                      flex: 2,
                       child: TextFormField(
                         controller: item.priceController,
                         decoration: const InputDecoration(
                           labelText: 'Price *',
                           border: OutlineInputBorder(),
                           contentPadding: EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 8,
                             vertical: 8,
                           ),
                           prefixText: '₹',
+                          prefixStyle: TextStyle(fontSize: 10),
                         ),
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
@@ -440,13 +440,10 @@ class _CreatePODialogState extends State<CreatePODialog> {
                           ),
                         ],
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Required';
-                          }
+                          if (value == null || value.isEmpty) return 'Req';
                           if (double.tryParse(value) == null ||
-                              double.parse(value) <= 0) {
-                            return 'Invalid';
-                          }
+                              double.parse(value) <= 0)
+                            return 'Inv';
                           return null;
                         },
                       ),

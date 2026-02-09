@@ -46,6 +46,24 @@ class PODetailScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                    if (po.status == POStatus.pendingApproval)
+                      PopupMenuItem(
+                        value: 'approve',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.check_circle,
+                              size: 20,
+                              color: Colors.green,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Approve',
+                              style: TextStyle(color: Colors.green),
+                            ),
+                          ],
+                        ),
+                      ),
                     const PopupMenuItem(
                       value: 'cancel',
                       child: Row(
@@ -71,6 +89,8 @@ class PODetailScreen extends StatelessWidget {
                       );
                     } else if (value == 'cancel') {
                       _showCancelDialog(context, po);
+                    } else if (value == 'approve') {
+                      _handleStatusUpdate(context, po, POStatus.sent);
                     }
                   },
                 ),
@@ -292,7 +312,7 @@ class PODetailScreen extends StatelessWidget {
             separatorBuilder: (context, index) => const SizedBox(height: 8),
             itemBuilder: (context, index) {
               final item = po.lineItems[index];
-              return _buildLineItemCard(context, item);
+              return _buildLineItemCard(context, po, item);
             },
           ),
         ],
@@ -300,7 +320,11 @@ class PODetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLineItemCard(BuildContext context, POLineItem item) {
+  Widget _buildLineItemCard(
+    BuildContext context,
+    PurchaseOrder po,
+    POLineItem item,
+  ) {
     final progress = item.orderedQuantity > 0
         ? item.receivedQuantity / item.orderedQuantity
         : 0.0;
@@ -340,27 +364,60 @@ class PODetailScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      '₹${item.totalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    if (isFullyReceived)
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 20,
+                    if (item.isCancelled)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'CANCELLED',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       )
-                    else if (isPartiallyReceived)
-                      const Icon(
-                        Icons.timelapse,
-                        color: Colors.orange,
-                        size: 20,
+                    else ...[
+                      Text(
+                        '₹${item.totalPrice.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
+                      if (isFullyReceived)
+                        const Icon(
+                          Icons.check_circle,
+                          color: Colors.green,
+                          size: 20,
+                        )
+                      else if (isPartiallyReceived)
+                        const Icon(
+                          Icons.timelapse,
+                          color: Colors.orange,
+                          size: 20,
+                        ),
+                    ],
                   ],
                 ),
+                if (!item.isCancelled &&
+                    po.status != POStatus.completed &&
+                    po.status != POStatus.cancelled)
+                  IconButton(
+                    icon: const Icon(
+                      Icons.remove_circle_outline,
+                      color: Colors.red,
+                      size: 20,
+                    ),
+                    onPressed: () =>
+                        _showCancelItemDialog(context, po.id, item),
+                  ),
               ],
             ),
             const SizedBox(height: 12),
@@ -503,6 +560,8 @@ class PODetailScreen extends StatelessWidget {
     switch (status) {
       case POStatus.draft:
         return Colors.grey;
+      case POStatus.pendingApproval:
+        return Colors.amber;
       case POStatus.sent:
         return Colors.blue;
       case POStatus.partial:
@@ -512,6 +571,71 @@ class PODetailScreen extends StatelessWidget {
       case POStatus.cancelled:
         return Colors.red;
     }
+  }
+
+  void _handleStatusUpdate(
+    BuildContext context,
+    PurchaseOrder po,
+    POStatus status,
+  ) {
+    final authState = context.read<AuthCubit>().state;
+    if (authState is AuthVerified) {
+      context.read<PurchaseOrderCubit>().updatePOStatus(
+        po.id,
+        status,
+        userId: authState.userId,
+        userName: authState.userName,
+        userRole: authState.role.name,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'PO ${status == POStatus.sent ? 'Approved' : 'Updated'}',
+          ),
+        ),
+      );
+    }
+  }
+
+  void _showCancelItemDialog(
+    BuildContext context,
+    String poId,
+    POLineItem item,
+  ) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cancel Item'),
+        content: Text(
+          'Are you sure you want to cancel ${item.itemName} from this order?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () {
+              final authState = context.read<AuthCubit>().state;
+              if (authState is AuthVerified) {
+                context.read<PurchaseOrderCubit>().cancelPOLineItem(
+                  poId,
+                  item.inventoryItemId,
+                  userId: authState.userId,
+                  userName: authState.userName,
+                  userRole: authState.role.name,
+                );
+              }
+              Navigator.pop(dialogContext);
+            },
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showCancelDialog(BuildContext context, PurchaseOrder po) {
