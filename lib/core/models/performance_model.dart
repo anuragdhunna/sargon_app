@@ -1,10 +1,10 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Employee performance metrics aggregated from multiple sources
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class EmployeePerformance extends Equatable {
+class EmployeePerformance extends BaseEntity {
   final String userId;
   final String userName;
   final String userRole;
@@ -54,12 +54,26 @@ class EmployeePerformance extends Equatable {
     required this.overallScore,
     DateTime? periodStart,
     DateTime? periodEnd,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
   }) : periodStart =
            periodStart ?? DateTime.now().subtract(const Duration(days: 30)),
-       periodEnd = periodEnd ?? DateTime.now();
+       periodEnd = periodEnd ?? DateTime.now(),
+       super(
+         id: userId,
+         createdOn: createdOn,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   @override
   List<Object?> get props => [
+    ...super.props,
     userId,
     userName,
     userRole,
@@ -91,6 +105,7 @@ class EmployeePerformance extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
+      ...super.toAuditJson(),
       'userId': userId,
       'userName': userName,
       'userRole': userRole,
@@ -129,8 +144,14 @@ class EmployeePerformance extends Equatable {
       incidentsReported: json['incidentsReported'] as int,
       incidentsResolved: json['incidentsResolved'] as int,
       overallScore: (json['overallScore'] as num).toDouble(),
-      periodStart: DateTime.parse(json['periodStart'] as String),
-      periodEnd: DateTime.parse(json['periodEnd'] as String),
+      periodStart:
+          BaseEntity.parseDateTime(json['periodStart']) ?? DateTime.now(),
+      periodEnd: BaseEntity.parseDateTime(json['periodEnd']) ?? DateTime.now(),
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

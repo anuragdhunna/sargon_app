@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Item category for inventory
 enum ItemCategory { food, beverage, housekeeping, maintenance, other }
@@ -46,8 +46,7 @@ extension UnitTypeExtension on UnitType {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class InventoryItem extends Equatable {
-  final String id;
+class InventoryItem extends BaseEntity {
   final String name;
   final ItemCategory category;
   final double quantity;
@@ -62,7 +61,7 @@ class InventoryItem extends Equatable {
   static const int schemaVersion = 1;
 
   const InventoryItem({
-    required this.id,
+    required super.id,
     required this.name,
     required this.category,
     required this.quantity,
@@ -72,6 +71,11 @@ class InventoryItem extends Equatable {
     this.imageUrl,
     this.vendorId,
     this.lastRestockedAt,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   bool get isLowStock => quantity <= minQuantity;
@@ -80,7 +84,7 @@ class InventoryItem extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     name,
     category,
     quantity,
@@ -115,13 +119,18 @@ class InventoryItem extends Equatable {
       imageUrl: imageUrl ?? this.imageUrl,
       vendorId: vendorId ?? this.vendorId,
       lastRestockedAt: lastRestockedAt ?? this.lastRestockedAt,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
     );
   }
 
   /// Convert to JSON for Firebase
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'name': name,
       'category': category.name,
       'quantity': quantity,
@@ -154,9 +163,12 @@ class InventoryItem extends Equatable {
       pricePerUnit: (json['pricePerUnit'] as num).toDouble(),
       imageUrl: json['imageUrl'] as String?,
       vendorId: json['vendorId'] as String?,
-      lastRestockedAt: json['lastRestockedAt'] != null
-          ? DateTime.parse(json['lastRestockedAt'] as String)
-          : null,
+      lastRestockedAt: BaseEntity.parseDateTime(json['lastRestockedAt']),
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'package:hotel_manager/core/models/payment_models.dart';
 
 /// Booking status enum
@@ -24,8 +24,7 @@ extension BookingStatusExtension on BookingStatus {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class Booking extends Equatable {
-  final String id;
+class Booking extends BaseEntity {
   final String guestName;
   final String guestPhone;
   final String? guestEmail;
@@ -35,7 +34,6 @@ class Booking extends Equatable {
   final double totalAmount;
   final BookingStatus status;
   final String bookedBy;
-  final DateTime createdAt;
   final String? notes;
   final String? idProofType;
   final String? idProofNumber;
@@ -51,7 +49,7 @@ class Booking extends Equatable {
   static const int schemaVersion = 2;
 
   const Booking({
-    required this.id,
+    required String id,
     required this.guestName,
     required this.guestPhone,
     this.guestEmail,
@@ -61,7 +59,6 @@ class Booking extends Equatable {
     required this.totalAmount,
     required this.status,
     required this.bookedBy,
-    required this.createdAt,
     this.notes,
     this.idProofType,
     this.idProofNumber,
@@ -72,11 +69,31 @@ class Booking extends Equatable {
     this.paidAmount = 0.0,
     this.paymentMethod,
     this.paymentReference,
-  });
+    String? createdBy,
+    DateTime? createdAt,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+    String? deletedBy,
+    DateTime? deletedOn,
+  }) : super(
+         id: id,
+         createdBy: createdBy,
+         createdOn: createdOn ?? createdAt,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+         deletedBy: deletedBy,
+         deletedOn: deletedOn,
+       );
+
+  /// Getter for backward compatibility
+  DateTime get createdAt => createdOn ?? DateTime.now();
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     guestName,
     guestPhone,
     guestEmail,
@@ -86,7 +103,6 @@ class Booking extends Equatable {
     totalAmount,
     status,
     bookedBy,
-    createdAt,
     notes,
     idProofType,
     idProofNumber,
@@ -135,7 +151,6 @@ class Booking extends Equatable {
       totalAmount: totalAmount ?? this.totalAmount,
       status: status ?? this.status,
       bookedBy: bookedBy ?? this.bookedBy,
-      createdAt: createdAt ?? this.createdAt,
       notes: notes ?? this.notes,
       idProofType: idProofType ?? this.idProofType,
       idProofNumber: idProofNumber ?? this.idProofNumber,
@@ -146,13 +161,20 @@ class Booking extends Equatable {
       paidAmount: paidAmount ?? this.paidAmount,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentReference: paymentReference ?? this.paymentReference,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
+      deletedBy: deletedBy,
+      deletedOn: deletedOn,
     );
   }
 
   /// Convert to JSON for Firebase
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'guestName': guestName,
       'guestPhone': guestPhone,
       'guestEmail': guestEmail,
@@ -162,7 +184,6 @@ class Booking extends Equatable {
       'totalAmount': totalAmount,
       'status': status.name,
       'bookedBy': bookedBy,
-      'createdAt': createdAt.toIso8601String(),
       'notes': notes,
       'idProofType': idProofType,
       'idProofNumber': idProofNumber,
@@ -185,15 +206,14 @@ class Booking extends Equatable {
       guestPhone: json['guestPhone'] as String,
       guestEmail: json['guestEmail'] as String?,
       roomId: json['roomId'] as String,
-      checkIn: DateTime.parse(json['checkIn'] as String),
-      checkOut: DateTime.parse(json['checkOut'] as String),
+      checkIn: BaseEntity.parseDateTime(json['checkIn']) ?? DateTime.now(),
+      checkOut: BaseEntity.parseDateTime(json['checkOut']) ?? DateTime.now(),
       totalAmount: (json['totalAmount'] as num).toDouble(),
       status: BookingStatus.values.firstWhere(
         (e) => e.name == json['status'],
         orElse: () => BookingStatus.confirmed,
       ),
       bookedBy: json['bookedBy'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
       notes: json['notes'] as String?,
       idProofType: json['idProofType'] as String?,
       idProofNumber: json['idProofNumber'] as String?,
@@ -211,6 +231,15 @@ class Booking extends Equatable {
             )
           : null,
       paymentReference: json['paymentReference'] as String?,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
+      deletedBy: json['deletedBy'] as String?,
+      deletedOn: BaseEntity.parseDateTime(json['deletedOn']),
     );
   }
 }

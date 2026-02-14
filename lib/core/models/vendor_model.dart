@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Vendor category enum
 enum VendorCategory {
@@ -64,8 +64,7 @@ extension PaymentTermsExtension on PaymentTerms {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class Vendor extends Equatable {
-  final String id;
+class Vendor extends BaseEntity {
   final String name;
   final VendorCategory category;
   final String contactPerson;
@@ -76,13 +75,12 @@ class Vendor extends Equatable {
   final bool isPreferred;
   final double? creditLimit;
   final String? gstNumber;
-  final DateTime createdAt;
 
   // Schema version for migrations
   static const int schemaVersion = 1;
 
   const Vendor({
-    required this.id,
+    required String id,
     required this.name,
     required this.category,
     required this.contactPerson,
@@ -93,12 +91,27 @@ class Vendor extends Equatable {
     this.isPreferred = false,
     this.creditLimit,
     this.gstNumber,
-    required this.createdAt,
-  });
+    DateTime? createdAt,
+    DateTime? createdOn,
+    String? createdBy,
+    DateTime? updatedOn,
+    String? updatedBy,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn ?? createdAt,
+         createdBy: createdBy,
+         updatedOn: updatedOn,
+         updatedBy: updatedBy,
+         isDeleted: isDeleted,
+       );
+
+  /// Getter for backward compatibility
+  DateTime get createdAt => createdOn ?? DateTime.now();
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     name,
     category,
     contactPerson,
@@ -109,7 +122,6 @@ class Vendor extends Equatable {
     isPreferred,
     creditLimit,
     gstNumber,
-    createdAt,
   ];
 
   Vendor copyWith({
@@ -138,14 +150,18 @@ class Vendor extends Equatable {
       isPreferred: isPreferred ?? this.isPreferred,
       creditLimit: creditLimit ?? this.creditLimit,
       gstNumber: gstNumber ?? this.gstNumber,
-      createdAt: createdAt ?? this.createdAt,
+      createdOn: createdAt ?? this.createdOn,
+      createdBy: createdBy,
+      updatedOn: updatedOn,
+      updatedBy: updatedBy,
+      isDeleted: isDeleted,
     );
   }
 
   /// Convert to JSON for Firebase
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'name': name,
       'category': category.name,
       'contactPerson': contactPerson,
@@ -156,7 +172,6 @@ class Vendor extends Equatable {
       'isPreferred': isPreferred,
       'creditLimit': creditLimit,
       'gstNumber': gstNumber,
-      'createdAt': createdAt.toIso8601String(),
       '_schemaVersion': schemaVersion,
     };
   }
@@ -181,7 +196,13 @@ class Vendor extends Equatable {
       isPreferred: json['isPreferred'] as bool? ?? false,
       creditLimit: (json['creditLimit'] as num?)?.toDouble(),
       gstNumber: json['gstNumber'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

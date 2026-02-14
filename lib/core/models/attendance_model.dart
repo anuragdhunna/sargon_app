@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Attendance status enum
 enum AttendanceStatus { present, absent, late, halfDay, onLeave }
@@ -25,9 +25,8 @@ extension AttendanceStatusExtension on AttendanceStatus {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class AttendanceRecord extends Equatable {
-  final String id;
-  final String oderId;
+class AttendanceRecord extends BaseEntity {
+  final String userId;
   final String userName;
   final DateTime date;
   final DateTime? checkIn;
@@ -40,8 +39,8 @@ class AttendanceRecord extends Equatable {
   static const int schemaVersion = 1;
 
   const AttendanceRecord({
-    required this.id,
-    required this.oderId,
+    required super.id,
+    required this.userId,
     required this.userName,
     required this.date,
     this.checkIn,
@@ -49,6 +48,11 @@ class AttendanceRecord extends Equatable {
     required this.status,
     this.notes,
     this.location,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   /// Calculate work hours
@@ -62,8 +66,8 @@ class AttendanceRecord extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
-    oderId,
+    ...super.props,
+    userId,
     userName,
     date,
     checkIn,
@@ -74,15 +78,21 @@ class AttendanceRecord extends Equatable {
   ];
 
   AttendanceRecord copyWith({
+    String? id,
     DateTime? checkIn,
     DateTime? checkOut,
     AttendanceStatus? status,
     String? notes,
     String? location,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
   }) {
     return AttendanceRecord(
-      id: id,
-      oderId: oderId,
+      id: id ?? this.id,
+      userId: userId,
       userName: userName,
       date: date,
       checkIn: checkIn ?? this.checkIn,
@@ -90,13 +100,18 @@ class AttendanceRecord extends Equatable {
       status: status ?? this.status,
       notes: notes ?? this.notes,
       location: location ?? this.location,
+      createdBy: createdBy ?? this.createdBy,
+      createdOn: createdOn ?? this.createdOn,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'userId': oderId,
+      ...super.toAuditJson(),
+      'userId': userId,
       'userName': userName,
       'date': date.toIso8601String(),
       'checkIn': checkIn?.toIso8601String(),
@@ -111,21 +126,22 @@ class AttendanceRecord extends Equatable {
   factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
     return AttendanceRecord(
       id: json['id'] as String,
-      oderId: json['userId'] as String,
+      userId: json['userId'] as String,
       userName: json['userName'] as String,
-      date: DateTime.parse(json['date'] as String),
-      checkIn: json['checkIn'] != null
-          ? DateTime.parse(json['checkIn'] as String)
-          : null,
-      checkOut: json['checkOut'] != null
-          ? DateTime.parse(json['checkOut'] as String)
-          : null,
+      date: BaseEntity.parseDateTime(json['date']) ?? DateTime.now(),
+      checkIn: BaseEntity.parseDateTime(json['checkIn']),
+      checkOut: BaseEntity.parseDateTime(json['checkOut']),
       status: AttendanceStatus.values.firstWhere(
         (e) => e.name == json['status'],
         orElse: () => AttendanceStatus.absent,
       ),
       notes: json['notes'] as String?,
       location: json['location'] as String?,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

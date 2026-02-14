@@ -35,6 +35,13 @@ import 'package:hotel_manager/features/settings/presentation/settings_screen.dar
 import 'package:hotel_manager/features/settings/presentation/menu/menu_management_screen.dart';
 import 'package:hotel_manager/features/settings/presentation/tables/table_management_screen.dart';
 import 'package:hotel_manager/features/settings/presentation/tax/tax_settings_screen.dart';
+import 'package:hotel_manager/features/events/presentation/screens/hall_management_screen.dart';
+import 'package:hotel_manager/features/events/presentation/screens/event_list_screen.dart';
+import 'package:hotel_manager/features/events/presentation/screens/event_creation_screen.dart';
+import 'package:hotel_manager/features/events/presentation/screens/event_details_screen.dart';
+import 'package:hotel_manager/features/events/presentation/screens/event_billing_screen.dart';
+import 'package:hotel_manager/features/events/presentation/screens/event_reporting_screen.dart';
+import 'package:hotel_manager/features/events/presentation/screens/event_calendar_screen.dart';
 import 'package:hotel_manager/features/notifications/presentation/notification_screen.dart';
 import 'package:hotel_manager/core/models/models.dart';
 
@@ -231,6 +238,35 @@ GoRouter createRouter(AuthCubit authCubit) {
             path: '/notifications',
             builder: (context, state) => const NotificationScreen(),
           ),
+          GoRoute(
+            path: '/events',
+            builder: (context, state) => const EventListScreen(),
+            routes: [
+              GoRoute(
+                path: 'create',
+                builder: (context, state) =>
+                    EventCreationScreen(event: state.extra as PrivateEvent?),
+              ),
+              GoRoute(
+                path: 'details',
+                builder: (context, state) =>
+                    EventDetailsScreen(event: state.extra as PrivateEvent),
+              ),
+              GoRoute(
+                path: 'billing',
+                builder: (context, state) =>
+                    EventBillingScreen(event: state.extra as PrivateEvent),
+              ),
+              GoRoute(
+                path: 'reports',
+                builder: (context, state) => const EventReportingScreen(),
+              ),
+              GoRoute(
+                path: 'calendar',
+                builder: (context, state) => const EventCalendarScreen(),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
@@ -252,6 +288,10 @@ GoRouter createRouter(AuthCubit authCubit) {
           GoRoute(
             path: 'analytics',
             builder: (context, state) => const AuditLogScreen(),
+          ),
+          GoRoute(
+            path: 'halls',
+            builder: (context, state) => const HallManagementScreen(),
           ),
         ],
       ),

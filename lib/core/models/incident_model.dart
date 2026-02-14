@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Incident priority enum
 enum IncidentPriority { low, medium, high, critical }
@@ -40,8 +40,7 @@ extension IncidentStatusExtension on IncidentStatus {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class Incident extends Equatable {
-  final String id;
+class Incident extends BaseEntity {
   final String title;
   final String description;
   final String reportedBy;
@@ -59,7 +58,7 @@ class Incident extends Equatable {
   static const int schemaVersion = 1;
 
   const Incident({
-    required this.id,
+    required super.id,
     required this.title,
     required this.description,
     required this.reportedBy,
@@ -72,6 +71,11 @@ class Incident extends Equatable {
     this.assignedToName,
     this.resolvedAt,
     this.resolutionNotes,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   Incident copyWith({
@@ -88,6 +92,11 @@ class Incident extends Equatable {
     String? assignedToName,
     DateTime? resolvedAt,
     String? resolutionNotes,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
   }) {
     return Incident(
       id: id ?? this.id,
@@ -103,12 +112,17 @@ class Incident extends Equatable {
       assignedToName: assignedToName ?? this.assignedToName,
       resolvedAt: resolvedAt ?? this.resolvedAt,
       resolutionNotes: resolutionNotes ?? this.resolutionNotes,
+      createdBy: createdBy ?? this.createdBy,
+      createdOn: createdOn ?? this.createdOn,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     title,
     description,
     reportedBy,
@@ -125,7 +139,7 @@ class Incident extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'title': title,
       'description': description,
       'reportedBy': reportedBy,
@@ -149,7 +163,7 @@ class Incident extends Equatable {
       description: json['description'] as String,
       reportedBy: json['reportedBy'] as String,
       reportedByName: json['reportedByName'] as String?,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: BaseEntity.parseDateTime(json['timestamp']) ?? DateTime.now(),
       priority: IncidentPriority.values.firstWhere(
         (e) => e.name == json['priority'],
         orElse: () => IncidentPriority.medium,
@@ -161,10 +175,15 @@ class Incident extends Equatable {
       location: json['location'] as String?,
       assignedTo: json['assignedTo'] as String?,
       assignedToName: json['assignedToName'] as String?,
-      resolvedAt: json['resolvedAt'] != null
-          ? DateTime.parse(json['resolvedAt'] as String)
-          : null,
+      resolvedAt: BaseEntity.parseDateTime(json['resolvedAt']),
       resolutionNotes: json['resolutionNotes'] as String?,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['timestamp'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

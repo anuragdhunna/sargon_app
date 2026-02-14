@@ -57,6 +57,7 @@ dependencies:
   printing: ^5.14.2
   path_provider: ^2.1.5
   firebase_storage: ^12.4.10
+  table_calendar: ^3.2.0
 
 dev_dependencies:
   flutter_test:

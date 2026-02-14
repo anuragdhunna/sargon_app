@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'user_model.dart';
 
 /// Checklist status enum
@@ -102,8 +103,7 @@ class ChecklistItem extends Equatable {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class Checklist extends Equatable {
-  final String id;
+class Checklist extends BaseEntity {
   final String title;
   final String description;
   final ChecklistType type;
@@ -113,7 +113,6 @@ class Checklist extends Equatable {
   final List<ChecklistItem> items;
   final bool isTimeBound;
   final RecurrencePattern recurrence;
-  final DateTime createdAt;
   final DateTime? lastModifiedAt;
   final String? completedBy;
   final String? crossRoleReason;
@@ -122,8 +121,8 @@ class Checklist extends Equatable {
   // Schema version for migrations
   static const int schemaVersion = 1;
 
-  Checklist({
-    required this.id,
+  const Checklist({
+    required String id,
     required this.title,
     required this.description,
     required this.type,
@@ -134,11 +133,26 @@ class Checklist extends Equatable {
     this.isTimeBound = true,
     this.recurrence = RecurrencePattern.none,
     DateTime? createdAt,
+    DateTime? createdOn,
+    String? createdBy,
     this.lastModifiedAt,
     this.completedBy,
     this.crossRoleReason,
     this.metadata,
-  }) : createdAt = createdAt ?? DateTime.now();
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn ?? createdAt,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
+
+  /// Getter for backward compatibility
+  DateTime get createdAt => createdOn ?? DateTime.now();
 
   double get completionPercentage {
     if (items.isEmpty) return 0;
@@ -164,6 +178,9 @@ class Checklist extends Equatable {
     String? completedBy,
     String? crossRoleReason,
     Map<String, dynamic>? metadata,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
   }) {
     return Checklist(
       id: id ?? this.id,
@@ -176,17 +193,21 @@ class Checklist extends Equatable {
       items: items ?? this.items,
       isTimeBound: isTimeBound ?? this.isTimeBound,
       recurrence: recurrence ?? this.recurrence,
-      createdAt: createdAt ?? this.createdAt,
-      lastModifiedAt: lastModifiedAt ?? DateTime.now(),
+      createdOn: createdAt ?? this.createdOn,
+      createdBy: createdBy,
+      lastModifiedAt: lastModifiedAt ?? this.lastModifiedAt,
       completedBy: completedBy ?? this.completedBy,
       crossRoleReason: crossRoleReason ?? this.crossRoleReason,
       metadata: metadata ?? this.metadata,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     title,
     description,
     type,
@@ -196,7 +217,6 @@ class Checklist extends Equatable {
     items,
     isTimeBound,
     recurrence,
-    createdAt,
     lastModifiedAt,
     completedBy,
     crossRoleReason,
@@ -205,7 +225,7 @@ class Checklist extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'title': title,
       'description': description,
       'type': type.name,
@@ -215,7 +235,6 @@ class Checklist extends Equatable {
       'items': items.map((item) => item.toJson()).toList(),
       'isTimeBound': isTimeBound,
       'recurrence': recurrence.name,
-      'createdAt': createdAt.toIso8601String(),
       'lastModifiedAt': lastModifiedAt?.toIso8601String(),
       'completedBy': completedBy,
       'crossRoleReason': crossRoleReason,
@@ -241,9 +260,7 @@ class Checklist extends Equatable {
         (e) => e.name == json['assignedRole'],
         orElse: () => UserRole.waiter,
       ),
-      dueDate: json['dueDate'] != null
-          ? DateTime.parse(json['dueDate'].toString())
-          : DateTime.now(),
+      dueDate: BaseEntity.parseDateTime(json['dueDate']) ?? DateTime.now(),
       items:
           (json['items'] as List?)
               ?.map(
@@ -258,17 +275,19 @@ class Checklist extends Equatable {
         (e) => e.name == json['recurrence'],
         orElse: () => RecurrencePattern.none,
       ),
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'].toString())
-          : DateTime.now(),
-      lastModifiedAt: json['lastModifiedAt'] != null
-          ? DateTime.tryParse(json['lastModifiedAt'].toString())
-          : null,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      lastModifiedAt: BaseEntity.parseDateTime(json['lastModifiedAt']),
       completedBy: json['completedBy']?.toString(),
       crossRoleReason: json['crossRoleReason']?.toString(),
       metadata: json['metadata'] != null
           ? Map<String, dynamic>.from(json['metadata'] as Map)
           : null,
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

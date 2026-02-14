@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions for auditing
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Prevents manual modification of audit fields by the client
+    function isValidAuditUpdate() {
+      let auditFields = [
+        'createdBy', 'createdOn', 
+        'updatedBy', 'updatedOn', 
+        'deletedBy', 'deletedOn'
+      ];
+      // request.resource.data contains the new data
+      // resource.data contains the current data
+      
+      // Ensure the client doesn't try to overwrite these manually
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(auditFields);
+    }
+
+    // Enforce that the client provides their UID in the temporary _userId field
+    function hasRequiredUserId() {
+      return request.resource.data._userId == request.auth.uid;
+    }
+
+    match /{collection}/{document} {
+      allow read: if isAuthenticated();
+      
+      allow create: if isAuthenticated() && hasRequiredUserId();
+      
+      allow update: if isAuthenticated() && hasRequiredUserId() && isValidAuditUpdate();
+      
+      // We use soft delete, so 'delete' operation might be blocked or restricted
+      allow delete: if false; 
+    }
+  }
+}

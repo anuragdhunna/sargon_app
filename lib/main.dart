@@ -34,6 +34,8 @@ import 'package:hotel_manager/features/settings/data/repositories/settings_repos
 import 'package:hotel_manager/features/inventory/logic/stock_manager_service.dart';
 import 'package:hotel_manager/features/notifications/data/repositories/notification_repository.dart';
 import 'package:hotel_manager/features/notifications/logic/notification_cubit.dart';
+import 'package:hotel_manager/features/events/data/repositories/event_repository.dart';
+import 'package:hotel_manager/features/events/logic/event_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,11 +91,17 @@ void main() async {
             service: NotificationService(databaseService: databaseService),
           ),
         ),
+        RepositoryProvider<EventRepository>(
+          create: (context) => EventRepository(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<AuthCubit>.value(value: authCubit),
           BlocProvider<ChecklistCubit>(create: (context) => checklistCubit),
+          BlocProvider<EventCubit>(
+            create: (context) => EventCubit(context.read<EventRepository>()),
+          ),
           BlocProvider<UserCubit>(
             create: (context) => UserCubit(databaseService: databaseService),
           ),

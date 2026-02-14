@@ -1,14 +1,12 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 import 'loyalty_model.dart';
 
 /// Customer model for marketing and analytics
-class Customer extends Equatable {
-  final String id;
+class Customer extends BaseEntity {
   final String name;
   final String phone;
   final String? email;
-  final DateTime? createdAt;
   final DateTime? lastVisit;
   final int totalBookings;
   final double totalSpent;
@@ -18,11 +16,10 @@ class Customer extends Equatable {
   final LoyaltyInfo? loyaltyInfo;
 
   const Customer({
-    required this.id,
+    required String id,
     required this.name,
     required this.phone,
     this.email,
-    this.createdAt,
     this.lastVisit,
     this.totalBookings = 0,
     this.totalSpent = 0.0,
@@ -30,15 +27,30 @@ class Customer extends Equatable {
     this.idProofNumber,
     this.idProofImageUrl,
     this.loyaltyInfo,
-  });
+    String? createdBy,
+    DateTime? createdAt,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdBy: createdBy,
+         createdOn: createdOn ?? createdAt,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
+
+  /// Getter for backward compatibility
+  DateTime? get createdAt => createdOn;
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     name,
     phone,
     email,
-    createdAt,
     lastVisit,
     totalBookings,
     totalSpent,
@@ -67,7 +79,6 @@ class Customer extends Equatable {
       name: name ?? this.name,
       phone: phone ?? this.phone,
       email: email ?? this.email,
-      createdAt: createdAt ?? this.createdAt,
       lastVisit: lastVisit ?? this.lastVisit,
       totalBookings: totalBookings ?? this.totalBookings,
       totalSpent: totalSpent ?? this.totalSpent,
@@ -75,16 +86,20 @@ class Customer extends Equatable {
       idProofNumber: idProofNumber ?? this.idProofNumber,
       idProofImageUrl: idProofImageUrl ?? this.idProofImageUrl,
       loyaltyInfo: loyaltyInfo ?? this.loyaltyInfo,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'name': name,
       'phone': phone,
       'email': email,
-      'createdAt': createdAt?.toIso8601String(),
       'lastVisit': lastVisit?.toIso8601String(),
       'totalBookings': totalBookings,
       'totalSpent': totalSpent,
@@ -101,12 +116,7 @@ class Customer extends Equatable {
       name: json['name'] as String,
       phone: json['phone'] as String,
       email: json['email'] as String?,
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
-          : null,
-      lastVisit: json['lastVisit'] != null
-          ? DateTime.parse(json['lastVisit'])
-          : null,
+      lastVisit: BaseEntity.parseDateTime(json['lastVisit']),
       totalBookings: json['totalBookings'] as int? ?? 0,
       totalSpent: (json['totalSpent'] as num?)?.toDouble() ?? 0.0,
       idProofType: json['idProofType'] as String?,
@@ -115,6 +125,13 @@ class Customer extends Equatable {
       loyaltyInfo: json['loyaltyInfo'] != null
           ? LoyaltyInfo.fromJson(Map<String, dynamic>.from(json['loyaltyInfo']))
           : null,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

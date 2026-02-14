@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'package:flutter/material.dart';
 
 /// Room type enum
@@ -72,8 +72,7 @@ extension RoomStatusExtension on RoomStatus {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class Room extends Equatable {
-  final String id;
+class Room extends BaseEntity {
   final String roomNumber;
   final RoomType type;
   final RoomStatus status;
@@ -86,7 +85,7 @@ class Room extends Equatable {
   static const int schemaVersion = 1;
 
   const Room({
-    required this.id,
+    required super.id,
     required this.roomNumber,
     required this.type,
     required this.status,
@@ -94,11 +93,16 @@ class Room extends Equatable {
     required this.floor,
     required this.capacity,
     this.amenities = const [],
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     roomNumber,
     type,
     status,
@@ -127,13 +131,18 @@ class Room extends Equatable {
       floor: floor ?? this.floor,
       capacity: capacity ?? this.capacity,
       amenities: amenities ?? this.amenities,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
     );
   }
 
   /// Convert to JSON for Firebase
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'roomNumber': roomNumber,
       'type': type.name,
       'status': status.name,
@@ -162,6 +171,11 @@ class Room extends Equatable {
       floor: json['floor'] as int,
       capacity: json['capacity'] as int,
       amenities: (json['amenities'] as List?)?.cast<String>() ?? [],
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

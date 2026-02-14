@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// User roles in the hotel management system
 enum UserRole {
@@ -46,8 +46,7 @@ enum PaymentType { dailyWage, monthlySalary }
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class User extends Equatable {
-  final String id;
+class User extends BaseEntity {
   final String? email; // For Firebase Auth
   final String name;
   final String phoneNumber;
@@ -60,15 +59,11 @@ class User extends Equatable {
   final double? dailyWage;
   final double? monthlySalary;
 
-  // Metadata
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-
   // Schema version for migrations
   static const int schemaVersion = 1;
 
   const User({
-    required this.id,
+    required String id,
     this.email,
     required this.name,
     required this.phoneNumber,
@@ -78,13 +73,29 @@ class User extends Equatable {
     this.paymentType = PaymentType.monthlySalary,
     this.dailyWage,
     this.monthlySalary,
-    required this.createdAt,
-    this.updatedAt,
-  });
+    DateTime? createdAt,
+    DateTime? createdOn,
+    DateTime? updatedAt,
+    DateTime? updatedOn,
+    String? createdBy,
+    String? updatedBy,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn ?? createdAt,
+         updatedOn: updatedOn ?? updatedAt,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         isDeleted: isDeleted,
+       );
+
+  /// Getters for backward compatibility
+  DateTime get createdAt => createdOn ?? DateTime.now();
+  DateTime? get updatedAt => updatedOn;
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     email,
     name,
     phoneNumber,
@@ -94,8 +105,6 @@ class User extends Equatable {
     paymentType,
     dailyWage,
     monthlySalary,
-    createdAt,
-    updatedAt,
   ];
 
   /// Create a copy with updated fields
@@ -124,15 +133,18 @@ class User extends Equatable {
       paymentType: paymentType ?? this.paymentType,
       dailyWage: dailyWage ?? this.dailyWage,
       monthlySalary: monthlySalary ?? this.monthlySalary,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      createdOn: createdAt ?? this.createdOn,
+      updatedOn: updatedAt ?? this.updatedOn,
+      createdBy: createdBy,
+      updatedBy: updatedBy,
+      isDeleted: isDeleted,
     );
   }
 
   /// Convert to JSON for Firebase
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'email': email,
       'name': name,
       'phoneNumber': phoneNumber,
@@ -142,8 +154,6 @@ class User extends Equatable {
       'paymentType': paymentType.name,
       'dailyWage': dailyWage,
       'monthlySalary': monthlySalary,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
       '_schemaVersion': schemaVersion,
     };
   }
@@ -170,12 +180,15 @@ class User extends Equatable {
       ),
       dailyWage: (json['dailyWage'] as num?)?.toDouble(),
       monthlySalary: (json['monthlySalary'] as num?)?.toDouble(),
-      createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'] as String)
-          : null,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(
+        json['updatedOn'] ?? json['updatedAt'],
+      ),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 

@@ -1,9 +1,8 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'offer_model.dart';
 
 /// Happy Hour Configuration
-class HappyHour extends Equatable {
-  final String id;
+class HappyHour extends BaseEntity {
   final String name;
   final List<String> applicableDays;
   final String startTime; // HH:mm
@@ -18,7 +17,7 @@ class HappyHour extends Equatable {
   final bool isActive;
 
   const HappyHour({
-    required this.id,
+    required String id,
     required this.name,
     required this.applicableDays,
     required this.startTime,
@@ -31,10 +30,22 @@ class HappyHour extends Equatable {
     this.autoApply = true,
     this.priority = 0,
     this.isActive = true,
-  });
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'name': name,
     'applicableDays': applicableDays,
     'startTime': startTime,
@@ -67,11 +78,16 @@ class HappyHour extends Equatable {
     autoApply: json['autoApply'] ?? true,
     priority: json['priority'] ?? 0,
     isActive: json['isActive'] ?? true,
+    createdBy: json['createdBy'] as String?,
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'] as String?,
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     name,
     applicableDays,
     startTime,

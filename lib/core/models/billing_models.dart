@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'payment_models.dart';
 import 'offer_model.dart';
 
@@ -154,8 +155,7 @@ class BillTaxSummary extends Equatable {
 }
 
 /// Financial Bill entity
-class Bill extends Equatable {
-  final String id;
+class Bill extends BaseEntity {
   final String tableId;
   final String? roomId;
   final String? bookingId;
@@ -177,7 +177,7 @@ class Bill extends Equatable {
   final int redeemedPoints;
 
   const Bill({
-    required this.id,
+    required String id,
     required this.tableId,
     this.roomId,
     this.bookingId,
@@ -197,7 +197,19 @@ class Bill extends Equatable {
     this.payments = const [],
     this.customerId,
     this.redeemedPoints = 0,
-  });
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn ?? openedAt,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   Bill copyWith({
     String? id,
@@ -220,6 +232,11 @@ class Bill extends Equatable {
     List<BillPayment>? payments,
     String? customerId,
     int? redeemedPoints,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
   }) {
     return Bill(
       id: id ?? this.id,
@@ -244,11 +261,16 @@ class Bill extends Equatable {
       payments: payments ?? this.payments,
       customerId: customerId ?? this.customerId,
       redeemedPoints: redeemedPoints ?? this.redeemedPoints,
+      createdBy: createdBy ?? this.createdBy,
+      createdOn: createdOn ?? this.createdOn,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'tableId': tableId,
     if (roomId != null) 'roomId': roomId,
     if (bookingId != null) 'bookingId': bookingId,
@@ -292,10 +314,8 @@ class Bill extends Equatable {
             orElse: () => PaymentMethod.cash,
           )
         : null,
-    openedAt: DateTime.parse(json['openedAt']),
-    closedAt: json['closedAt'] != null
-        ? DateTime.parse(json['closedAt'])
-        : null,
+    openedAt: BaseEntity.parseDateTime(json['openedAt']) ?? DateTime.now(),
+    closedAt: BaseEntity.parseDateTime(json['closedAt']),
     serviceChargeApplied: json['serviceChargeApplied'] ?? true,
     serviceChargeRemovedBy: json['serviceChargeRemovedBy'],
     serviceChargeRemovalReason: json['serviceChargeRemovalReason'],
@@ -311,10 +331,21 @@ class Bill extends Equatable {
         [],
     customerId: json['customerId'],
     redeemedPoints: json['redeemedPoints'] ?? 0,
+    createdBy: json['createdBy'] as String?,
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'] as String?,
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
 
   @override
-  List<Object?> get props => [id, tableId, orderIds, paymentStatus, grandTotal];
+  List<Object?> get props => [
+    ...super.props,
+    tableId,
+    orderIds,
+    paymentStatus,
+    grandTotal,
+  ];
 
   double get grandTotal => taxSummary.grandTotal;
 

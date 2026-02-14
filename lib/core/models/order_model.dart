@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'menu_item_model.dart';
 import 'payment_models.dart';
 import 'offer_model.dart';
@@ -48,19 +49,15 @@ enum KdsStatus {
 enum OrderPriority { normal, vip, rush }
 
 /// Order model representing a customer order with Table & KDS Intelligence
-class Order extends Equatable {
-  final String id;
+class Order extends BaseEntity {
   final String tableId;
   final String tableNumber;
   final List<OrderItem> items;
   final OrderStatus status;
-  final DateTime timestamp;
-  final DateTime? updatedAt;
   final DateTime? openedAt;
   final int paxCount;
   final OrderPriority priority;
   final String? orderNotes;
-  final String? createdBy;
   final String? waiterName;
   final String? bookingId;
   final String? roomId;
@@ -73,18 +70,20 @@ class Order extends Equatable {
   final String? appliedOfferName;
 
   const Order({
-    required this.id,
+    required String id,
     required this.tableId,
     required this.tableNumber,
     required this.items,
     this.status = OrderStatus.pending,
-    required this.timestamp,
-    this.updatedAt,
+    DateTime? timestamp,
+    DateTime? createdOn,
+    DateTime? updatedAt,
+    DateTime? updatedOn,
     this.openedAt,
     this.paxCount = 1,
     this.priority = OrderPriority.normal,
     this.orderNotes,
-    this.createdBy,
+    String? createdBy,
     this.waiterName,
     this.bookingId,
     this.roomId,
@@ -95,22 +94,32 @@ class Order extends Equatable {
     this.paymentStatus = PaymentStatus.pending,
     this.appliedOfferId,
     this.appliedOfferName,
-  });
+    String? updatedBy,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdBy: createdBy,
+         createdOn: createdOn ?? timestamp,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn ?? updatedAt,
+         isDeleted: isDeleted,
+       );
+
+  /// Getters for backward compatibility
+  DateTime get timestamp => createdOn ?? DateTime.now();
+  DateTime? get updatedAt => updatedOn;
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     tableId,
     tableNumber,
     items,
     status,
-    timestamp,
-    updatedAt,
     openedAt,
     paxCount,
     priority,
     orderNotes,
-    createdBy,
     waiterName,
     bookingId,
     roomId,
@@ -157,12 +166,10 @@ class Order extends Equatable {
       tableNumber: tableNumber ?? this.tableNumber,
       items: items ?? this.items,
       status: status ?? this.status,
-      timestamp: timestamp ?? this.timestamp,
-      updatedAt: updatedAt ?? this.updatedAt,
+      createdOn: timestamp ?? this.createdOn,
+      updatedOn: updatedAt ?? this.updatedOn,
       openedAt: openedAt ?? this.openedAt,
-      paxCount:
-          paxCount ??
-          this.paxCount, // paxCount is not optional in current update logic
+      paxCount: paxCount ?? this.paxCount,
       priority: priority ?? this.priority,
       orderNotes: orderNotes != null ? orderNotes.value : this.orderNotes,
       createdBy: createdBy ?? this.createdBy,
@@ -180,23 +187,22 @@ class Order extends Equatable {
       appliedOfferName: appliedOfferName != null
           ? appliedOfferName.value
           : this.appliedOfferName,
+      updatedBy: updatedBy,
+      isDeleted: isDeleted,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'tableId': tableId,
       'tableNumber': tableNumber,
       'items': items.map((i) => i.toJson()).toList(),
       'status': status.name,
-      'timestamp': timestamp.toIso8601String(),
-      if (updatedAt != null) 'updatedAt': updatedAt!.toIso8601String(),
       if (openedAt != null) 'openedAt': openedAt!.toIso8601String(),
       'paxCount': paxCount,
       'priority': priority.name,
       'orderNotes': orderNotes,
-      'createdBy': createdBy,
       'waiterName': waiterName,
       'bookingId': bookingId,
       'roomId': roomId,
@@ -224,15 +230,7 @@ class Order extends Equatable {
         (e) => e.name == (json['status'] ?? 'pending'),
         orElse: () => OrderStatus.pending,
       ),
-      timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'])
-          : DateTime.now(),
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'])
-          : null,
-      openedAt: json['openedAt'] != null
-          ? DateTime.parse(json['openedAt'])
-          : null,
+      openedAt: BaseEntity.parseDateTime(json['openedAt']),
       paxCount: json['paxCount'] is int
           ? json['paxCount']
           : (json['paxCount'] != null
@@ -243,7 +241,6 @@ class Order extends Equatable {
         orElse: () => OrderPriority.normal,
       ),
       orderNotes: json['orderNotes']?.toString(),
-      createdBy: json['createdBy']?.toString(),
       waiterName: json['waiterName']?.toString(),
       bookingId: json['bookingId']?.toString(),
       roomId: json['roomId']?.toString(),
@@ -262,6 +259,15 @@ class Order extends Equatable {
       ),
       appliedOfferId: json['appliedOfferId']?.toString(),
       appliedOfferName: json['appliedOfferName']?.toString(),
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['timestamp'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(
+        json['updatedOn'] ?? json['updatedAt'],
+      ),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

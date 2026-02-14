@@ -161,6 +161,11 @@ class MainLayout extends StatelessWidget {
             route: RoomsScreen.routeName,
           ),
           const NavDestination(
+            icon: Icons.event,
+            label: 'Events',
+            route: '/events',
+          ),
+          const NavDestination(
             icon: Icons.inventory,
             label: 'Inventory',
             route: InventoryScreen.routeName,

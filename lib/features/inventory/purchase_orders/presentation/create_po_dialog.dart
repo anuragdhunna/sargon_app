@@ -67,6 +67,12 @@ class _CreatePODialogState extends State<CreatePODialog> {
 
   void _createPO() {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedVendor == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a vendor')));
+      return;
+    }
     if (_lineItems.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please add at least one item')),

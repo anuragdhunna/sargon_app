@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Notification types
 enum NotificationType {
@@ -15,47 +15,73 @@ enum NotificationType {
 
 /// Notification model for the global notification system
 /// This model is synced with Firebase Realtime Database.
-class NotificationModel extends Equatable {
-  final String id;
+class NotificationModel extends BaseEntity {
   final String title;
   final String body;
   final NotificationType type;
-  final DateTime createdAt;
   final bool isRead;
   final String? targetRoute;
   final Map<String, dynamic>? metadata;
 
   const NotificationModel({
-    required this.id,
+    required super.id,
     required this.title,
     required this.body,
     required this.type,
-    required this.createdAt,
     this.isRead = false,
     this.targetRoute,
     this.metadata,
-  });
+    DateTime? createdAt,
+    DateTime? createdOn,
+    super.createdBy,
+    DateTime? updatedAt,
+    DateTime? updatedOn,
+    super.updatedBy,
+    super.isDeleted,
+  }) : super(
+         createdOn: createdOn ?? createdAt,
+         updatedOn: updatedOn ?? updatedAt,
+       );
 
-  NotificationModel copyWith({bool? isRead}) {
+  /// Getter for backward compatibility
+  DateTime get createdAt => createdOn ?? DateTime.now();
+
+  NotificationModel copyWith({
+    String? id,
+    String? title,
+    String? body,
+    NotificationType? type,
+    bool? isRead,
+    String? targetRoute,
+    Map<String, dynamic>? metadata,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
+  }) {
     return NotificationModel(
-      id: id,
-      title: title,
-      body: body,
-      type: type,
-      createdAt: createdAt,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      type: type ?? this.type,
       isRead: isRead ?? this.isRead,
-      targetRoute: targetRoute,
-      metadata: metadata,
+      targetRoute: targetRoute ?? this.targetRoute,
+      metadata: metadata ?? this.metadata,
+      createdBy: createdBy ?? this.createdBy,
+      createdOn: createdOn ?? this.createdOn,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     title,
     body,
     type,
-    createdAt,
     isRead,
     targetRoute,
     metadata,
@@ -63,11 +89,10 @@ class NotificationModel extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'title': title,
       'body': body,
       'type': type.name,
-      'createdAt': createdAt.toIso8601String(),
       'isRead': isRead,
       'targetRoute': targetRoute,
       'metadata': metadata,
@@ -83,10 +108,16 @@ class NotificationModel extends Equatable {
         (e) => e.name == json['type'],
         orElse: () => NotificationType.info,
       ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
       isRead: json['isRead'] as bool? ?? false,
       targetRoute: json['targetRoute'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

@@ -20,6 +20,7 @@ part 'database/database_offers.dart';
 part 'database/database_loyalty.dart';
 part 'database/database_utils.dart';
 part 'database/database_settings.dart';
+part 'database/database_events.dart';
 
 /// Firebase Realtime Database service
 class DatabaseService implements IBillingDatabase {

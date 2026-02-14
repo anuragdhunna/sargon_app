@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'inventory_item_model.dart';
 
 /// PO Status enum
@@ -121,15 +122,12 @@ class POLineItem extends Equatable {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class PurchaseOrder extends Equatable {
-  final String id;
+class PurchaseOrder extends BaseEntity {
   final String poNumber;
   final String? vendorId;
   final String? vendorName;
   final List<POLineItem> lineItems;
   final POStatus status;
-  final DateTime createdAt;
-  final String createdBy;
   final DateTime? expectedDeliveryDate;
   final String? notes;
   final double? shippingCost;
@@ -139,19 +137,34 @@ class PurchaseOrder extends Equatable {
   static const int schemaVersion = 1;
 
   const PurchaseOrder({
-    required this.id,
+    required String id,
     required this.poNumber,
     this.vendorId,
     this.vendorName,
     required this.lineItems,
     required this.status,
-    required this.createdAt,
-    required this.createdBy,
+    DateTime? createdAt,
+    DateTime? createdOn,
+    String? createdBy,
     this.expectedDeliveryDate,
     this.notes,
     this.shippingCost,
     this.taxAmount,
-  });
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn ?? createdAt,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
+
+  /// Getters for backward compatibility
+  DateTime get createdAt => createdOn ?? DateTime.now();
+  String get createdBy => super.createdBy ?? 'system';
 
   double get subtotal =>
       lineItems.fold(0, (sum, item) => sum + item.totalPrice);
@@ -169,36 +182,43 @@ class PurchaseOrder extends Equatable {
       lineItems.where((item) => item.isPartiallyReceived).length;
 
   PurchaseOrder copyWith({
+    String? id,
     POStatus? status,
     List<POLineItem>? lineItems,
     String? notes,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
   }) {
     return PurchaseOrder(
-      id: id,
+      id: id ?? this.id,
       poNumber: poNumber,
       vendorId: vendorId,
       vendorName: vendorName,
       lineItems: lineItems ?? this.lineItems,
       status: status ?? this.status,
-      createdAt: createdAt,
-      createdBy: createdBy,
+      createdOn: createdOn ?? this.createdOn,
+      createdBy: createdBy ?? this.createdBy,
       expectedDeliveryDate: expectedDeliveryDate,
       notes: notes ?? this.notes,
       shippingCost: shippingCost,
       taxAmount: taxAmount,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     poNumber,
     vendorId,
     vendorName,
     lineItems,
     status,
-    createdAt,
-    createdBy,
     expectedDeliveryDate,
     notes,
     shippingCost,
@@ -207,14 +227,12 @@ class PurchaseOrder extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'poNumber': poNumber,
       'vendorId': vendorId,
       'vendorName': vendorName,
       'lineItems': lineItems.map((item) => item.toJson()).toList(),
       'status': status.name,
-      'createdAt': createdAt.toIso8601String(),
-      'createdBy': createdBy,
       'expectedDeliveryDate': expectedDeliveryDate?.toIso8601String(),
       'notes': notes,
       'shippingCost': shippingCost,
@@ -238,14 +256,19 @@ class PurchaseOrder extends Equatable {
         (e) => e.name == json['status'],
         orElse: () => POStatus.draft,
       ),
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      createdBy: json['createdBy'] as String,
-      expectedDeliveryDate: json['expectedDeliveryDate'] != null
-          ? DateTime.parse(json['expectedDeliveryDate'] as String)
-          : null,
+      createdBy: json['createdBy'] as String? ?? 'system',
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      expectedDeliveryDate: BaseEntity.parseDateTime(
+        json['expectedDeliveryDate'],
+      ),
       notes: json['notes'] as String?,
       shippingCost: (json['shippingCost'] as num?)?.toDouble(),
       taxAmount: (json['taxAmount'] as num?)?.toDouble(),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

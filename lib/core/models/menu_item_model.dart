@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'recipe_model.dart';
 
 /// Menu item categories
@@ -46,8 +46,7 @@ extension DietaryTypeExtension on DietaryType {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 2
-class MenuItem extends Equatable {
-  final String id;
+class MenuItem extends BaseEntity {
   final String name;
   final String description;
   final double price;
@@ -63,7 +62,7 @@ class MenuItem extends Equatable {
   static const int schemaVersion = 2;
 
   const MenuItem({
-    required this.id,
+    required String id,
     required this.name,
     required this.description,
     required this.price,
@@ -74,7 +73,19 @@ class MenuItem extends Equatable {
     this.preparationTimeMinutes = 15,
     this.notes,
     this.recipe,
-  });
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   MenuItem copyWith({
     String? id,
@@ -88,6 +99,11 @@ class MenuItem extends Equatable {
     int? preparationTimeMinutes,
     String? notes,
     List<RecipeIngredient>? recipe,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
   }) {
     return MenuItem(
       id: id ?? this.id,
@@ -102,13 +118,18 @@ class MenuItem extends Equatable {
           preparationTimeMinutes ?? this.preparationTimeMinutes,
       notes: notes ?? this.notes,
       recipe: recipe ?? this.recipe,
+      createdBy: createdBy ?? this.createdBy,
+      createdOn: createdOn ?? this.createdOn,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   /// Convert to JSON for Firebase
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'name': name,
       'description': description,
       'price': price,
@@ -155,12 +176,17 @@ class MenuItem extends Equatable {
       recipe: (json['recipe'] as List?)
           ?.map((e) => RecipeIngredient.fromJson(e))
           .toList(),
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     name,
     description,
     price,

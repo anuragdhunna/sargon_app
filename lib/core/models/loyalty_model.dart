@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Loyalty Tier model
-class LoyaltyTier extends Equatable {
-  final String id;
+class LoyaltyTier extends BaseEntity {
   final String name; // e.g., Silver, Gold, Platinum
   final double minSpend;
   final double earnMultiplier; // e.g., 1.0, 1.25
@@ -11,17 +11,29 @@ class LoyaltyTier extends Equatable {
   final bool isActive;
 
   const LoyaltyTier({
-    required this.id,
+    required String id,
     required this.name,
     required this.minSpend,
     required this.earnMultiplier,
     this.redeemMultiplier = 1.0,
     this.benefits = const [],
     this.isActive = true,
-  });
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'name': name,
     'minSpend': minSpend,
     'earnMultiplier': earnMultiplier,
@@ -38,17 +50,27 @@ class LoyaltyTier extends Equatable {
     redeemMultiplier: (json['redeemMultiplier'] as num?)?.toDouble() ?? 1.0,
     benefits: List<String>.from(json['benefits'] ?? []),
     isActive: json['isActive'] ?? true,
+    createdBy: json['createdBy'] as String?,
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'] as String?,
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
 
   @override
-  List<Object?> get props => [id, name, minSpend, earnMultiplier, isActive];
+  List<Object?> get props => [
+    ...super.props,
+    name,
+    minSpend,
+    earnMultiplier,
+    isActive,
+  ];
 }
 
 /// Point Earning Rule
 enum PointEarnType { bill_amount, category, item }
 
-class PointRule extends Equatable {
-  final String id;
+class PointRule extends BaseEntity {
   final PointEarnType earnType;
   final double earnValue; // points per ₹100 or flat points
   final List<String> applicableCategoryIds;
@@ -57,17 +79,29 @@ class PointRule extends Equatable {
   final bool isActive;
 
   const PointRule({
-    required this.id,
+    required String id,
     required this.earnType,
     required this.earnValue,
     this.applicableCategoryIds = const [],
     this.applicableItemIds = const [],
     this.minBillAmount = 0,
     this.isActive = true,
-  });
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'earnType': earnType.name,
     'earnValue': earnValue,
     'applicableCategoryIds': applicableCategoryIds,
@@ -88,6 +122,11 @@ class PointRule extends Equatable {
     applicableItemIds: List<String>.from(json['applicableItemIds'] ?? []),
     minBillAmount: (json['minBillAmount'] as num?)?.toDouble() ?? 0,
     isActive: json['isActive'] ?? true,
+    createdBy: json['createdBy'] as String?,
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'] as String?,
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
 
   @override
@@ -95,23 +134,34 @@ class PointRule extends Equatable {
 }
 
 /// Point Redemption Record
-class PointRedemption extends Equatable {
-  final String id;
+class PointRedemption extends BaseEntity {
   final String billId;
   final int pointsUsed;
   final double monetaryValue;
   final DateTime redeemedAt;
 
   const PointRedemption({
-    required this.id,
+    required String id,
     required this.billId,
     required this.pointsUsed,
     required this.monetaryValue,
     required this.redeemedAt,
-  });
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdOn: createdOn ?? redeemedAt,
+         createdBy: createdBy,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'billId': billId,
     'pointsUsed': pointsUsed,
     'monetaryValue': monetaryValue,
@@ -124,11 +174,22 @@ class PointRedemption extends Equatable {
         billId: json['billId'],
         pointsUsed: json['pointsUsed'] as int,
         monetaryValue: (json['monetaryValue'] as num).toDouble(),
-        redeemedAt: DateTime.parse(json['redeemedAt']),
+        redeemedAt:
+            BaseEntity.parseDateTime(json['redeemedAt']) ?? DateTime.now(),
+        createdBy: json['createdBy'] as String?,
+        createdOn: BaseEntity.parseDateTime(json['createdOn']),
+        updatedBy: json['updatedBy'] as String?,
+        updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+        isDeleted: json['isDeleted'] ?? false,
       );
 
   @override
-  List<Object?> get props => [id, billId, pointsUsed, monetaryValue];
+  List<Object?> get props => [
+    ...super.props,
+    billId,
+    pointsUsed,
+    monetaryValue,
+  ];
 }
 
 /// Extended Customer Loyalty Info (to be stored in Customer model or as a reference)

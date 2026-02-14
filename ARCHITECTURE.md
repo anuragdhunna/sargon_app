@@ -92,6 +92,7 @@ Before creating a new file, check if the functionality belongs to an existing mo
 | **offers** | Discount management, happy hours | Active |
 | **loyalty** | Point earning and tier management | Active |
 | **customers** | CRM, analytics, spending history | Active |
+| **events** | Private Event Management, halls, POs, incidents | **Active**: Quote estimator, hall-wise occupancy, real-time sync |
 
 ### Order Module Features (Production-Ready)
 - **Order Taking**: Refactored to Clean Architecture with dedicated `OrderTakingCubit`. Features responsive menu grid, category filtering, search, and reactive cart management.
@@ -169,6 +170,20 @@ When modifying code, apply these expert-level practices:
 - **Pax-Based Table Suggestion**: Algorithmically suggests the best table fit based on guest count to maximize floor yield.
 - **Production KDS**: Item-level status tracking (Pending -> Fired -> Preparing -> Ready -> Served) with SLA enforcement.
 - **Dynamic Offer Engine**: Real-time offer application from Order History with intelligent discount logic.
+
+### Private Event Intelligence
+- **Hall Multi-Selection**: Book multiple halls for a single event with aggregate capacity checks.
+- **Proactive Conflict Detection**: Real-time checking of hall availability during event creation.
+- **Live Quote Estimator**: Instant financial breakdown (Base + Per-Pax) during planning/draft phases.
+- **Incident Tracking**: Integrated safety/operational logging with financial impact assessment.
+- **Vendor PO Sync**: Real-time tracking of external vendor costs passed to event billing.
+
+### Centralized Auditing System (Enterprise-Ready)
+- **Backend-Enforced**: Audit fields (`createdOn`, `createdBy`, `updatedOn`, `updatedBy`) are managed by Cloud Functions triggers for maximum integrity.
+- **BaseFirestoreRepository**: A generic repository pattern that automatically injects `_userId` for backend validation and supports soft deletes (`isDeleted`).
+- **BaseEntity**: All auditable models extend `BaseEntity` to ensure consistent lifecycle tracking.
+- **Soft Deletes**: Standardized soft delete mechanism across all Firestore-backed entities.
+- **Security Rules**: Field-level protection ensures audit fields can only be modified by the backend or under strict validation.
 
 ---
 

@@ -148,6 +148,46 @@
             ".read": "auth != null",
             ".write": "auth != null"
         },
+        "halls": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager')",
+            ".indexOn": [
+                "isActive"
+            ]
+        },
+        "events": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "date",
+                "status"
+            ]
+        },
+        "event_pos": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager')",
+            ".indexOn": [
+                "eventId"
+            ]
+        },
+        "event_bills": {
+            ".read": "auth != null",
+            ".write": "auth != null",
+            ".indexOn": [
+                "eventId"
+            ]
+        },
+        "event_taxes": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager')"
+        },
+        "event_staff": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('users').child(auth.uid).child('role').val() === 'owner' || root.child('users').child(auth.uid).child('role').val() === 'manager')",
+            ".indexOn": [
+                "eventId"
+            ]
+        },
         "_migrations": {
             ".read": "auth != null",
             ".write": "auth != null"

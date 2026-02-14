@@ -38,3 +38,4 @@ export 'performance_model.dart';
 export 'offer_model.dart';
 export 'loyalty_model.dart';
 export 'happy_hour_model.dart';
+export 'event_models.dart';

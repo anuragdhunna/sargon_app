@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 import 'inventory_item_model.dart';
 
 /// Goods Receipt Note Line Item
@@ -88,8 +89,7 @@ class GRNLineItem extends Equatable {
 ///
 /// This model is synced with Firebase Realtime Database.
 /// Schema version: 1
-class GoodsReceiptNote extends Equatable {
-  final String id;
+class GoodsReceiptNote extends BaseEntity {
   final String grnNumber;
   final String? purchaseOrderId;
   final String? purchaseOrderNumber;
@@ -110,7 +110,7 @@ class GoodsReceiptNote extends Equatable {
   static const int schemaVersion = 1;
 
   const GoodsReceiptNote({
-    required this.id,
+    required String id,
     required this.grnNumber,
     this.purchaseOrderId,
     this.purchaseOrderNumber,
@@ -126,7 +126,19 @@ class GoodsReceiptNote extends Equatable {
     this.goodsImagePath,
     this.invoiceNumber,
     this.notes,
-  });
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool isDeleted = false,
+  }) : super(
+         id: id,
+         createdBy: createdBy ?? receivedBy,
+         createdOn: createdOn ?? receivedAt,
+         updatedBy: updatedBy,
+         updatedOn: updatedOn,
+         isDeleted: isDeleted,
+       );
 
   double get totalValue =>
       lineItems.fold(0, (sum, item) => sum + item.totalValue);
@@ -136,7 +148,7 @@ class GoodsReceiptNote extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     grnNumber,
     purchaseOrderId,
     purchaseOrderNumber,
@@ -154,9 +166,18 @@ class GoodsReceiptNote extends Equatable {
     notes,
   ];
 
-  GoodsReceiptNote copyWith({List<GRNLineItem>? lineItems, String? notes}) {
+  GoodsReceiptNote copyWith({
+    String? id,
+    List<GRNLineItem>? lineItems,
+    String? notes,
+    String? createdBy,
+    DateTime? createdOn,
+    String? updatedBy,
+    DateTime? updatedOn,
+    bool? isDeleted,
+  }) {
     return GoodsReceiptNote(
-      id: id,
+      id: id ?? this.id,
       grnNumber: grnNumber,
       purchaseOrderId: purchaseOrderId,
       purchaseOrderNumber: purchaseOrderNumber,
@@ -172,12 +193,17 @@ class GoodsReceiptNote extends Equatable {
       goodsImagePath: goodsImagePath,
       invoiceNumber: invoiceNumber,
       notes: notes ?? this.notes,
+      createdBy: createdBy ?? this.createdBy,
+      createdOn: createdOn ?? this.createdOn,
+      updatedBy: updatedBy ?? this.updatedBy,
+      updatedOn: updatedOn ?? this.updatedOn,
+      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'grnNumber': grnNumber,
       'purchaseOrderId': purchaseOrderId,
       'purchaseOrderNumber': purchaseOrderNumber,
@@ -212,15 +238,21 @@ class GoodsReceiptNote extends Equatable {
               )
               .toList() ??
           [],
-      receivedAt: DateTime.parse(json['receivedAt'] as String),
-      receivedBy: json['receivedBy'] as String,
-      receivedByName: json['receivedByName'] as String,
+      receivedAt:
+          BaseEntity.parseDateTime(json['receivedAt']) ?? DateTime.now(),
+      receivedBy: json['receivedBy'] as String? ?? 'system',
+      receivedByName: json['receivedByName'] as String? ?? 'System',
       deliveryPersonName: json['deliveryPersonName'] as String?,
       deliveryPersonPhone: json['deliveryPersonPhone'] as String?,
       billImagePath: json['billImagePath'] as String?,
       goodsImagePath: json['goodsImagePath'] as String?,
       invoiceNumber: json['invoiceNumber'] as String?,
       notes: json['notes'] as String?,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 }

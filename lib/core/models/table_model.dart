@@ -1,4 +1,4 @@
-import 'package:equatable/equatable.dart';
+import 'base_entity.dart';
 
 /// Table status enum matching the lifecycle machine
 enum TableStatus { available, occupied, billed, cleaning, reserved }
@@ -22,8 +22,7 @@ extension TableStatusExtension on TableStatus {
 }
 
 /// Table model representing a physical table in the restaurant/bar
-class TableEntity extends Equatable {
-  final String id;
+class TableEntity extends BaseEntity {
   final String name; // Descriptive name e.g. "Front Lawn 1"
   final String tableCode; // T1, T2, B1 (Bar)
   final int minCapacity;
@@ -37,7 +36,7 @@ class TableEntity extends Equatable {
   final String? currentGroupId; // If part of a joined group
 
   const TableEntity({
-    required this.id,
+    required super.id,
     required this.name,
     required this.tableCode,
     this.minCapacity = 1,
@@ -47,6 +46,11 @@ class TableEntity extends Equatable {
     this.isBarTable = false,
     this.isActive = true,
     this.currentGroupId,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   }) : capacity = maxCapacity;
 
   TableEntity copyWith({
@@ -72,12 +76,17 @@ class TableEntity extends Equatable {
       isBarTable: isBarTable ?? this.isBarTable,
       isActive: isActive ?? this.isActive,
       currentGroupId: currentGroupId ?? this.currentGroupId,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      ...super.toAuditJson(),
       'name': name,
       'tableCode': tableCode,
       'minCapacity': minCapacity,
@@ -108,12 +117,17 @@ class TableEntity extends Equatable {
       isBarTable: json['isBarTable'] as bool? ?? false,
       isActive: json['isActive'] as bool? ?? true,
       currentGroupId: json['currentGroupId']?.toString(),
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
     );
   }
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     name,
     tableCode,
     minCapacity,
