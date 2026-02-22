@@ -29,6 +29,7 @@ class KdsAnalyticsScreen extends StatelessWidget {
           }
           if (state is OrderLoaded) {
             final allOrders = state.orders;
+            // Filter orders to only include those that have been served
             final analytics = _calculateAnalytics(allOrders);
 
             return SingleChildScrollView(
@@ -72,7 +73,7 @@ class KdsAnalyticsScreen extends StatelessWidget {
         if (item.firedAt != null && item.kdsStatus == KdsStatus.served) {
           totalItems++;
           // Mocking final served at for analytics if not present
-          final servedAt = order.updatedAt ?? DateTime.now();
+          final servedAt = order.updatedAt;
           final prepTime = servedAt.difference(item.firedAt!).inMinutes;
 
           totalPrepTime += prepTime;

@@ -5,7 +5,7 @@ library;
 enum PaymentStatus {
   pending,
   billed,
-  partially_paid,
+  partiallyPaid,
   paid,
   cancelled,
   refunded,
@@ -19,7 +19,7 @@ extension PaymentStatusExtension on PaymentStatus {
         return 'Pending';
       case PaymentStatus.billed:
         return 'Billed';
-      case PaymentStatus.partially_paid:
+      case PaymentStatus.partiallyPaid:
         return 'Partially Paid';
       case PaymentStatus.paid:
         return 'Paid';
@@ -38,8 +38,8 @@ enum PaymentMethod {
   cash,
   upi,
   card,
-  net_banking,
-  bill_to_room,
+  netBanking,
+  billToRoom,
   complimentary,
   other,
 }
@@ -53,9 +53,9 @@ extension PaymentMethodExtension on PaymentMethod {
         return 'UPI / QR Scan';
       case PaymentMethod.card:
         return 'Credit/Debit Card';
-      case PaymentMethod.net_banking:
+      case PaymentMethod.netBanking:
         return 'Net Banking';
-      case PaymentMethod.bill_to_room:
+      case PaymentMethod.billToRoom:
         return 'Bill to Room';
       case PaymentMethod.complimentary:
         return 'Complimentary (FOC)';

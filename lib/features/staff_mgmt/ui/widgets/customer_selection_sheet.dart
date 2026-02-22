@@ -154,7 +154,8 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
                     vertical: 8,
                   ),
                   itemCount: filtered.length + 1, // +1 for "No customer" option
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return _buildNoCustomerOption();
@@ -173,7 +174,7 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppDesign.primaryStart.withOpacity(0.05)
+                              ? AppDesign.primaryStart.withValues(alpha: 0.05)
                               : AppDesign.neutral50,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
@@ -186,7 +187,7 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
                           children: [
                             CircleAvatar(
                               backgroundColor: AppDesign.primaryStart
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               child: Text(
                                 customer.name[0].toUpperCase(),
                                 style: const TextStyle(
@@ -260,7 +261,7 @@ class _CustomerSelectionSheetState extends State<CustomerSelectionSheet> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: widget.initialCustomer == null
-              ? AppDesign.primaryStart.withOpacity(0.05)
+              ? AppDesign.primaryStart.withValues(alpha: 0.05)
               : AppDesign.neutral50,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(

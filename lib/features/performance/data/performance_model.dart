@@ -5,5 +5,3 @@
 ///
 /// @deprecated Use 'package:hotel_manager/core/models/performance_model.dart' instead.
 library;
-
-export 'package:hotel_manager/core/models/performance_model.dart';

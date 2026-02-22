@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/settings/data/repositories/settings_repository.dart';
@@ -47,11 +49,14 @@ class _TaxSettingsContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             StreamBuilder<List<TaxRule>>(
-              stream: repo.streamTaxRules(),
+              stream: repo.streamTaxRules(
+                (context.read<AuthCubit>().state as AuthVerified).hotelId,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-                if (!snapshot.hasData)
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
+                }
 
                 final rules = snapshot.data!;
                 return ListView.separated(
@@ -75,11 +80,14 @@ class _TaxSettingsContent extends StatelessWidget {
             }),
             const SizedBox(height: 16),
             StreamBuilder<List<ServiceChargeRule>>(
-              stream: repo.streamServiceChargeRules(),
+              stream: repo.streamServiceChargeRules(
+                (context.read<AuthCubit>().state as AuthVerified).hotelId,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.hasError) return Text('Error: ${snapshot.error}');
-                if (!snapshot.hasData)
+                if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
+                }
 
                 final rules = snapshot.data!;
                 return ListView.separated(
@@ -185,16 +193,58 @@ class _ServiceChargeCard extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text('Rate: ${rule.percent}%'),
-        trailing: Chip(
-          label: Text(rule.isActive ? 'Active' : 'Inactive'),
-          backgroundColor: rule.isActive
-              ? Colors.green.withOpacity(0.1)
-              : Colors.grey.withOpacity(0.1),
-          labelStyle: TextStyle(
-            color: rule.isActive ? Colors.green : Colors.grey,
-          ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Chip(
+              label: Text(rule.isActive ? 'Active' : 'Inactive'),
+              backgroundColor: rule.isActive
+                  ? Colors.green.withOpacity(0.1)
+                  : Colors.grey.withOpacity(0.1),
+              labelStyle: TextStyle(
+                color: rule.isActive ? Colors.green : Colors.grey,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: () => _confirmDelete(context),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Deletion'),
+        content: Text(
+          'Are you sure you want to delete "${rule.name}"? This will make it inactive.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final auth = context.read<AuthCubit>().state as AuthVerified;
+      await context.read<SettingsRepository>().deleteServiceChargeRule(
+        rule.id,
+        auth.userId,
+        auth.userName,
+        auth.hotelId,
+      );
+    }
   }
 }

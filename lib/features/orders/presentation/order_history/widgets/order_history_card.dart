@@ -90,7 +90,7 @@ class OrderHistoryCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppDesign.primaryStart.withOpacity(0.1),
+                        color: AppDesign.primaryStart.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -144,7 +144,7 @@ class OrderHistoryCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
@@ -350,7 +350,7 @@ class OrderHistoryCard extends StatelessWidget {
     final isBilled =
         order.paymentStatus == PaymentStatus.billed ||
         order.paymentStatus == PaymentStatus.paid ||
-        order.paymentStatus == PaymentStatus.partially_paid ||
+        order.paymentStatus == PaymentStatus.partiallyPaid ||
         order.paymentStatus == PaymentStatus.toRoom;
 
     return Padding(

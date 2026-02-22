@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'base_entity.dart';
-import 'menu_item_model.dart';
+import 'restaurant_models.dart';
 import 'payment_models.dart';
-import 'offer_model.dart';
+import 'promotion_models.dart';
 
 /// Overall Order status enum
 enum OrderStatus { pending, cooking, ready, served, cancelled }
@@ -35,20 +35,12 @@ extension OrderStatusExtension on OrderStatus {
 enum CourseType { starters, mains, desserts, drinks }
 
 /// KDS specific status for individual items
-enum KdsStatus {
-  pending, // Added but not fired
-  fired, // Sent to kitchen
-  preparing,
-  ready,
-  served,
-  cancelled,
-  delayed,
-}
+enum KdsStatus { pending, fired, preparing, ready, served, cancelled, delayed }
 
 /// Order priority levels
 enum OrderPriority { normal, vip, rush }
 
-/// Order model representing a customer order with Table & KDS Intelligence
+/// Order model
 class Order extends BaseEntity {
   final String tableId;
   final String tableNumber;
@@ -70,20 +62,16 @@ class Order extends BaseEntity {
   final String? appliedOfferName;
 
   const Order({
-    required String id,
+    required super.id,
+    required super.hotelId,
     required this.tableId,
     required this.tableNumber,
     required this.items,
     this.status = OrderStatus.pending,
-    DateTime? timestamp,
-    DateTime? createdOn,
-    DateTime? updatedAt,
-    DateTime? updatedOn,
     this.openedAt,
     this.paxCount = 1,
     this.priority = OrderPriority.normal,
     this.orderNotes,
-    String? createdBy,
     this.waiterName,
     this.bookingId,
     this.roomId,
@@ -94,20 +82,24 @@ class Order extends BaseEntity {
     this.paymentStatus = PaymentStatus.pending,
     this.appliedOfferId,
     this.appliedOfferName,
-    String? updatedBy,
-    bool isDeleted = false,
-  }) : super(
-         id: id,
-         createdBy: createdBy,
-         createdOn: createdOn ?? timestamp,
-         updatedBy: updatedBy,
-         updatedOn: updatedOn ?? updatedAt,
-         isDeleted: isDeleted,
-       );
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
 
-  /// Getters for backward compatibility
-  DateTime get timestamp => createdOn ?? DateTime.now();
-  DateTime? get updatedAt => updatedOn;
+  double get totalPrice =>
+      items.fold(0.0, (sum, item) => sum + item.totalPrice);
+
+  /// Getter for backward compatibility
+  DateTime get timestamp => createdOn ?? openedAt ?? DateTime.now();
+
+  /// Getter for backward compatibility
+  DateTime get createdAt => createdOn ?? openedAt ?? DateTime.now();
+
+  /// Getter for backward compatibility
+  DateTime get updatedAt => updatedOn ?? DateTime.now();
 
   @override
   List<Object?> get props => [
@@ -132,48 +124,38 @@ class Order extends BaseEntity {
     appliedOfferName,
   ];
 
-  double get totalPrice {
-    return items.fold(0.0, (sum, item) => sum + item.totalPrice);
-  }
-
   Order copyWith({
     String? id,
-    String? tableId,
-    String? tableNumber,
-    List<OrderItem>? items,
+    String? hotelId,
     OrderStatus? status,
-    DateTime? timestamp,
-    DateTime? updatedAt,
-    DateTime? openedAt,
-    int? paxCount,
-    OrderPriority? priority,
+    List<OrderItem>? items,
     Optional<String>? orderNotes,
-    String? createdBy,
-    String? waiterName,
+    Optional<String>? customerId,
+    Optional<String>? guestName,
+    Optional<String>? phone,
     Optional<String>? bookingId,
     Optional<String>? roomId,
-    Optional<String>? guestName,
-    Optional<String>? customerId,
-    Optional<String>? phone,
-    PaymentMethod? paymentMethod,
     PaymentStatus? paymentStatus,
+    PaymentMethod? paymentMethod,
     Optional<String>? appliedOfferId,
     Optional<String>? appliedOfferName,
+    int? paxCount,
+    OrderPriority? priority,
+    DateTime? updatedOn,
+    DateTime? updatedAt, // Compatibility
   }) {
     return Order(
       id: id ?? this.id,
-      tableId: tableId ?? this.tableId,
-      tableNumber: tableNumber ?? this.tableNumber,
+      hotelId: hotelId ?? this.hotelId,
+      tableId: tableId,
+      tableNumber: tableNumber,
       items: items ?? this.items,
       status: status ?? this.status,
-      createdOn: timestamp ?? this.createdOn,
-      updatedOn: updatedAt ?? this.updatedOn,
-      openedAt: openedAt ?? this.openedAt,
+      openedAt: openedAt,
       paxCount: paxCount ?? this.paxCount,
       priority: priority ?? this.priority,
       orderNotes: orderNotes != null ? orderNotes.value : this.orderNotes,
-      createdBy: createdBy ?? this.createdBy,
-      waiterName: waiterName ?? this.waiterName,
+      waiterName: waiterName,
       bookingId: bookingId != null ? bookingId.value : this.bookingId,
       roomId: roomId != null ? roomId.value : this.roomId,
       guestName: guestName != null ? guestName.value : this.guestName,
@@ -187,11 +169,15 @@ class Order extends BaseEntity {
       appliedOfferName: appliedOfferName != null
           ? appliedOfferName.value
           : this.appliedOfferName,
+      createdBy: createdBy,
+      createdOn: createdOn,
       updatedBy: updatedBy,
+      updatedOn: updatedAt ?? updatedOn ?? this.updatedOn,
       isDeleted: isDeleted,
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toAuditJson(),
@@ -218,26 +204,23 @@ class Order extends BaseEntity {
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      id: json['id'] != null ? json['id'].toString() : '',
-      tableId: json['tableId'] != null ? json['tableId'].toString() : '',
-      tableNumber: json['tableNumber'] != null
-          ? json['tableNumber'].toString()
-          : '',
-      items: json['items'] != null
-          ? (json['items'] as List).map((i) => OrderItem.fromJson(i)).toList()
-          : <OrderItem>[],
+      id: json['id']?.toString() ?? '',
+      hotelId: json['hotelId'] as String? ?? 'default',
+      tableId: json['tableId']?.toString() ?? '',
+      tableNumber: json['tableNumber']?.toString() ?? '',
+      items:
+          (json['items'] as List?)
+              ?.map((i) => OrderItem.fromJson(i))
+              .toList() ??
+          [],
       status: OrderStatus.values.firstWhere(
-        (e) => e.name == (json['status'] ?? 'pending'),
+        (e) => e.name == json['status'],
         orElse: () => OrderStatus.pending,
       ),
       openedAt: BaseEntity.parseDateTime(json['openedAt']),
-      paxCount: json['paxCount'] is int
-          ? json['paxCount']
-          : (json['paxCount'] != null
-                ? int.tryParse(json['paxCount'].toString()) ?? 1
-                : 1),
+      paxCount: json['paxCount'] as int? ?? 1,
       priority: OrderPriority.values.firstWhere(
-        (e) => e.name == (json['priority'] ?? 'normal'),
+        (e) => e.name == json['priority'],
         orElse: () => OrderPriority.normal,
       ),
       orderNotes: json['orderNotes']?.toString(),
@@ -254,7 +237,7 @@ class Order extends BaseEntity {
             )
           : null,
       paymentStatus: PaymentStatus.values.firstWhere(
-        (e) => e.name == (json['paymentStatus'] ?? 'pending'),
+        (e) => e.name == json['paymentStatus'],
         orElse: () => PaymentStatus.pending,
       ),
       appliedOfferId: json['appliedOfferId']?.toString(),
@@ -272,6 +255,7 @@ class Order extends BaseEntity {
   }
 }
 
+/// Order Item
 class OrderItem extends Equatable {
   final String id;
   final String menuItemId;
@@ -307,25 +291,6 @@ class OrderItem extends Equatable {
     this.isComplimentary = false,
   });
 
-  @override
-  List<Object?> get props => [
-    id,
-    menuItemId,
-    categoryId,
-    name,
-    price,
-    quantity,
-    notes,
-    options,
-    kdsStatus,
-    firedAt,
-    course,
-    expectedPrepTimeMinutes,
-    discountAmount,
-    discountType,
-    isComplimentary,
-  ];
-
   double get totalPrice {
     if (isComplimentary) return 0.0;
     double optPrice = options?.fold(0, (sum, opt) => sum! + opt.price) ?? 0;
@@ -339,19 +304,30 @@ class OrderItem extends Equatable {
         kdsStatus == KdsStatus.cancelled) {
       return false;
     }
-    final delay = DateTime.now().difference(firedAt!).inMinutes;
-    return delay > expectedPrepTimeMinutes;
+    return DateTime.now().difference(firedAt!).inMinutes >
+        expectedPrepTimeMinutes;
   }
+
+  @override
+  List<Object?> get props => [
+    id,
+    menuItemId,
+    name,
+    price,
+    quantity,
+    options,
+    kdsStatus,
+    firedAt,
+  ];
 
   OrderItem copyWith({
     String? id,
     String? menuItemId,
-    Optional<String>? categoryId,
     String? name,
     double? price,
     int? quantity,
     Optional<String>? notes,
-    Optional<List<OrderItemOption>>? options,
+    List<OrderItemOption>? options,
     KdsStatus? kdsStatus,
     Optional<DateTime>? firedAt,
     CourseType? course,
@@ -363,12 +339,11 @@ class OrderItem extends Equatable {
     return OrderItem(
       id: id ?? this.id,
       menuItemId: menuItemId ?? this.menuItemId,
-      categoryId: categoryId != null ? categoryId.value : this.categoryId,
       name: name ?? this.name,
       price: price ?? this.price,
       quantity: quantity ?? this.quantity,
       notes: notes != null ? notes.value : this.notes,
-      options: options != null ? options.value : this.options,
+      options: options ?? this.options,
       kdsStatus: kdsStatus ?? this.kdsStatus,
       firedAt: firedAt != null ? firedAt.value : this.firedAt,
       course: course ?? this.course,
@@ -411,17 +386,17 @@ class OrderItem extends Equatable {
       price: (json['price'] as num).toDouble(),
       quantity: json['quantity'] ?? 1,
       notes: json['notes'],
-      options: json['options'] != null
-          ? (json['options'] as List)
-                .map((o) => OrderItemOption.fromJson(o))
-                .toList()
-          : null,
+      options: (json['options'] as List?)
+          ?.map((o) => OrderItemOption.fromJson(o))
+          .toList(),
       kdsStatus: KdsStatus.values.firstWhere(
-        (e) => e.name == (json['kdsStatus'] ?? 'pending'),
+        (e) => e.name == json['kdsStatus'],
+        orElse: () => KdsStatus.pending,
       ),
-      firedAt: json['firedAt'] != null ? DateTime.parse(json['firedAt']) : null,
+      firedAt: BaseEntity.parseDateTime(json['firedAt']),
       course: CourseType.values.firstWhere(
-        (e) => e.name == (json['course'] ?? 'mains'),
+        (e) => e.name == json['course'],
+        orElse: () => CourseType.mains,
       ),
       expectedPrepTimeMinutes: json['expectedPrepTimeMinutes'] ?? 15,
       discountAmount: (json['discountAmount'] as num?)?.toDouble() ?? 0.0,
@@ -454,6 +429,7 @@ class OrderItem extends Equatable {
   }
 }
 
+/// Order Item Option
 class OrderItemOption extends Equatable {
   final String id;
   final String name;
@@ -468,9 +444,7 @@ class OrderItemOption extends Equatable {
   @override
   List<Object?> get props => [id, name, price];
 
-  Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'price': price};
-  }
+  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'price': price};
 
   factory OrderItemOption.fromJson(Map<String, dynamic> json) {
     return OrderItemOption(

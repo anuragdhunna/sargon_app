@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/orders/presentation/order_taking/ui/order_taking_screen.dart';
 import '../../../core/models/models.dart';
 import '../../../theme/app_design.dart';
@@ -535,10 +537,14 @@ class _TableTile extends StatelessWidget {
                 leading: const Icon(Icons.check_circle, color: Colors.green),
                 title: const Text('Force Available'),
                 onTap: () {
-                  context.read<TableCubit>().updateTableStatus(
-                    table.id,
-                    TableStatus.available,
-                  );
+                  final authState = context.read<AuthCubit>().state;
+                  if (authState is AuthVerified) {
+                    context.read<TableCubit>().updateTableStatus(
+                      authState.hotelId,
+                      table.id,
+                      TableStatus.available,
+                    );
+                  }
                   Navigator.pop(context);
                 },
               ),
@@ -549,10 +555,14 @@ class _TableTile extends StatelessWidget {
                 ),
                 title: const Text('Mark Cleaning'),
                 onTap: () {
-                  context.read<TableCubit>().updateTableStatus(
-                    table.id,
-                    TableStatus.cleaning,
-                  );
+                  final authState = context.read<AuthCubit>().state;
+                  if (authState is AuthVerified) {
+                    context.read<TableCubit>().updateTableStatus(
+                      authState.hotelId,
+                      table.id,
+                      TableStatus.cleaning,
+                    );
+                  }
                   Navigator.pop(context);
                 },
               ),
@@ -560,10 +570,14 @@ class _TableTile extends StatelessWidget {
                 leading: const Icon(Icons.lock_clock, color: Colors.purple),
                 title: const Text('Mark Reserved'),
                 onTap: () {
-                  context.read<TableCubit>().updateTableStatus(
-                    table.id,
-                    TableStatus.reserved,
-                  );
+                  final authState = context.read<AuthCubit>().state;
+                  if (authState is AuthVerified) {
+                    context.read<TableCubit>().updateTableStatus(
+                      authState.hotelId,
+                      table.id,
+                      TableStatus.reserved,
+                    );
+                  }
                   Navigator.pop(context);
                 },
               ),

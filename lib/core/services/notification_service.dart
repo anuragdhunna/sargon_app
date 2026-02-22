@@ -1,5 +1,6 @@
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/core/models/notification_model.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 
 class NotificationService {
@@ -9,91 +10,69 @@ class NotificationService {
     : _databaseService = databaseService ?? DatabaseService();
 
   /// Get notifications reference
-  String get _path => 'notifications';
+
+  CollectionReference _notificationsRef(String hotelId) =>
+      _databaseService.hotelDoc(hotelId).collection('notifications');
 
   /// Add a new notification
-  Future<void> addNotification(NotificationModel notification) async {
-    final ref = _databaseService.settingsRef.root.child(_path);
-    await ref.child(notification.id).set(notification.toJson());
+  Future<void> addNotification(
+    String hotelId,
+    NotificationModel notification,
+  ) async {
+    await _notificationsRef(
+      hotelId,
+    ).doc(notification.id).set(notification.toJson());
   }
 
   /// Mark notification as read
-  Future<void> markAsRead(String id) async {
-    final ref = _databaseService.settingsRef.root.child(_path);
-    await ref.child(id).update({'isRead': true});
+  Future<void> markAsRead(String hotelId, String id) async {
+    await _notificationsRef(hotelId).doc(id).update({'isRead': true});
   }
 
-  /// Mark all notifications as read for a user (if we had user-specific paths)
-  /// For now, global notifications.
-  Future<void> markAllAsRead(List<String> ids) async {
-    final ref = _databaseService.settingsRef.root.child(_path);
-    final updates = <String, dynamic>{};
+  /// Mark all notifications as read
+  Future<void> markAllAsRead(String hotelId, List<String> ids) async {
+    final batch = _databaseService.firestore.batch();
     for (var id in ids) {
-      updates['$id/isRead'] = true;
+      batch.update(_notificationsRef(hotelId).doc(id), {'isRead': true});
     }
-    await ref.update(updates);
+    await batch.commit();
   }
 
-  /// Stream notifications with pagination
-  /// In Firebase RTDB, we can use limitToLast
-  Stream<List<NotificationModel>> streamNotifications({int limit = 20}) {
-    final ref = _databaseService.settingsRef.root.child(_path);
-    return ref.orderByChild('createdAt').limitToLast(limit).onValue.map((
-      event,
+  /// Stream notifications
+  Stream<List<NotificationModel>> streamNotifications(
+    String hotelId, {
+    int limit = 20,
+  }) {
+    return _notificationsRef(
+      hotelId,
+    ).orderBy('createdAt', descending: true).limit(limit).snapshots().map((
+      snapshot,
     ) {
-      if (event.snapshot.value == null) return <NotificationModel>[];
-      final dynamic value = event.snapshot.value;
-      final Map<dynamic, dynamic> data = (value is Map)
-          ? value
-          : (value is List ? value.asMap() : {});
-
-      final notifications = data.entries.map((e) {
-        final Map<String, dynamic> itemData = _databaseService.toMap(e.value);
-        return NotificationModel.fromJson(itemData);
+      return snapshot.docs.map((doc) {
+        return NotificationModel.fromJson(doc.data() as Map<String, dynamic>);
       }).toList();
-
-      // Sort by newest first (limitToLast gives us the latest but not necessarily ordered descending)
-      notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-      return notifications;
     });
   }
 
   /// Get more notifications (pagination)
-  Future<List<NotificationModel>> getNotifications({
+  Future<List<NotificationModel>> getNotifications(
+    String hotelId, {
     int limit = 10,
     DateTime? before,
   }) async {
-    final ref = _databaseService.settingsRef.root.child(_path);
-    Query query = ref.orderByChild('createdAt');
+    var query = _notificationsRef(
+      hotelId,
+    ).orderBy('createdAt', descending: true);
 
     if (before != null) {
-      query = query.endAt(before.toIso8601String()).limitToLast(limit + 1);
+      query = query.startAfter([before.toIso8601String()]).limit(limit);
     } else {
-      query = query.limitToLast(limit);
+      query = query.limit(limit);
     }
 
     final snapshot = await query.get();
-    if (snapshot.value == null) return <NotificationModel>[];
-
-    final dynamic value = snapshot.value;
-    final Map<dynamic, dynamic> data = (value is Map)
-        ? value
-        : (value is List ? value.asMap() : {});
-
-    var notifications = data.entries.map((e) {
-      final Map<String, dynamic> itemData = _databaseService.toMap(e.value);
-      return NotificationModel.fromJson(itemData);
+    return snapshot.docs.map((doc) {
+      return NotificationModel.fromJson(doc.data() as Map<String, dynamic>);
     }).toList();
-
-    notifications.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-    // If we used endAt, it includes the item at 'before', so we skip it if it's the same
-    if (before != null && notifications.isNotEmpty) {
-      if (notifications.first.createdAt == before) {
-        notifications.removeAt(0);
-      }
-    }
-
-    return notifications;
   }
 }

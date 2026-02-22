@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/widgets/add_customer_dialog.dart';
@@ -455,8 +457,8 @@ class _CustomerDetailDialog extends StatelessWidget {
                     Expanded(
                       child: TabBarView(
                         children: [
-                          _buildBillsList(db),
-                          _buildBookingsList(db),
+                          _buildBillsList(db, context),
+                          _buildBookingsList(db, context),
                           _buildLoyaltySection(),
                         ],
                       ),
@@ -540,9 +542,11 @@ class _CustomerDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildBillsList(DatabaseService db) {
+  Widget _buildBillsList(DatabaseService db, BuildContext context) {
+    final authState = context.read<AuthCubit>().state;
+    final hotelId = authState is AuthVerified ? authState.hotelId : 'default';
     return FutureBuilder<List<Bill>>(
-      future: db.getBillsByCustomerId(customer.id),
+      future: db.getBillsByCustomerId(hotelId, customer.id),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -602,9 +606,11 @@ class _CustomerDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildBookingsList(DatabaseService db) {
+  Widget _buildBookingsList(DatabaseService db, BuildContext context) {
+    final authState = context.read<AuthCubit>().state;
+    final hotelId = authState is AuthVerified ? authState.hotelId : 'default';
     return FutureBuilder<List<Booking>>(
-      future: db.getBookingsByCustomerId(customer.id),
+      future: db.getBookingsByCustomerId(hotelId, customer.id),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -713,8 +719,8 @@ class _CustomerDetailDialog extends StatelessWidget {
                   children: [
                     const Text('Member Since'),
                     Text(
-                      customer.createdAt != null
-                          ? DateFormat('MMM yyyy').format(customer.createdAt!)
+                      customer.createdOn != null
+                          ? DateFormat('MMM yyyy').format(customer.createdOn!)
                           : 'N/A',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),

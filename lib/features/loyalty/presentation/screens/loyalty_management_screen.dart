@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/loyalty/logic/loyalty_cubit.dart';
@@ -132,6 +133,7 @@ class _TierCard extends StatelessWidget {
                 value: tier.isActive,
                 onChanged: (val) {
                   final updated = LoyaltyTier(
+                    hotelId: tier.hotelId,
                     id: tier.id,
                     name: tier.name,
                     minSpend: tier.minSpend,
@@ -211,6 +213,7 @@ class _RulesSection extends StatelessWidget {
                     value: rule.isActive,
                     onChanged: (val) {
                       final updated = PointRule(
+                        hotelId: rule.hotelId,
                         id: rule.id,
                         earnType: rule.earnType,
                         earnValue: rule.earnValue,
@@ -334,6 +337,7 @@ class _TierFormDialogState extends State<_TierFormDialog> {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               final val = _formKey.currentState!.value;
               final newTier = LoyaltyTier(
+                hotelId: context.hotelId,
                 id:
                     widget.tier?.id ??
                     'tier_${DateTime.now().millisecondsSinceEpoch}',
@@ -374,7 +378,7 @@ class _RuleFormDialogState extends State<_RuleFormDialog> {
         child: FormBuilder(
           key: _formKey,
           initialValue: {
-            'earnType': widget.rule?.earnType ?? PointEarnType.bill_amount,
+            'earnType': widget.rule?.earnType ?? PointEarnType.billAmount,
             'earnValue': widget.rule?.earnValue.toString() ?? '1',
             'minBillAmount': widget.rule?.minBillAmount.toString() ?? '0',
           },
@@ -424,6 +428,7 @@ class _RuleFormDialogState extends State<_RuleFormDialog> {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               final val = _formKey.currentState!.value;
               final newRule = PointRule(
+                hotelId: context.hotelId,
                 id:
                     widget.rule?.id ??
                     'rule_${DateTime.now().millisecondsSinceEpoch}',

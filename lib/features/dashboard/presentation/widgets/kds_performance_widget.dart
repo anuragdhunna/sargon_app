@@ -104,7 +104,7 @@ class KdsPerformanceWidget extends StatelessWidget {
       for (var item in order.items) {
         if (item.firedAt != null && item.kdsStatus == KdsStatus.served) {
           totalItems++;
-          final servedAt = order.updatedAt ?? DateTime.now();
+          final servedAt = order.updatedAt;
           final prepTime = servedAt.difference(item.firedAt!).inMinutes;
           totalPrepTime += prepTime;
           if (prepTime <= item.expectedPrepTimeMinutes) {
@@ -140,7 +140,7 @@ class _MiniMetric extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: color.withOpacity(0.7), size: 20),
+        Icon(icon, color: color.withValues(alpha: 0.7), size: 20),
         const SizedBox(height: 4),
         Text(
           value,

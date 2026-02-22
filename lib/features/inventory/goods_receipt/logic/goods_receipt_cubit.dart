@@ -15,17 +15,15 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
     IAuditService? auditService,
   }) : _repository = repository ?? InventoryRepository(),
        _auditService = auditService ?? AuditService(),
-       super(GoodsReceiptInitial()) {
-    loadGoodsReceipts();
-  }
+       super(GoodsReceiptInitial());
 
   final _uuid = const Uuid();
   final List<GoodsReceiptNote> _receipts = [];
 
-  Future<void> loadGoodsReceipts() async {
+  Future<void> loadGoodsReceipts(String hotelId) async {
     emit(GoodsReceiptLoading());
     try {
-      final receipts = await _repository.getGoodsReceipts();
+      final receipts = await _repository.getGoodsReceipts(hotelId);
       _receipts.clear();
       _receipts.addAll(receipts);
       emit(GoodsReceiptLoaded(List.from(_receipts)));
@@ -47,6 +45,7 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
     String? goodsImagePath,
     String? invoiceNumber,
     String? notes,
+    required String hotelId,
     required String userId,
     required String userName,
     required String userRole,
@@ -62,6 +61,7 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
           .padLeft(13, '0');
 
       final grn = GoodsReceiptNote(
+        hotelId: hotelId,
         id: _uuid.v4(),
         grnNumber: grnNumber,
         purchaseOrderId: purchaseOrderId,
@@ -87,6 +87,7 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
       // Update inventory stock
       for (var item in lineItems) {
         await inventoryCubit.receiveStock(
+          hotelId: hotelId,
           inventoryItemId: item.inventoryItemId,
           quantity: item.quantityReceived,
           grnNumber: grn.grnNumber,
@@ -108,6 +109,7 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
       }
 
       _auditService.log(
+        hotelId: hotelId,
         userId: userId,
         userName: userName,
         userRole: userRole,

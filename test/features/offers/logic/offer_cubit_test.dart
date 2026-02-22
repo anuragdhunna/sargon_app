@@ -26,10 +26,10 @@ void main() {
 
     // Default mock behavior
     when(
-      () => offerRepository.watchOffers(),
+      () => offerRepository.watchOffers(any()),
     ).thenAnswer((_) => Stream.value([]));
     when(
-      () => offerRepository.watchHappyHours(),
+      () => offerRepository.watchHappyHours(any()),
     ).thenAnswer((_) => Stream.value([]));
 
     offerCubit = OfferCubit(offerRepository: offerRepository);
@@ -48,14 +48,14 @@ void main() {
       'loadOffers emits OfferLoading and OfferLoaded',
       build: () {
         when(
-          () => offerRepository.watchOffers(),
+          () => offerRepository.watchOffers(any()),
         ).thenAnswer((_) => Stream.value([]));
         when(
-          () => offerRepository.watchHappyHours(),
+          () => offerRepository.watchHappyHours(any()),
         ).thenAnswer((_) => Stream.value([]));
         return offerCubit;
       },
-      act: (cubit) => cubit.loadOffers(),
+      act: (cubit) => cubit.loadOffers('hotel1'),
       expect: () => [isA<OfferLoading>(), isA<OfferLoaded>()],
     );
 
@@ -66,8 +66,9 @@ void main() {
         return offerCubit;
       },
       act: (cubit) => cubit.saveOffer(
-        const Offer(
+        Offer(
           id: '1',
+          hotelId: 'test-hotel',
           name: 'Test',
           offerType: OfferType.bill,
           discountType: DiscountType.percent,
@@ -88,8 +89,9 @@ void main() {
         return offerCubit;
       },
       act: (cubit) => cubit.saveHappyHour(
-        const HappyHour(
+        HappyHour(
           id: '1',
+          hotelId: 'test-hotel',
           name: 'Test HH',
           applicableDays: ['Monday'],
           startTime: '10:00',

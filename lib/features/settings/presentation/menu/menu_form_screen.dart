@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hotel_manager/core/models/menu_item_model.dart';
 import 'dart:io';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:hotel_manager/core/models/restaurant_models.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
@@ -14,12 +14,14 @@ import 'package:uuid/uuid.dart';
 import 'package:hotel_manager/core/services/storage/image_storage_service.dart';
 
 class MenuFormScreen extends StatefulWidget {
+  final String hotelId;
   final MenuItem? existingItem; // null = create mode
   final Future<void> Function(MenuItem) onSave;
   final ImageStorageService? storageService;
 
   const MenuFormScreen({
     super.key,
+    required this.hotelId,
     this.existingItem,
     required this.onSave,
     this.storageService,
@@ -114,6 +116,7 @@ class _MenuFormScreenState extends State<MenuFormScreen> {
         }
 
         final item = MenuItem(
+          hotelId: widget.hotelId,
           id: widget.existingItem?.id ?? const Uuid().v4(),
           name: _nameController.text,
           description: _descController.text,

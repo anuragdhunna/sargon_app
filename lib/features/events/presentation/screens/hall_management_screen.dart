@@ -5,6 +5,7 @@ import '../../../../component/buttons/premium_button.dart';
 import '../../../../component/cards/app_card.dart';
 import '../../../../component/inputs/app_text_field.dart';
 import '../../../../core/models/event_models.dart';
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import '../../logic/event_cubit.dart';
 
 class HallManagementScreen extends StatefulWidget {
@@ -20,10 +21,8 @@ class _HallManagementScreenState extends State<HallManagementScreen> {
   @override
   void initState() {
     super.initState();
-    // context.read<EventCubit>().streamHalls(); // Keep streams for real-time if needed, but user asked for fetch
-    // context.read<EventCubit>().streamHallFeatures();
-    context.read<EventCubit>().fetchHalls();
-    context.read<EventCubit>().fetchHallFeatures();
+    context.read<EventCubit>().streamHalls();
+    context.read<EventCubit>().streamHallFeatures();
   }
 
   @override
@@ -352,6 +351,7 @@ class _HallDialogState extends State<_HallDialog> {
               id:
                   widget.hall?.id ??
                   context.read<EventCubit>().repository.nextId('halls'),
+              hotelId: widget.hall?.hotelId ?? context.hotelId,
               name: _nameController.text,
               capacity: int.tryParse(_capacityController.text) ?? 0,
               description: _descController.text,
@@ -444,6 +444,7 @@ class _FeatureDialogState extends State<_FeatureDialog> {
               id:
                   widget.feature?.id ??
                   context.read<EventCubit>().repository.nextId('hall_features'),
+              hotelId: widget.feature?.hotelId ?? context.hotelId,
               name: _nameController.text,
               description: _descController.text,
               iconCode: _selectedIconCode,

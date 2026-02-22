@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../logic/notification_cubit.dart';
 import '../logic/notification_state.dart';
+import '../../../features/auth/logic/auth_cubit.dart';
+import '../../../features/auth/logic/auth_state.dart';
 import '../../../core/models/notification_model.dart';
 import '../../../theme/app_design.dart';
 import '../../../component/states/empty_state.dart';
@@ -49,7 +51,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
           IconButton(
             icon: const Icon(Icons.done_all),
             tooltip: 'Mark all as read',
-            onPressed: () => context.read<NotificationCubit>().markAllAsRead(),
+            onPressed: () {
+              final authState = context.read<AuthCubit>().state;
+              if (authState is AuthVerified) {
+                context.read<NotificationCubit>().markAllAsRead(
+                  authState.hotelId,
+                );
+              }
+            },
           ),
         ],
       ),
@@ -76,9 +85,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              await context.read<NotificationCubit>().fetchNotifications(
-                refresh: true,
-              );
+              final authState = context.read<AuthCubit>().state;
+              if (authState is AuthVerified) {
+                await context.read<NotificationCubit>().fetchNotifications(
+                  authState.hotelId,
+                  refresh: true,
+                );
+              }
             },
             child: ListView.separated(
               controller: _scrollController,
@@ -117,7 +130,13 @@ class _NotificationItem extends StatelessWidget {
 
     return AppCard(
       onTap: () {
-        context.read<NotificationCubit>().markAsRead(notification.id);
+        final authState = context.read<AuthCubit>().state;
+        if (authState is AuthVerified) {
+          context.read<NotificationCubit>().markAsRead(
+            authState.hotelId,
+            notification.id,
+          );
+        }
         if (notification.targetRoute != null) {
           // Navigator.pushNamed(context, notification.targetRoute!);
           // Using GoRouter or similar if available, or basic Navigator

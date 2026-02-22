@@ -11,6 +11,7 @@ void main() {
     setUp(() {
       mockTaxRule = const TaxRule(
         id: 'gst_5',
+        hotelId: 'test_hotel',
         name: 'GST 5%',
         cgstPercent: 2.5,
         sgstPercent: 2.5,
@@ -18,6 +19,7 @@ void main() {
 
       mockScRule = const ServiceChargeRule(
         id: 'sc_10',
+        hotelId: 'test_hotel',
         name: 'SC 10%',
         percent: 10.0,
       );
@@ -25,6 +27,7 @@ void main() {
       mockOrders = [
         Order(
           id: 'o1',
+          hotelId: 'test_hotel',
           tableId: 't1',
           tableNumber: '1',
           items: [
@@ -47,7 +50,7 @@ void main() {
               discountType: DiscountType.flat,
             ),
           ],
-          timestamp: DateTime.now(),
+          openedAt: DateTime.now(),
           status: OrderStatus.served,
           paymentStatus: PaymentStatus.pending,
         ),
@@ -88,6 +91,7 @@ void main() {
       final manualDiscount = [
         const Offer(
           id: 'off1',
+          hotelId: 'test_hotel',
           name: '10% Off Bill',
           offerType: OfferType.bill,
           discountType: DiscountType.percent,
@@ -125,6 +129,7 @@ void main() {
       final manualDiscount = [
         const Offer(
           id: 'off1',
+          hotelId: 'test_hotel',
           name: '₹10 Flat',
           offerType: OfferType.bill,
           discountType: DiscountType.flat,

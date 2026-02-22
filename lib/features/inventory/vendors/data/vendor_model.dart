@@ -6,4 +6,4 @@
 /// @deprecated Use 'package:hotel_manager/core/models/vendor_model.dart' instead.
 library;
 
-export 'package:hotel_manager/core/models/vendor_model.dart';
+export 'package:hotel_manager/core/models/inventory_models.dart';

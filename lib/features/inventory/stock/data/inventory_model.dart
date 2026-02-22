@@ -5,5 +5,3 @@
 ///
 /// @deprecated Use 'package:hotel_manager/core/models/inventory_item_model.dart' instead.
 library;
-
-export 'package:hotel_manager/core/models/inventory_item_model.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotel_manager/core/models/menu_item_model.dart';
+import 'package:hotel_manager/core/models/restaurant_models.dart';
 import 'package:hotel_manager/features/settings/data/repositories/settings_repository.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
@@ -24,7 +24,9 @@ class MenuManagementScreen extends StatelessWidget {
             _buildHeader(context, 'Menu Items', () => _navigateToForm(context)),
             const SizedBox(height: 16),
             StreamBuilder<List<MenuItem>>(
-              stream: context.read<SettingsRepository>().streamMenuItems(),
+              stream: context.read<SettingsRepository>().streamMenuItems(
+                (context.read<AuthCubit>().state as AuthVerified).hotelId,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -151,6 +153,7 @@ class MenuManagementScreen extends StatelessWidget {
           item.id,
           userId,
           userName,
+          item.hotelId,
         );
       } catch (e) {
         if (context.mounted) {
@@ -177,26 +180,33 @@ class MenuManagementScreen extends StatelessWidget {
   }
 
   void _navigateToForm(BuildContext context, [MenuItem? item]) {
+    final authState = context.read<AuthCubit>().state;
+
+    if (authState is! AuthVerified) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Authentication required to manage menu items'),
+        ),
+      );
+      return;
+    }
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => RepositoryProvider.value(
           value: context.read<SettingsRepository>(),
           child: MenuFormScreen(
+            hotelId: authState.hotelId,
             existingItem: item,
             onSave: (savedItem) async {
               final authState = context.read<AuthCubit>().state;
-              String userId = 'unknown';
-              String userName = 'Unknown User';
-
-              if (authState is AuthVerified) {
-                userId = authState.userId;
-                userName = authState.userName;
-              }
+              if (authState is! AuthVerified) return;
 
               await context.read<SettingsRepository>().saveMenuItem(
                 savedItem,
-                userId,
-                userName,
+                authState.userId,
+                authState.userName,
+                authState.hotelId,
               );
             },
           ),

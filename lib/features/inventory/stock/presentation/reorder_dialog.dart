@@ -126,6 +126,7 @@ class _ReorderDialogState extends State<ReorderDialog> {
       userId: authState.userId,
       userName: authState.userName,
       userRole: authState.role.name,
+      hotelId: authState.hotelId,
       notes: 'Auto-generated reorder for low stock items',
     );
 

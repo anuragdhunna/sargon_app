@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import '../models/user_model.dart';
 
@@ -25,11 +25,11 @@ class AuthResult {
 /// using Firebase Authentication's createUserWithEmailAndPassword method.
 class AuthService {
   final fb.FirebaseAuth _auth;
-  final DatabaseReference _usersRef;
+  final CollectionReference _usersRef;
 
-  AuthService({fb.FirebaseAuth? auth, DatabaseReference? usersRef})
+  AuthService({fb.FirebaseAuth? auth, CollectionReference? usersRef})
     : _auth = auth ?? fb.FirebaseAuth.instance,
-      _usersRef = usersRef ?? FirebaseDatabase.instance.ref('users');
+      _usersRef = usersRef ?? FirebaseFirestore.instance.collection('users');
 
   /// Get current Firebase user
   fb.User? get currentFirebaseUser => _auth.currentUser;
@@ -47,6 +47,7 @@ class AuthService {
   ///
   /// Creates a Firebase Auth account and stores user profile in Realtime Database.
   Future<AuthResult> registerWithEmailPassword({
+    required String hotelId,
     required String email,
     required String password,
     required String name,
@@ -71,15 +72,16 @@ class AuthService {
       // Create user profile in Realtime Database
       final user = User(
         id: firebaseUser.uid,
+        hotelId: hotelId,
         email: email,
         name: name,
         phoneNumber: phoneNumber,
         role: role,
         status: UserStatus.active,
-        createdAt: DateTime.now(),
+        createdOn: DateTime.now(),
       );
 
-      await _usersRef.child(firebaseUser.uid).set(user.toJson());
+      await _usersRef.doc(firebaseUser.uid).set(user.toJson());
 
       debugPrint('✅ User registered: ${user.name} (${user.role.name})');
       return AuthResult.success(user);
@@ -109,11 +111,11 @@ class AuthService {
         return AuthResult.error('Failed to sign in');
       }
 
-      // Fetch user profile from Realtime Database
-      final snapshot = await _usersRef.child(firebaseUser.uid).get();
+      // Fetch user profile from Firestore
+      final doc = await _usersRef.doc(firebaseUser.uid).get();
 
       User user;
-      if (!snapshot.exists) {
+      if (!doc.exists) {
         // Profile doesn't exist - auto-create one
         // This handles manually created Firebase Auth accounts
         debugPrint('ℹ️ Profile not found, creating one for: $email');
@@ -123,19 +125,20 @@ class AuthService {
 
         user = User(
           id: firebaseUser.uid,
+          hotelId: 'unknown', // Fallback for auto-created profiles
           email: email,
           name: firebaseUser.displayName ?? email.split('@').first,
           phoneNumber: firebaseUser.phoneNumber ?? '',
           role: role,
           status: UserStatus.active,
-          createdAt: DateTime.now(),
+          createdOn: DateTime.now(),
         );
 
         // Save profile to database
-        await _usersRef.child(firebaseUser.uid).set(user.toJson());
+        await _usersRef.doc(firebaseUser.uid).set(user.toJson());
         debugPrint('✅ Profile created for: ${user.name} (${user.role.name})');
       } else {
-        final userData = Map<String, dynamic>.from(snapshot.value as Map);
+        final userData = doc.data() as Map<String, dynamic>;
         user = User.fromJson(userData);
       }
 
@@ -174,10 +177,10 @@ class AuthService {
     if (userId == null) return null;
 
     try {
-      final snapshot = await _usersRef.child(userId).get();
-      if (!snapshot.exists) return null;
+      final doc = await _usersRef.doc(userId).get();
+      if (!doc.exists) return null;
 
-      final userData = Map<String, dynamic>.from(snapshot.value as Map);
+      final userData = doc.data() as Map<String, dynamic>;
       return User.fromJson(userData);
     } catch (e) {
       debugPrint('❌ Error fetching user profile: $e');
@@ -188,7 +191,7 @@ class AuthService {
   /// Update user profile
   Future<bool> updateUserProfile(User user) async {
     try {
-      await _usersRef.child(user.id).update(user.toJson());
+      await _usersRef.doc(user.id).update(user.toJson());
       debugPrint('✅ User profile updated: ${user.name}');
       return true;
     } catch (e) {
@@ -225,8 +228,8 @@ class AuthService {
       final user = _auth.currentUser;
       if (user == null) return false;
 
-      // Delete user data from database
-      await _usersRef.child(user.uid).remove();
+      // Delete user data from Firestore
+      await _usersRef.doc(user.uid).delete();
 
       // Delete Firebase Auth account
       await user.delete();
@@ -247,6 +250,7 @@ class AuthService {
   /// in production. For now, we create the account in the database and
   /// the user can sign in with the default password.
   Future<AuthResult> createStaffAccount({
+    required String hotelId,
     required String email,
     required String name,
     required String phoneNumber,
@@ -284,15 +288,16 @@ class AuthService {
       // Create user profile in Realtime Database using primary database reference
       final user = User(
         id: firebaseUser.uid,
+        hotelId: hotelId,
         email: email,
         name: name,
         phoneNumber: phoneNumber,
         role: role,
         status: UserStatus.active,
-        createdAt: DateTime.now(),
+        createdOn: DateTime.now(),
       );
 
-      await _usersRef.child(firebaseUser.uid).set(user.toJson());
+      await _usersRef.doc(firebaseUser.uid).set(user.toJson());
 
       // Sign out the newly created user in the secondary app instance
       await secondaryAuth.signOut();
@@ -319,7 +324,7 @@ class AuthService {
   /// Should be called during initial app setup.
   static Future<void> seedDefaultAccounts() async {
     final auth = fb.FirebaseAuth.instance;
-    final usersRef = FirebaseDatabase.instance.ref('users');
+    final usersRef = FirebaseFirestore.instance.collection('users');
 
     final defaultAccounts = [
       {
@@ -360,15 +365,17 @@ class AuthService {
 
           final user = User(
             id: firebaseUser.uid,
+            hotelId:
+                'persona_hotel', // Seed accounts are for the persona tenant
             email: account['email'] as String,
             name: account['name'] as String,
             phoneNumber: '',
             role: account['role'] as UserRole,
             status: UserStatus.active,
-            createdAt: DateTime.now(),
+            createdOn: DateTime.now(),
           );
 
-          await usersRef.child(firebaseUser.uid).set(user.toJson());
+          await usersRef.doc(firebaseUser.uid).set(user.toJson());
           debugPrint('✅ Created default account: ${account['email']}');
         }
 

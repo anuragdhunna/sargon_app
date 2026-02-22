@@ -1,41 +1,39 @@
 /// Import this single file to access any model in the codebase.
-///
+/// Consolidated domain models for multi-tenancy support.
 library;
+
+// Base & Common
+export 'base_entity.dart';
+export 'audit_log.dart';
+export 'payment_models.dart';
+export 'app_settings_model.dart';
+export 'hotel_model.dart';
 
 // User & Auth
 export 'user_model.dart';
-export 'app_settings_model.dart';
+export 'notification_model.dart';
 
-// Orders, Billing & Menu
-export 'order_model.dart';
+// Dining & Restaurant (Consolidated)
+export 'ordering_models.dart';
+export 'restaurant_models.dart';
+export 'recipe_model.dart';
+
+// CRM & Promotions (Consolidated)
+export 'crm_models.dart';
+export 'promotion_models.dart';
+
+// Billing
 export 'billing_models.dart';
-export 'menu_item_model.dart';
-export 'payment_models.dart';
-export 'table_model.dart';
 
 // Rooms & Bookings
 export 'room_model.dart';
 export 'booking_model.dart';
-export 'customer_model.dart';
 
-// Inventory
-export 'inventory_item_model.dart';
-export 'vendor_model.dart';
-export 'purchase_order_model.dart';
-export 'goods_receipt_model.dart';
+// Operations & Inventory
+export 'inventory_models.dart';
+export 'purchase_models.dart';
+export 'operations_models.dart';
+export 'hr_models.dart';
 
-// Operations
-export 'checklist_model.dart';
-export 'incident_model.dart';
-export 'attendance_model.dart';
-export 'audit_log.dart';
-export 'notification_model.dart';
-
-// Performance
-export 'performance_model.dart';
-
-// Offers & Loyalty
-export 'offer_model.dart';
-export 'loyalty_model.dart';
-export 'happy_hour_model.dart';
+// Events
 export 'event_models.dart';

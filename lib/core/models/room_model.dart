@@ -86,6 +86,7 @@ class Room extends BaseEntity {
 
   const Room({
     required super.id,
+    required super.hotelId,
     required this.roomNumber,
     required this.type,
     required this.status,
@@ -114,6 +115,7 @@ class Room extends BaseEntity {
 
   Room copyWith({
     String? id,
+    String? hotelId,
     String? roomNumber,
     RoomType? type,
     RoomStatus? status,
@@ -124,6 +126,7 @@ class Room extends BaseEntity {
   }) {
     return Room(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       roomNumber: roomNumber ?? this.roomNumber,
       type: type ?? this.type,
       status: status ?? this.status,
@@ -140,6 +143,7 @@ class Room extends BaseEntity {
   }
 
   /// Convert to JSON for Firebase
+  @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toAuditJson(),
@@ -158,6 +162,7 @@ class Room extends BaseEntity {
   factory Room.fromJson(Map<String, dynamic> json) {
     return Room(
       id: json['id'] as String,
+      hotelId: json['hotelId'] as String? ?? 'default',
       roomNumber: json['roomNumber'] as String,
       type: RoomType.values.firstWhere(
         (e) => e.name == json['type'],

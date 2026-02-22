@@ -1,8 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hotel_manager/core/models/audit_log.dart';
+import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/core/services/audit_service.dart';
-import 'package:hotel_manager/features/incidents/data/incident_model.dart';
+import 'dart:async';
 
 // States
 abstract class IncidentState extends Equatable {
@@ -12,7 +13,9 @@ abstract class IncidentState extends Equatable {
 }
 
 class IncidentInitial extends IncidentState {}
+
 class IncidentLoading extends IncidentState {}
+
 class IncidentLoaded extends IncidentState {
   final List<Incident> incidents;
   const IncidentLoaded(this.incidents);
@@ -22,44 +25,39 @@ class IncidentLoaded extends IncidentState {
 
 // Cubit
 class IncidentCubit extends Cubit<IncidentState> {
-  IncidentCubit() : super(IncidentInitial()) {
-    loadIncidents();
-  }
+  final DatabaseService _databaseService;
+  StreamSubscription? _incidentsSubscription;
 
-  final List<Incident> _mockIncidents = [
-    Incident(
-      id: '1',
-      title: 'AC Not Cooling',
-      description: 'Guest in Room 302 complained about AC.',
-      reportedBy: 'Front Desk',
-      timestamp: DateTime.now().subtract(const Duration(hours: 2)),
-      priority: IncidentPriority.high,
-      status: IncidentStatus.open,
-      location: 'Room 302',
-    ),
-    Incident(
-      id: '2',
-      title: 'Leaking Tap',
-      description: 'Lobby washroom tap is leaking.',
-      reportedBy: 'Housekeeping',
-      timestamp: DateTime.now().subtract(const Duration(days: 1)),
-      priority: IncidentPriority.low,
-      status: IncidentStatus.resolved,
-      location: 'Lobby Washroom',
-    ),
-  ];
+  IncidentCubit({required DatabaseService databaseService})
+    : _databaseService = databaseService,
+      super(IncidentInitial());
 
-  void loadIncidents() async {
+  void loadIncidents(String hotelId) {
     emit(IncidentLoading());
-    await Future.delayed(const Duration(seconds: 1));
-    emit(IncidentLoaded(List.from(_mockIncidents)));
+    _incidentsSubscription?.cancel();
+    _incidentsSubscription = _databaseService
+        .streamIncidents(hotelId)
+        .listen(
+          (incidents) {
+            emit(IncidentLoaded(incidents));
+          },
+          onError: (error) {
+            emit(IncidentError(error.toString()));
+          },
+        );
   }
 
-  void reportIncident(Incident incident, {required String userId, required String userName, required String userRole}) {
-    _mockIncidents.insert(0, incident);
-    emit(IncidentLoaded(List.from(_mockIncidents)));
-    
+  Future<void> reportIncident(
+    Incident incident, {
+    required String userId,
+    required String userName,
+    required String userRole,
+    required String hotelId,
+  }) async {
+    await _databaseService.saveIncident(incident);
+
     AuditService().log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: userRole,
@@ -67,25 +65,49 @@ class IncidentCubit extends Cubit<IncidentState> {
       entity: 'incident',
       entityId: incident.id,
       description: 'Reported incident: ${incident.title}',
-      metadata: {'priority': incident.priority.name, 'location': incident.location},
+      metadata: {
+        'priority': incident.priority.name,
+        'location': incident.location,
+      },
     );
   }
 
-  void resolveIncident(String id, {required String userId, required String userName, required String userRole}) {
-    final index = _mockIncidents.indexWhere((i) => i.id == id);
-    if (index != -1) {
-      _mockIncidents[index] = _mockIncidents[index].copyWith(status: IncidentStatus.resolved);
-      emit(IncidentLoaded(List.from(_mockIncidents)));
-      
-      AuditService().log(
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
-        action: AuditAction.update,
-        entity: 'incident',
-        entityId: id,
-        description: 'Resolved incident: ${_mockIncidents[index].title}',
-      );
-    }
+  Future<void> resolveIncident(
+    String id, {
+    required String userId,
+    required String userName,
+    required String userRole,
+    required String hotelId,
+  }) async {
+    await _databaseService.updateIncidentStatus(
+      hotelId,
+      id,
+      IncidentStatus.resolved.name,
+    );
+
+    AuditService().log(
+      hotelId: hotelId,
+      userId: userId,
+      userName: userName,
+      userRole: userRole,
+      action: AuditAction.update,
+      entity: 'incident',
+      entityId: id,
+      description: 'Resolved incident: $id',
+    );
   }
+
+  @override
+  Future<void> close() {
+    _incidentsSubscription?.cancel();
+    return super.close();
+  }
+}
+
+// Error state
+class IncidentError extends IncidentState {
+  final String message;
+  const IncidentError(this.message);
+  @override
+  List<Object?> get props => [message];
 }

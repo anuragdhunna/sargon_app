@@ -1,21 +1,23 @@
 part of '../database_service.dart';
 
 extension DatabaseAudit on DatabaseService {
-  DatabaseReference get auditLogsRef => _ref('auditLogs');
+  CollectionReference _auditLogsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('audit_logs');
 
   /// Stream audit logs
-  Stream<List<AuditLog>> streamAuditLogs() {
-    return auditLogsRef.onValue.map((event) {
-      if (event.snapshot.value == null) return [];
-      final data = _toMap(event.snapshot.value);
-      return data.entries
-          .map((e) => AuditLog.fromJson(_toMap(e.value)))
-          .toList();
+  Stream<List<AuditLog>> streamAuditLogs(String hotelId) {
+    return _auditLogsRef(
+      hotelId,
+    ).orderBy('timestamp', descending: true).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return AuditLog.fromJson(data);
+      }).toList();
     });
   }
 
   /// Save an audit log
   Future<void> saveAuditLog(AuditLog log) async {
-    await auditLogsRef.child(log.id).set(log.toJson());
+    await _auditLogsRef(log.hotelId).doc(log.id).set(log.toJson());
   }
 }

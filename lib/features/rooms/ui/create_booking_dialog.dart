@@ -601,6 +601,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
         // Create new customer for new booking
         final newCustomerId = 'cust_${DateTime.now().millisecondsSinceEpoch}';
         final newCustomer = Customer(
+          hotelId: widget.room.hotelId,
           id: newCustomerId,
           name: data['guestName'],
           phone: data['guestPhone'],
@@ -613,6 +614,7 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
       }
 
       await context.read<RoomCubit>().createBooking(
+        hotelId: widget.room.hotelId,
         roomId: widget.room.id,
         guestName: data['guestName'],
         guestPhone: data['guestPhone'],

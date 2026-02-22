@@ -66,8 +66,14 @@ class ChecklistListScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text('Error: ${state.message}'),
                   TextButton(
-                    onPressed: () =>
-                        context.read<ChecklistCubit>().loadChecklists(),
+                    onPressed: () {
+                      final authState = context.read<AuthCubit>().state;
+                      if (authState is AuthVerified) {
+                        context.read<ChecklistCubit>().loadChecklists(
+                          authState.hotelId,
+                        );
+                      }
+                    },
                     child: const Text('Retry'),
                   ),
                 ],
@@ -122,7 +128,9 @@ class _ChecklistCard extends StatelessWidget {
                   ),
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
-                  backgroundColor: AppDesign.primaryStart.withOpacity(0.1),
+                  backgroundColor: AppDesign.primaryStart.withValues(
+                    alpha: 0.1,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -230,6 +238,7 @@ class _ChecklistCard extends StatelessWidget {
                               return;
                             }
                             context.read<ChecklistCubit>().toggleItem(
+                              checklist.hotelId,
                               checklist.id,
                               item.id,
                               reason: reason,
@@ -247,6 +256,7 @@ class _ChecklistCard extends StatelessWidget {
               } else {
                 // Normal completion or unchecking
                 context.read<ChecklistCubit>().toggleItem(
+                  checklist.hotelId,
                   checklist.id,
                   item.id,
                   userId: authState.userId,

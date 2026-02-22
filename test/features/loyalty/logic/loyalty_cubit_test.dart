@@ -26,10 +26,10 @@ void main() {
 
     // Default mock behavior
     when(
-      () => loyaltyRepository.watchLoyaltyTiers(),
+      () => loyaltyRepository.watchLoyaltyTiers(any()),
     ).thenAnswer((_) => Stream.value([]));
     when(
-      () => loyaltyRepository.watchPointRules(),
+      () => loyaltyRepository.watchPointRules(any()),
     ).thenAnswer((_) => Stream.value([]));
 
     loyaltyCubit = LoyaltyCubit(loyaltyRepository: loyaltyRepository);
@@ -48,14 +48,14 @@ void main() {
       'loadLoyaltyData emits LoyaltyLoading and LoyaltyLoaded',
       build: () {
         when(
-          () => loyaltyRepository.watchLoyaltyTiers(),
+          () => loyaltyRepository.watchLoyaltyTiers(any()),
         ).thenAnswer((_) => Stream.value([]));
         when(
-          () => loyaltyRepository.watchPointRules(),
+          () => loyaltyRepository.watchPointRules(any()),
         ).thenAnswer((_) => Stream.value([]));
         return loyaltyCubit;
       },
-      act: (cubit) => cubit.loadLoyaltyData(),
+      act: (cubit) => cubit.loadLoyaltyData('hotel1'),
       expect: () => [isA<LoyaltyLoading>(), isA<LoyaltyLoaded>()],
     );
 
@@ -68,8 +68,9 @@ void main() {
         return loyaltyCubit;
       },
       act: (cubit) => cubit.saveTier(
-        const LoyaltyTier(
+        LoyaltyTier(
           id: '1',
+          hotelId: 'test-hotel',
           name: 'Silver',
           minSpend: 1000,
           earnMultiplier: 1.0,
@@ -89,9 +90,10 @@ void main() {
         return loyaltyCubit;
       },
       act: (cubit) => cubit.saveRule(
-        const PointRule(
+        PointRule(
           id: '1',
-          earnType: PointEarnType.bill_amount,
+          hotelId: 'test-hotel',
+          earnType: PointEarnType.billAmount,
           earnValue: 1,
         ),
       ),

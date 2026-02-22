@@ -16,18 +16,22 @@ class OfferCubit extends Cubit<OfferState> {
     : _offerRepository = offerRepository,
       super(OfferInitial());
 
-  void loadOffers() {
+  void loadOffers(String hotelId) {
     emit(OfferLoading());
 
     _offersSubscription?.cancel();
     _hhSubscription?.cancel();
 
-    _offersSubscription = _offerRepository.watchOffers().listen((offers) {
+    _offersSubscription = _offerRepository.watchOffers(hotelId).listen((
+      offers,
+    ) {
       _currentOffers = offers;
       _emitLoaded();
     }, onError: (e) => emit(OfferError(e.toString())));
 
-    _hhSubscription = _offerRepository.watchHappyHours().listen((happyHours) {
+    _hhSubscription = _offerRepository.watchHappyHours(hotelId).listen((
+      happyHours,
+    ) {
       _currentHappyHours = happyHours;
       _emitLoaded();
     }, onError: (e) => emit(OfferError(e.toString())));

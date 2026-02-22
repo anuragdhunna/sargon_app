@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
-import 'package:hotel_manager/core/models/order_model.dart' as model;
+import 'package:hotel_manager/core/models/ordering_models.dart' as model;
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
 
@@ -70,11 +70,11 @@ class SeasonalTrendsWidget extends StatelessWidget {
     };
 
     for (var order in orders) {
-      final season = _getSeason(order.timestamp);
+      final season = _getSeason(order.createdOn ?? DateTime.now());
       for (var item in order.items) {
         final itemName = item.name;
         seasonMap[season]![itemName] =
-            (seasonMap[season]![itemName] ?? 0) + item.quantity;
+            (seasonMap[season]![itemName] ?? 0) + item.quantity.toInt();
       }
     }
 

@@ -189,6 +189,7 @@ class _GoodsReceivingScreenState extends State<GoodsReceivingScreen> {
           ? _invoiceNumberController.text
           : null,
       notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+      hotelId: authState.hotelId,
       userId: authState.userId,
       userName: authState.userName,
       userRole: authState.role.name,

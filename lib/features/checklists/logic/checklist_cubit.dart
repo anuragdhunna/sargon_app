@@ -30,21 +30,21 @@ class ChecklistCubit extends Cubit<ChecklistState> {
 
   ChecklistCubit({required DatabaseService databaseService})
     : _databaseService = databaseService,
-      super(ChecklistInitial()) {
-    loadChecklists();
-  }
+      super(ChecklistInitial());
 
-  void loadChecklists() {
+  void loadChecklists(String hotelId) {
     emit(ChecklistLoading());
     _checklistsSubscription?.cancel();
-    _checklistsSubscription = _databaseService.streamChecklists().listen(
-      (checklists) {
-        emit(ChecklistLoaded(checklists));
-      },
-      onError: (error) {
-        emit(ChecklistError(error.toString()));
-      },
-    );
+    _checklistsSubscription = _databaseService
+        .streamChecklists(hotelId)
+        .listen(
+          (checklists) {
+            emit(ChecklistLoaded(checklists));
+          },
+          onError: (error) {
+            emit(ChecklistError(error.toString()));
+          },
+        );
   }
 
   Future<void> addChecklist(Checklist checklist) async {
@@ -56,6 +56,7 @@ class ChecklistCubit extends Cubit<ChecklistState> {
   }
 
   Future<void> toggleItem(
+    String hotelId,
     String checklistId,
     String itemId, {
     String? reason,
@@ -75,6 +76,7 @@ class ChecklistCubit extends Cubit<ChecklistState> {
 
         // Audit log for task completion
         AuditService().log(
+          hotelId: checklist.hotelId,
           userId: userId,
           userName: userName,
           userRole: userRole.name,
@@ -117,6 +119,7 @@ class ChecklistCubit extends Cubit<ChecklistState> {
         final String? roomId = checklist.metadata!['roomId'];
         if (tableId != null) {
           await _databaseService.updateTableStatus(
+            hotelId,
             tableId,
             TableStatus.available,
           );
@@ -130,10 +133,12 @@ class ChecklistCubit extends Cubit<ChecklistState> {
   }
 
   Future<void> createCleaningChecklist({
+    required String hotelId,
     required String roomId,
     required String roomNumber,
   }) async {
     final newChecklist = Checklist(
+      hotelId: hotelId,
       id: 'clean_room_${roomNumber}_${DateTime.now().millisecondsSinceEpoch}',
       title: 'Clean Room $roomNumber',
       description: 'Post-checkout cleaning for Room $roomNumber',
@@ -155,11 +160,13 @@ class ChecklistCubit extends Cubit<ChecklistState> {
   }
 
   Future<void> createTableCleaningChecklist({
+    required String hotelId,
     required String tableId,
     required String tableCode,
   }) async {
     final newChecklist = Checklist(
       id: 'clean_table_${tableCode}_${DateTime.now().millisecondsSinceEpoch}',
+      hotelId: hotelId,
       title: 'Cleaning Table $tableCode',
       description: 'Clean and sanitize Table $tableCode for new guests.',
       type: ChecklistType.housekeeping,

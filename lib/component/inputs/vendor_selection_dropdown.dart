@@ -7,6 +7,7 @@ import '../../features/inventory/inventory_index.dart';
 /// - Show vendor details
 /// - Preferred vendor indicator
 /// - Category badges
+// TODO: Components must be independent of any class
 class VendorSelectionDropdown extends StatefulWidget {
   final String? selectedVendorId;
   final ValueChanged<Vendor?> onVendorSelected;

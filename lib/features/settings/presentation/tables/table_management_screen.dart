@@ -36,7 +36,9 @@ class _TableManagementContent extends StatelessWidget {
             _buildHeader(context, 'Tables', () => _showAddTableDialog(context)),
             const SizedBox(height: 16),
             StreamBuilder<List<TableEntity>>(
-              stream: context.read<SettingsRepository>().streamTables(),
+              stream: context.read<SettingsRepository>().streamTables(
+                (context.read<AuthCubit>().state as AuthVerified).hotelId,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -172,15 +174,19 @@ class _TableManagementContent extends StatelessWidget {
       final authState = context.read<AuthCubit>().state;
       String userId = 'unknown';
       String userName = 'Unknown User';
+      String hotelId = 'default';
+
       if (authState is AuthVerified) {
         userId = authState.userId;
         userName = authState.userName;
+        hotelId = authState.hotelId;
       }
 
       await context.read<SettingsRepository>().deleteTable(
         table.id,
         userId,
         userName,
+        hotelId,
       );
     }
   }

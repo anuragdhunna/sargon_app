@@ -1,6 +1,5 @@
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 /// Repository for Room and Booking operations.
 ///
@@ -14,19 +13,25 @@ class RoomRepository {
     : _databaseService = databaseService;
 
   /// Stream all rooms from database
-  Stream<List<Room>> streamRooms() => _databaseService.streamRooms();
+  Stream<List<Room>> streamRooms(String hotelId) =>
+      _databaseService.streamRooms(hotelId);
 
   /// Stream all bookings from database
-  Stream<List<Booking>> streamBookings() => _databaseService.streamBookings();
+  Stream<List<Booking>> streamBookings(String hotelId) =>
+      _databaseService.streamBookings(hotelId);
 
   /// Save a new booking
   Future<void> saveBooking(Booking booking) =>
       _databaseService.saveBooking(booking);
 
   /// Update room status
-  Future<void> updateRoomStatus(String roomId, RoomStatus status) =>
-      _databaseService.updateRoomStatus(roomId, status);
+  Future<void> updateRoomStatus(
+    String hotelId,
+    String roomId,
+    RoomStatus status,
+  ) => _databaseService.updateRoomStatus(hotelId, roomId, status);
 
-  /// Reference to bookings for check-in/out updates
-  DatabaseReference get bookingsRef => _databaseService.bookingsRef;
+  /// Get booking by ID
+  Future<Booking?> getBookingById(String hotelId, String bookingId) =>
+      _databaseService.getBookingById(hotelId, bookingId);
 }

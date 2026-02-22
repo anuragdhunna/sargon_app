@@ -2,7 +2,7 @@
 
 > **Target Audience:** AI Agents & Developers
 > **Purpose:** Source of Truth for Architecture, Modules, and Coding Standards.
-> **Last Updated:** 2026-01-26
+> **Last Updated:** 2026-02-14
 
 ## 1. Architectural Overview
 
@@ -112,6 +112,7 @@ Before creating a new file, check if the functionality belongs to an existing mo
 - **Files:** `snake_case.dart` (e.g., `user_profile_screen.dart`)
 - **Classes:** `PascalCase` (e.g., `UserProfileScreen`)
 - **Variables/Functions:** `camelCase` (e.g., `fetchUserData`)
+- **Enums/Enum Members:** `camelCase` for members (e.g., `PaymentStatus.partiallyPaid`, `PaymentMethod.billToRoom`). **Strictly avoid snake_case** for enum members to comply with enterprise lint rules.
 - **Constants:** `kPascalCase` or `SCREAMING_SNAKE_CASE` (e.g., `kDefaultPadding`)
 
 ### B. Widget Guidelines
@@ -178,10 +179,16 @@ When modifying code, apply these expert-level practices:
 - **Incident Tracking**: Integrated safety/operational logging with financial impact assessment.
 - **Vendor PO Sync**: Real-time tracking of external vendor costs passed to event billing.
 
-### Centralized Auditing System (Enterprise-Ready)
+### Centralized Auditing System & Multi-Tenancy (Enterprise-Ready)
 - **Backend-Enforced**: Audit fields (`createdOn`, `createdBy`, `updatedOn`, `updatedBy`) are managed by Cloud Functions triggers for maximum integrity.
-- **BaseFirestoreRepository**: A generic repository pattern that automatically injects `_userId` for backend validation and supports soft deletes (`isDeleted`).
-- **BaseEntity**: All auditable models extend `BaseEntity` to ensure consistent lifecycle tracking.
+- **BaseFirestoreRepository**: A generic repository pattern that automatically injects `_userId` for backend validation and supports soft deletes (`isDeleted`). It also provides `getBaseQuery(hotelId)` for tenant isolation.
+- **BaseEntity**: All auditable and tenant-specific models **MUST** extend `BaseEntity` to ensure consistent lifecycle tracking and mandatory `hotelId` association.
+- **Tenant Isolation**: 
+    - Absolutely NO hardcoded `hotelId` literals (e.g., `'default'`, `'persona_hotel'`) allowed in production code.
+    - Use `'unknown'` or `'persona_hotel'` ONLY as explicitly defined fallbacks in models or seeding logic.
+    - Use `context.hotelId` (via `BuildContext` extension) in UI components.
+    - Cubits must accept `hotelId` in their initialization or loading methods (e.g., `loadOrders(String hotelId)`).
+    - Database services must propagate `hotelId` to all path-building methods.
 - **Soft Deletes**: Standardized soft delete mechanism across all Firestore-backed entities.
 - **Security Rules**: Field-level protection ensures audit fields can only be modified by the backend or under strict validation.
 

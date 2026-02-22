@@ -3,8 +3,9 @@ import 'package:hotel_manager/core/services/audit_service.dart';
 import 'package:hotel_manager/features/attendance/data/attendance_repository.dart';
 import 'package:hotel_manager/features/checklists/data/checklist_model.dart';
 import 'package:hotel_manager/features/incidents/data/incident_model.dart';
-import 'package:hotel_manager/features/performance/data/performance_model.dart';
+import 'package:hotel_manager/core/models/hr_models.dart';
 import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
+import 'package:uuid/uuid.dart';
 
 class PerformanceRepository {
   final AttendanceRepository _attendanceRepo;
@@ -130,6 +131,8 @@ class PerformanceRepository {
         attendanceScore + taskScore + punctualityScoreWeighted + incidentScore;
 
     return EmployeePerformance(
+      id: const Uuid().v4(),
+      hotelId: user.hotelId,
       userId: user.id,
       userName: user.name,
       userRole: user.role.name,
@@ -145,6 +148,8 @@ class PerformanceRepository {
       incidentsReported: incidentsReported,
       incidentsResolved: incidentsResolved,
       overallScore: overallScore,
+      periodStart: thirtyDaysAgo,
+      periodEnd: now,
     );
   }
 

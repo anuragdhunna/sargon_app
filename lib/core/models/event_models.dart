@@ -11,6 +11,7 @@ class Hall extends BaseEntity {
 
   const Hall({
     required super.id,
+    required super.hotelId,
     required this.name,
     required this.capacity,
     this.description,
@@ -48,6 +49,7 @@ class Hall extends BaseEntity {
 
   factory Hall.fromJson(Map<String, dynamic> json) => Hall(
     id: json['id'],
+    hotelId: json['hotelId'] as String? ?? 'default',
     name: json['name'],
     capacity: (json['capacity'] as num).toInt(),
     description: json['description'],
@@ -62,6 +64,7 @@ class Hall extends BaseEntity {
 
   Hall copyWith({
     String? id,
+    String? hotelId,
     String? name,
     int? capacity,
     String? description,
@@ -70,6 +73,7 @@ class Hall extends BaseEntity {
   }) {
     return Hall(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       name: name ?? this.name,
       capacity: capacity ?? this.capacity,
       description: description ?? this.description,
@@ -94,6 +98,7 @@ class HallFeature extends BaseEntity {
 
   const HallFeature({
     required super.id,
+    required super.hotelId,
     required this.name,
     this.description,
     this.iconCode,
@@ -128,6 +133,7 @@ class HallFeature extends BaseEntity {
 
   factory HallFeature.fromJson(Map<String, dynamic> json) => HallFeature(
     id: json['id'],
+    hotelId: json['hotelId'] as String? ?? 'default',
     name: json['name'],
     description: json['description'],
     iconCode: json['iconCode'],
@@ -293,6 +299,7 @@ class PrivateEvent extends BaseEntity {
 
   const PrivateEvent({
     required super.id,
+    required super.hotelId,
     required this.name,
     required this.guestName,
     required this.guestPhone,
@@ -306,12 +313,12 @@ class PrivateEvent extends BaseEntity {
     required this.pricing,
     this.advancePayment = 0.0,
     this.notes,
-    super.createdOn,
-    super.createdBy,
-    super.updatedOn,
-    super.updatedBy,
-    super.isDeleted,
     this.featureSelections = const [],
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   /// Getter for backward compatibility
@@ -387,6 +394,7 @@ class PrivateEvent extends BaseEntity {
 
     return PrivateEvent(
       id: json['id'] as String,
+      hotelId: json['hotelId'] as String,
       name: json['name'] as String,
       guestName: json['guestName'] as String,
       guestPhone: json['guestPhone'] as String,
@@ -416,6 +424,7 @@ class PrivateEvent extends BaseEntity {
 
   PrivateEvent copyWith({
     String? id,
+    String? hotelId,
     String? name,
     String? guestName,
     String? guestPhone,
@@ -433,6 +442,7 @@ class PrivateEvent extends BaseEntity {
   }) {
     return PrivateEvent(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       name: name ?? this.name,
       guestName: guestName ?? this.guestName,
       guestPhone: guestPhone ?? this.guestPhone,
@@ -457,24 +467,30 @@ class PrivateEvent extends BaseEntity {
 }
 
 /// Event Staff Assignment
-class EventStaffAssignment extends Equatable {
-  final String id;
+class EventStaffAssignment extends BaseEntity {
   final String eventId;
   final String managerId; // Reference to Employee
   final List<String> staffIds; // List of Employee IDs
 
   const EventStaffAssignment({
-    required this.id,
+    required super.id,
+    required super.hotelId,
     required this.eventId,
     required this.managerId,
     this.staffIds = const [],
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   @override
-  List<Object?> get props => [id, eventId, managerId, staffIds];
+  List<Object?> get props => [...super.props, eventId, managerId, staffIds];
 
+  @override
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'eventId': eventId,
     'managerId': managerId,
     'staffIds': staffIds,
@@ -483,29 +499,41 @@ class EventStaffAssignment extends Equatable {
   factory EventStaffAssignment.fromJson(Map<String, dynamic> json) =>
       EventStaffAssignment(
         id: json['id'],
+        hotelId: json['hotelId'] ?? 'default',
         eventId: json['eventId'],
         managerId: json['managerId'],
         staffIds: List<String>.from(json['staffIds'] ?? []),
+        createdBy: json['createdBy'],
+        createdOn: BaseEntity.parseDateTime(json['createdOn']),
+        updatedBy: json['updatedBy'],
+        updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+        isDeleted: json['isDeleted'] ?? false,
       );
 
   EventStaffAssignment copyWith({
     String? id,
+    String? hotelId,
     String? eventId,
     String? managerId,
     List<String>? staffIds,
   }) {
     return EventStaffAssignment(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       eventId: eventId ?? this.eventId,
       managerId: managerId ?? this.managerId,
       staffIds: staffIds ?? this.staffIds,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
     );
   }
 }
 
 /// Event-specific Purchase Order
-class EventPO extends Equatable {
-  final String id;
+class EventPO extends BaseEntity {
   final String eventId;
   final String vendorId;
   final String description;
@@ -514,18 +542,24 @@ class EventPO extends Equatable {
   final bool isPassedToCustomer;
 
   const EventPO({
-    required this.id,
+    required super.id,
+    required super.hotelId,
     required this.eventId,
     required this.vendorId,
     required this.description,
     required this.cost,
     this.isPaid = false,
     this.isPassedToCustomer = false,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     eventId,
     vendorId,
     description,
@@ -534,8 +568,9 @@ class EventPO extends Equatable {
     isPassedToCustomer,
   ];
 
+  @override
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'eventId': eventId,
     'vendorId': vendorId,
     'description': description,
@@ -546,18 +581,23 @@ class EventPO extends Equatable {
 
   factory EventPO.fromJson(Map<String, dynamic> json) => EventPO(
     id: json['id'],
+    hotelId: json['hotelId'] ?? 'default',
     eventId: json['eventId'],
     vendorId: json['vendorId'],
     description: json['description'],
     cost: (json['cost'] as num).toDouble(),
     isPaid: json['isPaid'] ?? false,
     isPassedToCustomer: json['isPassedToCustomer'] ?? false,
+    createdBy: json['createdBy'],
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'],
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
 }
 
 /// Event Incident Model for tracking damages or extra services
-class EventIncident extends Equatable {
-  final String id;
+class EventIncident extends BaseEntity {
   final String eventId;
   final String title;
   final String description;
@@ -567,7 +607,8 @@ class EventIncident extends Equatable {
   final bool isResolved;
 
   const EventIncident({
-    required this.id,
+    required super.id,
+    required super.hotelId,
     required this.eventId,
     required this.title,
     required this.description,
@@ -575,11 +616,16 @@ class EventIncident extends Equatable {
     required this.reportedBy,
     this.financialImpact = 0.0,
     this.isResolved = false,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     eventId,
     title,
     description,
@@ -589,8 +635,9 @@ class EventIncident extends Equatable {
     isResolved,
   ];
 
+  @override
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'eventId': eventId,
     'title': title,
     'description': description,
@@ -602,6 +649,7 @@ class EventIncident extends Equatable {
 
   factory EventIncident.fromJson(Map<String, dynamic> json) => EventIncident(
     id: json['id'],
+    hotelId: json['hotelId'] ?? 'default',
     eventId: json['eventId'],
     title: json['title'],
     description: json['description'],
@@ -609,10 +657,16 @@ class EventIncident extends Equatable {
     reportedBy: json['reportedBy'],
     financialImpact: (json['financialImpact'] as num?)?.toDouble() ?? 0.0,
     isResolved: json['isResolved'] ?? false,
+    createdBy: json['createdBy'],
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'],
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
 
   EventIncident copyWith({
     String? id,
+    String? hotelId,
     String? eventId,
     String? title,
     String? description,
@@ -623,6 +677,7 @@ class EventIncident extends Equatable {
   }) {
     return EventIncident(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       eventId: eventId ?? this.eventId,
       title: title ?? this.title,
       description: description ?? this.description,
@@ -630,6 +685,11 @@ class EventIncident extends Equatable {
       reportedBy: reportedBy ?? this.reportedBy,
       financialImpact: financialImpact ?? this.financialImpact,
       isResolved: isResolved ?? this.isResolved,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
     );
   }
 }

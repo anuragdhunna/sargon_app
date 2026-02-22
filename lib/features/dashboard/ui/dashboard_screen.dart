@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/features/dashboard/logic/dashboard_cubit.dart';
 import 'package:hotel_manager/features/dashboard/logic/dashboard_state.dart';
@@ -22,7 +24,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<DashboardCubit>().refresh();
+    final authState = context.read<AuthCubit>().state;
+    if (authState is AuthVerified) {
+      context.read<DashboardCubit>().refresh(authState.hotelId);
+    }
   }
 
   @override
@@ -79,7 +84,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => context.read<DashboardCubit>().refresh(),
+            onPressed: () {
+              final authState = context.read<AuthCubit>().state;
+              if (authState is AuthVerified) {
+                context.read<DashboardCubit>().refresh(authState.hotelId);
+              }
+            },
           ),
           const SizedBox(width: 8),
         ],
@@ -98,7 +108,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   Text('Failed to load dashboard: ${state.message}'),
                   ElevatedButton(
-                    onPressed: () => context.read<DashboardCubit>().refresh(),
+                    onPressed: () {
+                      final authState = context.read<AuthCubit>().state;
+                      if (authState is AuthVerified) {
+                        context.read<DashboardCubit>().refresh(
+                          authState.hotelId,
+                        );
+                      }
+                    },
                     child: const Text('Retry'),
                   ),
                 ],
@@ -107,7 +124,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           }
           if (state is DashboardLoaded) {
             return RefreshIndicator(
-              onRefresh: () => context.read<DashboardCubit>().refresh(),
+              onRefresh: () async {
+                final authState = context.read<AuthCubit>().state;
+                if (authState is AuthVerified) {
+                  context.read<DashboardCubit>().refresh(authState.hotelId);
+                }
+              },
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(

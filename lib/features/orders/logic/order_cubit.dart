@@ -50,22 +50,39 @@ class OrderCubit extends Cubit<OrderState> {
        _stockManagerService = stockManagerService,
        super(OrderInitial());
 
-  void loadOrders() {
+  void loadOrders(String hotelId) {
     emit(OrderLoading());
     _ordersSubscription?.cancel();
-    _ordersSubscription = _databaseService.streamOrders().listen(
-      (orders) {
-        emit(OrderLoaded(orders));
-      },
-      onError: (error) {
-        emit(OrderError(error.toString()));
-      },
-    );
+    _ordersSubscription = _databaseService
+        .streamOrders(hotelId)
+        .listen(
+          (orders) {
+            emit(OrderLoaded(orders));
+          },
+          onError: (error) {
+            emit(OrderError(error.toString()));
+          },
+        );
 
     _hhSubscription?.cancel();
-    _hhSubscription = _offerRepository.watchHappyHours().listen((hh) {
+    _hhSubscription = _offerRepository.watchHappyHours(hotelId).listen((hh) {
       _happyHours = hh;
     });
+  }
+
+  void loadOrderHistory(String hotelId) {
+    emit(OrderLoading());
+    _ordersSubscription?.cancel();
+    _ordersSubscription = _databaseService
+        .streamAllOrders(hotelId)
+        .listen(
+          (orders) {
+            emit(OrderLoaded(orders));
+          },
+          onError: (error) {
+            emit(OrderError(error.toString()));
+          },
+        );
   }
 
   Future<void> addOrder(Order order) async {
@@ -78,7 +95,10 @@ class OrderCubit extends Cubit<OrderState> {
 
         // Happy Hour Check
         if (item.discountAmount == 0 && !item.isComplimentary) {
-          final menuItem = await _databaseService.getMenuItem(item.menuItemId);
+          final menuItem = await _databaseService.getMenuItem(
+            order.hotelId,
+            item.menuItemId,
+          );
           if (menuItem != null) {
             final hh = HappyHourService.getActiveHappyHour(
               _happyHours,
@@ -136,6 +156,7 @@ class OrderCubit extends Cubit<OrderState> {
       } else {
         await _databaseService.saveOrder(orderToSave);
         await _databaseService.updateTableStatus(
+          orderToSave.hotelId,
           orderToSave.tableId,
           TableStatus.occupied,
         );
@@ -143,6 +164,7 @@ class OrderCubit extends Cubit<OrderState> {
     } else {
       await _databaseService.saveOrder(orderToSave);
       await _databaseService.updateTableStatus(
+        orderToSave.hotelId,
         orderToSave.tableId,
         TableStatus.occupied,
       );
@@ -177,7 +199,10 @@ class OrderCubit extends Cubit<OrderState> {
     }).toList();
 
     if (itemsToDeduct.isNotEmpty) {
-      await _stockManagerService.deductStockForItems(itemsToDeduct);
+      await _stockManagerService.deductStockForItems(
+        order.hotelId,
+        itemsToDeduct,
+      );
     }
   }
 
@@ -237,7 +262,12 @@ class OrderCubit extends Cubit<OrderState> {
     final currentState = state;
     if (currentState is OrderLoaded) {
       currentState.orders.firstWhere((o) => o.id == orderId);
-      await _databaseService.updateOrderStatus(orderId, newStatus);
+      final order = currentState.orders.firstWhere((o) => o.id == orderId);
+      await _databaseService.updateOrderStatus(
+        order.hotelId,
+        orderId,
+        newStatus,
+      );
 
       // Auto table transitions
       if (newStatus == OrderStatus.served) {
@@ -253,7 +283,11 @@ class OrderCubit extends Cubit<OrderState> {
     await _databaseService.saveOrder(
       order.copyWith(status: OrderStatus.served),
     ); // Ensure it's marked served
-    await _databaseService.updateTableStatus(order.tableId, TableStatus.billed);
+    await _databaseService.updateTableStatus(
+      order.hotelId,
+      order.tableId,
+      TableStatus.billed,
+    );
   }
 
   /// Complete payment and move table to cleaning
@@ -262,6 +296,7 @@ class OrderCubit extends Cubit<OrderState> {
       order.copyWith(paymentStatus: PaymentStatus.paid, paymentMethod: method),
     );
     await _databaseService.updateTableStatus(
+      order.hotelId,
       order.tableId,
       TableStatus.cleaning,
     );
@@ -300,6 +335,7 @@ class OrderCubit extends Cubit<OrderState> {
 
     if (remainingOrders.isEmpty) {
       await _databaseService.updateTableStatus(
+        order.hotelId,
         order.tableId,
         TableStatus.available,
       );
@@ -316,7 +352,9 @@ class OrderCubit extends Cubit<OrderState> {
     // Revert stock for the item being removed
     try {
       final removedItem = order.items.firstWhere((item) => item.id == itemId);
-      await _stockManagerService.revertStockForItems([removedItem]);
+      await _stockManagerService.revertStockForItems(order.hotelId, [
+        removedItem,
+      ]);
     } catch (_) {
       // Item might not exist or be found, ignore
     }

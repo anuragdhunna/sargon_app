@@ -1,62 +1,55 @@
 part of '../database_service.dart';
 
 extension DatabaseCustomers on DatabaseService {
-  DatabaseReference get customersRef => _ref('customers');
+  CollectionReference _customersRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('customers');
 
   /// Get customer by ID
-  Future<Customer?> getCustomer(String customerId) async {
-    final snapshot = await customersRef.child(customerId).get();
-    if (!snapshot.exists || snapshot.value == null) return null;
-    return Customer.fromJson(_toMap(snapshot.value));
+  Future<Customer?> getCustomer(String hotelId, String customerId) async {
+    final doc = await _customersRef(hotelId).doc(customerId).get();
+    if (!doc.exists) return null;
+    return Customer.fromJson(doc.data() as Map<String, dynamic>);
   }
 
   /// Stream all customers (real-time)
-  Stream<List<Customer>> streamCustomers() {
-    return customersRef.onValue.map((event) {
-      if (event.snapshot.value == null) return <Customer>[];
-      final dynamic value = event.snapshot.value;
-      if (value == null) return <Customer>[];
-      final Map<dynamic, dynamic> data = (value is Map)
-          ? value
-          : (value is List ? value.asMap() : {});
-
-      return data.entries.map((e) {
-        final customerData = _toMap(e.value);
-        return Customer.fromJson(customerData);
+  Stream<List<Customer>> streamCustomers(String hotelId) {
+    return _customersRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Customer.fromJson(data);
       }).toList();
     });
   }
 
   /// Get customer by phone
-  Future<Customer?> getCustomerByPhone(String phone) async {
-    final snapshot = await customersRef
-        .orderByChild('phone')
-        .equalTo(phone)
-        .get();
-    if (!snapshot.exists || snapshot.value == null) return null;
+  Future<Customer?> getCustomerByPhone(String hotelId, String phone) async {
+    final snapshot = await _customersRef(
+      hotelId,
+    ).where('phone', isEqualTo: phone).get();
 
-    final Map<dynamic, dynamic> data = _toMap(snapshot.value);
-    if (data.isEmpty) return null;
+    if (snapshot.docs.isEmpty) return null;
 
-    // orderByChild returns a map with keys, so we take the first entry
-    final firstEntry = data.entries.first.value;
-    return Customer.fromJson(_toMap(firstEntry));
+    final data = snapshot.docs.first.data() as Map<String, dynamic>;
+    return Customer.fromJson(data);
   }
 
   /// Save or update customer
   Future<void> saveCustomer(Customer customer) async {
-    await customersRef.child(customer.id).set(customer.toJson());
+    await _customersRef(
+      customer.hotelId,
+    ).doc(customer.id).set(customer.toJson());
   }
 
   /// Update customer analytics (visit count, total spent, etc.)
   Future<void> updateCustomerAnalytics(
+    String hotelId,
     String customerId,
     double amountSpend,
   ) async {
-    final customerSnapshot = await customersRef.child(customerId).get();
-    if (!customerSnapshot.exists) return;
+    final doc = await _customersRef(hotelId).doc(customerId).get();
+    if (!doc.exists) return;
 
-    final customer = Customer.fromJson(_toMap(customerSnapshot.value));
+    final customer = Customer.fromJson(doc.data() as Map<String, dynamic>);
     final updatedCustomer = customer.copyWith(
       lastVisit: DateTime.now(),
       totalBookings: customer.totalBookings + 1,

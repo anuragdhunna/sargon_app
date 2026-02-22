@@ -7,17 +7,24 @@ class StockManagerService {
   StockManagerService(this._databaseService);
 
   /// Deduct stock for an order
-  Future<void> deductStockForOrder(Order order) async {
-    await deductStockForItems(order.items);
+  Future<void> deductStockForOrder(String hotelId, Order order) async {
+    await deductStockForItems(hotelId, order.items);
   }
 
   /// Deduct stock for specific items
-  Future<void> deductStockForItems(List<OrderItem> items) async {
+  Future<void> deductStockForItems(
+    String hotelId,
+    List<OrderItem> items,
+  ) async {
     for (final item in items) {
-      final menuItem = await _databaseService.getMenuItem(item.menuItemId);
+      final menuItem = await _databaseService.getMenuItem(
+        hotelId,
+        item.menuItemId,
+      );
       if (menuItem != null && menuItem.recipe != null) {
         for (final ingredient in menuItem.recipe!) {
           await _databaseService.deductStock(
+            hotelId,
             ingredient.inventoryItemId,
             ingredient.quantity * item.quantity,
           );
@@ -27,17 +34,24 @@ class StockManagerService {
   }
 
   /// Revert stock for an order
-  Future<void> revertStockForOrder(Order order) async {
-    await revertStockForItems(order.items);
+  Future<void> revertStockForOrder(String hotelId, Order order) async {
+    await revertStockForItems(hotelId, order.items);
   }
 
   /// Revert stock for specific items
-  Future<void> revertStockForItems(List<OrderItem> items) async {
+  Future<void> revertStockForItems(
+    String hotelId,
+    List<OrderItem> items,
+  ) async {
     for (final item in items) {
-      final menuItem = await _databaseService.getMenuItem(item.menuItemId);
+      final menuItem = await _databaseService.getMenuItem(
+        hotelId,
+        item.menuItemId,
+      );
       if (menuItem != null && menuItem.recipe != null) {
         for (final ingredient in menuItem.recipe!) {
           await _databaseService.addStock(
+            hotelId,
             ingredient.inventoryItemId,
             ingredient.quantity * item.quantity,
           );

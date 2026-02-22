@@ -1,45 +1,46 @@
 part of '../database_service.dart';
 
 extension DatabaseChecklists on DatabaseService {
-  DatabaseReference get checklistsRef => _ref('checklists');
+  CollectionReference _checklistsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('checklists');
 
   /// Stream all checklists (real-time)
-  Stream<List<Checklist>> streamChecklists() {
-    return checklistsRef.onValue.map((event) {
-      if (event.snapshot.value == null) return <Checklist>[];
-      final dynamic value = event.snapshot.value;
-      if (value == null) return <Checklist>[];
-      final Map<dynamic, dynamic> data = (value is Map)
-          ? value
-          : (value is List ? value.asMap() : {});
-
-      return data.entries.map((e) {
-        final checklistData = _toMap(e.value);
-        return Checklist.fromJson(checklistData);
+  Stream<List<Checklist>> streamChecklists(String hotelId) {
+    return _checklistsRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Checklist.fromJson(data);
       }).toList();
     });
   }
 
   /// Stream checklists by role
-  Stream<List<Checklist>> streamChecklistsByRole(UserRole role) {
-    return streamChecklists().map(
+  Stream<List<Checklist>> streamChecklistsByRole(
+    String hotelId,
+    UserRole role,
+  ) {
+    return streamChecklists(hotelId).map(
       (checklists) => checklists.where((c) => c.assignedRole == role).toList(),
     );
   }
 
   /// Save checklist
   Future<void> saveChecklist(Checklist checklist) async {
-    await checklistsRef.child(checklist.id).set(checklist.toJson());
+    await _checklistsRef(
+      checklist.hotelId,
+    ).doc(checklist.id).set(checklist.toJson());
   }
 
   /// Create a cleaning checklist for a table
   Future<void> createTableCleaningChecklist(
     String tableId,
     String tableCode,
+    String hotelId,
   ) async {
     final id =
         'clean_table_${tableId}_${DateTime.now().millisecondsSinceEpoch}';
     final checklist = Checklist(
+      hotelId: hotelId,
       id: id,
       title: 'Clean Table $tableCode',
       description: 'Standard cleaning protocol for Table $tableCode',
@@ -61,9 +62,11 @@ extension DatabaseChecklists on DatabaseService {
   Future<void> createRoomCleaningChecklist(
     String roomId,
     String roomNumber,
+    String hotelId,
   ) async {
     final id = 'clean_room_${roomId}_${DateTime.now().millisecondsSinceEpoch}';
     final checklist = Checklist(
+      hotelId: hotelId,
       id: id,
       title: 'Clean Room $roomNumber',
       description: 'Standard cleaning protocol for Room $roomNumber',

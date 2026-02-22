@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('BillingCubit Tests', () {
-    test('placeholder test - real tests require Firebase setup', () {
+    test('TODO: Implement real billing cubit tests', () {
       expect(true, true);
     });
   });

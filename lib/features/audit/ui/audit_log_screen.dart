@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_manager/core/models/audit_log.dart';
 import 'package:hotel_manager/core/services/audit_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:intl/intl.dart';
 
 class AuditLogScreen extends StatefulWidget {
@@ -91,77 +94,87 @@ class _AuditLogScreenState extends State<AuditLogScreen> {
           ),
 
           Expanded(
-            child: StreamBuilder<List<AuditLog>>(
-              stream: AuditService().streamAllLogs(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+            child: BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, authState) {
+                if (authState is! AuthVerified) {
+                  return const Center(
+                    child: Text('Please log in to view logs'),
+                  );
                 }
 
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
+                return StreamBuilder<List<AuditLog>>(
+                  stream: AuditService().streamAuditLogs(authState.hotelId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                final logs = snapshot.data ?? [];
-                final filteredLogs = logs
-                    .where((log) {
-                      final query = _searchQuery.toLowerCase();
-                      final matchesQuery =
-                          log.description.toLowerCase().contains(query) ||
-                          log.userName.toLowerCase().contains(query) ||
-                          log.entity.toLowerCase().contains(query);
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
 
-                      final matchesEntity =
-                          _selectedEntity == null ||
-                          log.entity.toLowerCase() ==
-                              _selectedEntity!.toLowerCase();
+                    final logs = snapshot.data ?? [];
+                    final filteredLogs = logs
+                        .where((log) {
+                          final query = _searchQuery.toLowerCase();
+                          final matchesQuery =
+                              log.description.toLowerCase().contains(query) ||
+                              log.userName.toLowerCase().contains(query) ||
+                              log.entity.toLowerCase().contains(query);
 
-                      final matchesAction =
-                          _selectedAction == null ||
-                          log.action == _selectedAction;
+                          final matchesEntity =
+                              _selectedEntity == null ||
+                              log.entity.toLowerCase() ==
+                                  _selectedEntity!.toLowerCase();
 
-                      return matchesQuery && matchesEntity && matchesAction;
-                    })
-                    .toList()
-                    .reversed
-                    .toList();
+                          final matchesAction =
+                              _selectedAction == null ||
+                              log.action == _selectedAction;
 
-                if (filteredLogs.isEmpty) {
-                  return const Center(child: Text('No logs found'));
-                }
+                          return matchesQuery && matchesEntity && matchesAction;
+                        })
+                        .toList()
+                        .reversed
+                        .toList();
 
-                return ListView.separated(
-                  itemCount: filteredLogs.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final log = filteredLogs[index];
-                    return ListTile(
-                      leading: _buildActionIcon(log.action),
-                      title: Text(log.description),
-                      subtitle: Text(
-                        '${DateFormat('MMM d, h:mm a').format(log.timestamp)} • ${log.userName} (${log.userRole})',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      trailing: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          log.entity.toUpperCase(),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                    if (filteredLogs.isEmpty) {
+                      return const Center(child: Text('No logs found'));
+                    }
+
+                    return ListView.separated(
+                      itemCount: filteredLogs.length,
+                      separatorBuilder: (_, _) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final log = filteredLogs[index];
+                        return ListTile(
+                          leading: _buildActionIcon(log.action),
+                          title: Text(log.description),
+                          subtitle: Text(
+                            '${DateFormat('MMM d, h:mm a').format(log.timestamp)} • ${log.userName} (${log.userRole})',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
                           ),
-                        ),
-                      ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              log.entity.toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );

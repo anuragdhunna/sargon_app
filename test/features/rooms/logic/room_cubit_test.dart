@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
@@ -13,8 +12,6 @@ class MockRoomRepository extends Mock implements RoomRepository {}
 class MockChecklistCubit extends Mock implements ChecklistCubit {}
 
 class FakeBooking extends Fake implements Booking {}
-
-class MockDatabaseReference extends Mock implements DatabaseReference {}
 
 void main() {
   late RoomCubit roomCubit;
@@ -41,20 +38,18 @@ void main() {
 
     // Link the repository mocks to our controllers
     when(
-      () => mockRoomRepository.streamRooms(),
+      () => mockRoomRepository.streamRooms(any()),
     ).thenAnswer((_) => roomsController.stream);
     when(
-      () => mockRoomRepository.streamBookings(),
+      () => mockRoomRepository.streamBookings(any()),
     ).thenAnswer((_) => bookingsController.stream);
-    when(
-      () => mockRoomRepository.bookingsRef,
-    ).thenReturn(MockDatabaseReference());
 
     // Initialize Cubit (it will start listening to streams)
     roomCubit = RoomCubit(
       repository: mockRoomRepository,
       checklistCubit: mockChecklistCubit,
     );
+    roomCubit.loadRooms('test-hotel');
   });
 
   tearDown(() {
@@ -81,7 +76,7 @@ void main() {
       verify: (_) {
         // One call from constructor, one (potentially) if we called loadRooms again.
         // But here we didn't call loadRooms in act, we just pushed data.
-        verify(() => mockRoomRepository.streamRooms()).called(1);
+        verify(() => mockRoomRepository.streamRooms(any())).called(1);
       },
     );
 
@@ -104,6 +99,7 @@ void main() {
       'createBooking fails if guest phone is empty',
       build: () => roomCubit,
       act: (cubit) => cubit.createBooking(
+        hotelId: 'test-hotel',
         roomId: '1',
         guestName: 'John Doe',
         guestPhone: '',
@@ -130,11 +126,12 @@ void main() {
           () => mockRoomRepository.saveBooking(any()),
         ).thenAnswer((_) async => Future.value());
         when(
-          () => mockRoomRepository.updateRoomStatus(any(), any()),
+          () => mockRoomRepository.updateRoomStatus(any(), any(), any()),
         ).thenAnswer((_) async => Future.value());
         return roomCubit;
       },
       act: (cubit) => cubit.createBooking(
+        hotelId: 'test-hotel',
         roomId: '101',
         guestName: 'Jane Smith',
         guestPhone: '9876543210',
@@ -147,6 +144,9 @@ void main() {
       ),
       verify: (_) {
         verify(() => mockRoomRepository.saveBooking(any())).called(1);
+        verify(
+          () => mockRoomRepository.updateRoomStatus(any(), any(), any()),
+        ).called(1);
       },
     );
 
@@ -156,6 +156,7 @@ void main() {
 
       final existingBooking = Booking(
         id: 'b1',
+        hotelId: 'test-hotel',
         guestName: 'Guest',
         guestPhone: '123',
         roomId: '101',
@@ -164,7 +165,7 @@ void main() {
         status: BookingStatus.confirmed,
         totalAmount: 3000,
         bookedBy: 'Admin',
-        createdAt: DateTime.now(),
+        createdOn: DateTime.now(),
       );
 
       // Push data to transition to RoomLoaded

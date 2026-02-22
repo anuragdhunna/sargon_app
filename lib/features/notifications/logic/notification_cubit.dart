@@ -13,19 +13,20 @@ class NotificationCubit extends Cubit<NotificationState> {
   NotificationCubit({INotificationRepository? notificationRepository})
     : _notificationRepository =
           notificationRepository ?? NotificationRepository(),
-      super(NotificationInitial()) {
-    fetchNotifications();
+      super(NotificationInitial());
+
+  Future<void> fetchNotifications(
+    String hotelId, {
+    bool refresh = false,
+  }) async {
+    _startListening(hotelId);
   }
 
-  Future<void> fetchNotifications({bool refresh = false}) async {
-    _startListening();
-  }
-
-  void _startListening() {
+  void _startListening(String hotelId) {
     emit(NotificationLoading());
     _subscription?.cancel();
     _subscription = _notificationRepository
-        .streamNotifications(limit: _pageSize)
+        .streamNotifications(hotelId, limit: _pageSize)
         .listen(
           (notifications) {
             final unreadCount = notifications.where((n) => !n.isRead).length;
@@ -48,8 +49,9 @@ class NotificationCubit extends Cubit<NotificationState> {
   }
 
   Future<void> loadMore() async {
-    if (state is! NotificationLoaded || state.isLoadingMore || !state.hasMore)
+    if (state is! NotificationLoaded || state.isLoadingMore || !state.hasMore) {
       return;
+    }
 
     final currentState = state as NotificationLoaded;
     emit(currentState.copyWith(isLoadingMore: true));
@@ -57,6 +59,7 @@ class NotificationCubit extends Cubit<NotificationState> {
     try {
       final lastNotification = currentState.notifications.last;
       final moreNotifications = await _notificationRepository.getNotifications(
+        lastNotification.hotelId,
         limit: _pageSize,
         before: lastNotification.createdAt,
       );
@@ -78,15 +81,15 @@ class NotificationCubit extends Cubit<NotificationState> {
     }
   }
 
-  Future<void> markAsRead(String id) async {
+  Future<void> markAsRead(String hotelId, String id) async {
     try {
-      await _notificationRepository.markAsRead(id);
+      await _notificationRepository.markAsRead(hotelId, id);
     } catch (e) {
       // Log error but don't disrupt UI
     }
   }
 
-  Future<void> markAllAsRead() async {
+  Future<void> markAllAsRead(String hotelId) async {
     if (state is! NotificationLoaded) return;
     final unreadIds = state.notifications
         .where((n) => !n.isRead)
@@ -96,7 +99,7 @@ class NotificationCubit extends Cubit<NotificationState> {
     if (unreadIds.isEmpty) return;
 
     try {
-      await _notificationRepository.markAllAsRead(unreadIds);
+      await _notificationRepository.markAllAsRead(hotelId, unreadIds);
     } catch (e) {
       // Log error
     }
@@ -108,17 +111,19 @@ class NotificationCubit extends Cubit<NotificationState> {
     required NotificationType type,
     String? targetRoute,
     Map<String, dynamic>? metadata,
+    required String hotelId,
   }) async {
     final notification = NotificationModel(
+      hotelId: hotelId,
       id: const Uuid().v4(),
       title: title,
       body: body,
       type: type,
-      createdAt: DateTime.now(),
+      createdOn: DateTime.now(),
       targetRoute: targetRoute,
       metadata: metadata,
     );
-    await _notificationRepository.addNotification(notification);
+    await _notificationRepository.addNotification(hotelId, notification);
   }
 
   @override

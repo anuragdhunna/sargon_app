@@ -9,6 +9,8 @@ import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
 import 'package:hotel_manager/features/staff_mgmt/logic/user_cubit.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 
 /// Dialog for adding new staff members
 ///
@@ -294,6 +296,15 @@ class _AddUserDialogState extends State<AddUserDialog> {
         );
       }
     } else {
+      final authState = context.read<AuthCubit>().state;
+      if (authState is! AuthVerified) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Authentication required to create users';
+        });
+        return;
+      }
+
       final authService = context.read<AuthService>();
       final result = await authService.createStaffAccount(
         email: values['email'] as String,
@@ -301,6 +312,7 @@ class _AddUserDialogState extends State<AddUserDialog> {
         phoneNumber: values['phone'] as String,
         role: values['role'] as UserRole,
         password: '111111',
+        hotelId: authState.hotelId,
       );
 
       if (result.success && result.user != null) {

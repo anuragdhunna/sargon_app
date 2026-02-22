@@ -49,10 +49,12 @@ class _TableDialogState extends State<TableDialog> {
       final authState = context.read<AuthCubit>().state;
       String userId = 'unknown';
       String userName = 'Unknown User';
+      String hotelId = 'default';
 
       if (authState is AuthVerified) {
         userId = authState.userId;
         userName = authState.userName;
+        hotelId = authState.hotelId;
       }
 
       final table = TableEntity(
@@ -62,6 +64,7 @@ class _TableDialogState extends State<TableDialog> {
         maxCapacity: int.tryParse(_capacityController.text) ?? 2,
         status: widget.existingTable?.status ?? TableStatus.available,
         isActive: _isActive,
+        hotelId: hotelId,
       );
 
       try {
@@ -69,6 +72,7 @@ class _TableDialogState extends State<TableDialog> {
           table,
           userId,
           userName,
+          hotelId,
         );
         if (mounted) Navigator.of(context).pop();
       } catch (e) {

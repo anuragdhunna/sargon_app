@@ -7,9 +7,10 @@ void main() {
     late PointRule mockRule;
 
     setUp(() {
-      mockRule = const PointRule(
+      mockRule = PointRule(
         id: 'r1',
-        earnType: PointEarnType.bill_amount,
+        hotelId: 'test-hotel',
+        earnType: PointEarnType.billAmount,
         earnValue: 1.0, // 1 point per 100 rupees
         minBillAmount: 100.0,
       );
@@ -55,14 +56,16 @@ void main() {
     });
 
     test('checkTierUpgrade - upgrades tier when spend threshold reached', () {
-      const currentTier = LoyaltyTier(
+      final currentTier = LoyaltyTier(
         id: 'silver',
+        hotelId: 'test-hotel',
         name: 'Silver',
         minSpend: 0,
         earnMultiplier: 1.0,
       );
-      const nextTier = LoyaltyTier(
+      final nextTier = LoyaltyTier(
         id: 'gold',
+        hotelId: 'test-hotel',
         name: 'Gold',
         minSpend: 5000,
         earnMultiplier: 1.25,
@@ -78,7 +81,7 @@ void main() {
     });
 
     test('updateLoyaltyInfo - correctly updates points and spend', () {
-      final info = const LoyaltyInfo(
+      const info = LoyaltyInfo(
         tierId: 'silver',
         totalPoints: 500,
         availablePoints: 400,

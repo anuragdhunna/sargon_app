@@ -130,10 +130,16 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         user: user,
                         canManage: canManage,
                         onDelete: () {
-                          context.read<UserCubit>().deleteUser(user.id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('User Deleted')),
-                          );
+                          final authState = context.read<AuthCubit>().state;
+                          if (authState is AuthVerified) {
+                            context.read<UserCubit>().deleteUser(
+                              authState.hotelId,
+                              user.id,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('User Deleted')),
+                            );
+                          }
                         },
                       );
                     },
@@ -228,7 +234,14 @@ class _UserCard extends StatelessWidget {
               value: user.status == UserStatus.active,
               activeThumbColor: AppDesign.success,
               onChanged: (val) {
-                context.read<UserCubit>().toggleUserStatus(user.id);
+                final authState = context.read<AuthCubit>().state;
+                if (authState is AuthVerified) {
+                  context.read<UserCubit>().toggleUserStatus(
+                    authState.hotelId,
+                    user.id,
+                    val,
+                  );
+                }
               },
             ),
 

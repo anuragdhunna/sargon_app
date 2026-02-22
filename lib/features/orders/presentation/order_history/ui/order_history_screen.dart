@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
 import 'package:hotel_manager/features/billing/logic/billing_cubit.dart';
 import 'package:hotel_manager/features/billing/logic/billing_state.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/component/feedback/custom_snackbar.dart';
 import 'package:hotel_manager/core/services/pdf_service.dart';
@@ -18,111 +21,130 @@ import '../cubit/order_history_state.dart';
 import '../widgets/order_history_filter_bar.dart';
 import '../widgets/order_history_card.dart';
 
-class OrderHistoryScreen extends StatelessWidget {
+class OrderHistoryScreen extends StatefulWidget {
   static const String routeName = '/order-history';
   final String? initialBookingId;
 
   const OrderHistoryScreen({super.key, this.initialBookingId});
 
   @override
+  State<OrderHistoryScreen> createState() => _OrderHistoryScreenState();
+}
+
+class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  void _initializeData() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      final hotelId = context.hotelId;
+      final orderCubit = context.read<OrderCubit>();
+      final billingCubit = context.read<BillingCubit>();
+      final historyCubit = context.read<OrderHistoryCubit>();
+
+      // Set initial booking filter if provided
+      if (widget.initialBookingId != null) {
+        historyCubit.updateFilters(
+          showOnlyUnpaid: false,
+          selectedStatus: null,
+          customerQuery: '',
+          startDate: null,
+          endDate: null,
+        );
+      }
+
+      // Ensure data is loaded
+      if (orderCubit.state is OrderInitial || orderCubit.state is OrderError) {
+        orderCubit.loadOrderHistory(hotelId);
+      } else if (orderCubit.state is OrderLoaded) {
+        historyCubit.applyFilters((orderCubit.state as OrderLoaded).orders);
+      }
+
+      if (billingCubit.state is BillingInitial) {
+        billingCubit.loadBillingData(hotelId: hotelId);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final cubit = OrderHistoryCubit(initialBookingId: initialBookingId);
-        final orderCubit = context.read<OrderCubit>();
-        final billingCubit = context.read<BillingCubit>();
+    final allOrders = context.watch<OrderCubit>().state is OrderLoaded
+        ? (context.watch<OrderCubit>().state as OrderLoaded).orders
+        : <Order>[];
 
-        // Ensure data is loaded
-        if (orderCubit.state is OrderInitial ||
-            orderCubit.state is OrderError) {
-          orderCubit.loadOrders();
-        } else if (orderCubit.state is OrderLoaded) {
-          cubit.applyFilters((orderCubit.state as OrderLoaded).orders);
+    return BlocListener<OrderCubit, OrderState>(
+      listener: (context, state) {
+        if (state is OrderLoaded) {
+          context.read<OrderHistoryCubit>().applyFilters(state.orders);
         }
-
-        if (billingCubit.state is BillingInitial) {
-          billingCubit.loadBillingData();
-        }
-
-        return cubit;
       },
-      child: BlocListener<OrderCubit, OrderState>(
-        listener: (context, state) {
-          if (state is OrderLoaded) {
-            context.read<OrderHistoryCubit>().applyFilters(state.orders);
-          }
+      child: BlocBuilder<OrderHistoryCubit, OrderHistoryState>(
+        builder: (context, historyState) {
+          final cubit = context.read<OrderHistoryCubit>();
+
+          return Scaffold(
+            backgroundColor: AppDesign.neutral50,
+            appBar: AppBar(
+              title: const Text('Order History'),
+              backgroundColor: Colors.white,
+              elevation: 0,
+              centerTitle: false,
+              titleTextStyle: AppDesign.headlineSmall.copyWith(
+                color: AppDesign.neutral900,
+                fontWeight: FontWeight.bold,
+              ),
+              iconTheme: const IconThemeData(color: AppDesign.neutral900),
+              actions: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.info_outline,
+                    color: AppDesign.primaryStart,
+                  ),
+                  onPressed: () => _showStatusGuide(context),
+                  tooltip: 'How to use Order History',
+                ),
+              ],
+            ),
+            body: Column(
+              children: [
+                OrderHistoryFilterBar(
+                  customerQuery: historyState.customerQuery,
+                  selectedStatus: historyState.selectedStatus,
+                  showOnlyUnpaid: historyState.showOnlyUnpaid,
+                  startDate: historyState.startDate,
+                  endDate: historyState.endDate,
+                  onSearchChanged: (q) => cubit.updateFilters(
+                    customerQuery: q,
+                    allOrders: allOrders,
+                  ),
+                  onStatusChanged: (s) => cubit.updateFilters(
+                    selectedStatus: s,
+                    allOrders: allOrders,
+                  ),
+                  onUnpaidToggle: (u) => cubit.updateFilters(
+                    showOnlyUnpaid: u,
+                    allOrders: allOrders,
+                  ),
+                  onSelectDateRange: () =>
+                      _selectDateRange(context, cubit, allOrders),
+                  onClearDateRange: () => cubit.clearDateRange(allOrders),
+                ),
+                Expanded(
+                  child: _buildOrderList(
+                    context,
+                    context.watch<OrderCubit>().state,
+                    historyState,
+                  ),
+                ),
+              ],
+            ),
+          );
         },
-        child: BlocBuilder<OrderCubit, OrderState>(
-          builder: (context, orderState) {
-            final allOrders = orderState is OrderLoaded
-                ? orderState.orders
-                : <Order>[];
-
-            return BlocBuilder<OrderHistoryCubit, OrderHistoryState>(
-              builder: (context, historyState) {
-                final cubit = context.read<OrderHistoryCubit>();
-
-                return Scaffold(
-                  backgroundColor: AppDesign.neutral50,
-                  appBar: AppBar(
-                    title: const Text('Order History'),
-                    backgroundColor: Colors.white,
-                    elevation: 0,
-                    centerTitle: false,
-                    titleTextStyle: AppDesign.headlineSmall.copyWith(
-                      color: AppDesign.neutral900,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    iconTheme: const IconThemeData(color: AppDesign.neutral900),
-                    actions: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.info_outline,
-                          color: AppDesign.primaryStart,
-                        ),
-                        onPressed: () => _showStatusGuide(context),
-                        tooltip: 'How to use Order History',
-                      ),
-                    ],
-                  ),
-                  body: Column(
-                    children: [
-                      OrderHistoryFilterBar(
-                        customerQuery: historyState.customerQuery,
-                        selectedStatus: historyState.selectedStatus,
-                        showOnlyUnpaid: historyState.showOnlyUnpaid,
-                        startDate: historyState.startDate,
-                        endDate: historyState.endDate,
-                        onSearchChanged: (q) => cubit.updateFilters(
-                          customerQuery: q,
-                          allOrders: allOrders,
-                        ),
-                        onStatusChanged: (s) => cubit.updateFilters(
-                          selectedStatus: s,
-                          allOrders: allOrders,
-                        ),
-                        onUnpaidToggle: (u) => cubit.updateFilters(
-                          showOnlyUnpaid: u,
-                          allOrders: allOrders,
-                        ),
-                        onSelectDateRange: () =>
-                            _selectDateRange(context, cubit, allOrders),
-                        onClearDateRange: () => cubit.clearDateRange(allOrders),
-                      ),
-                      Expanded(
-                        child: _buildOrderList(
-                          context,
-                          orderState,
-                          historyState,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        ),
       ),
     );
   }
@@ -220,7 +242,8 @@ class OrderHistoryScreen extends StatelessWidget {
             Text('Error: ${orderState.message}'),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () => context.read<OrderCubit>().loadOrders(),
+              onPressed: () =>
+                  context.read<OrderCubit>()..loadOrderHistory(context.hotelId),
               child: const Text('Retry'),
             ),
           ],
@@ -426,7 +449,14 @@ class OrderHistoryScreen extends StatelessWidget {
     if (order.bookingId != null && order.customerId == null) {
       try {
         final dbService = context.read<DatabaseService>();
-        final booking = await dbService.getBookingById(order.bookingId!);
+        final authState = context.read<AuthCubit>().state;
+        final hotelId = authState is AuthVerified
+            ? authState.hotelId
+            : 'default';
+        final booking = await dbService.getBookingById(
+          hotelId,
+          order.bookingId!,
+        );
         if (booking?.customerId != null) {
           finalCustomerId = booking!.customerId;
         }
@@ -448,7 +478,11 @@ class OrderHistoryScreen extends StatelessWidget {
     if (!context.mounted) return;
 
     try {
+      final authState = context.read<AuthCubit>().state;
+      final hotelId = authState is AuthVerified ? authState.hotelId : 'default';
+
       await context.read<BillingCubit>().createBill(
+        hotelId: hotelId,
         tableId: order.tableId,
         orders: [order],
         taxRuleId: billingState.taxRules.first.id,

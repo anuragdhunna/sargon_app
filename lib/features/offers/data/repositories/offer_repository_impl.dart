@@ -9,20 +9,23 @@ class OfferRepositoryImpl implements OfferRepository {
     : _databaseService = databaseService;
 
   @override
-  Stream<List<Offer>> watchOffers() => _databaseService.streamOffers();
+  Stream<List<Offer>> watchOffers(String hotelId) =>
+      _databaseService.streamOffers(hotelId);
 
   @override
-  Future<List<Offer>> getOffers() => _databaseService.getOffers();
+  Future<List<Offer>> getOffers(String hotelId) =>
+      _databaseService.getOffers(hotelId);
 
   @override
   Future<void> saveOffer(Offer offer) => _databaseService.saveOffer(offer);
 
   @override
-  Stream<List<HappyHour>> watchHappyHours() =>
-      _databaseService.streamHappyHours();
+  Stream<List<HappyHour>> watchHappyHours(String hotelId) =>
+      _databaseService.streamHappyHours(hotelId);
 
   @override
-  Future<List<HappyHour>> getHappyHours() => _databaseService.getHappyHours();
+  Future<List<HappyHour>> getHappyHours(String hotelId) =>
+      _databaseService.getHappyHours(hotelId);
 
   @override
   Future<void> saveHappyHour(HappyHour happyHour) =>

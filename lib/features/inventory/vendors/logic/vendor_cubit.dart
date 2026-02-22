@@ -10,18 +10,16 @@ class VendorCubit extends Cubit<VendorState> {
 
   VendorCubit({IInventoryRepository? repository})
     : _repository = repository ?? InventoryRepository(),
-      super(VendorInitial()) {
-    loadVendors();
-  }
+      super(VendorInitial());
 
   final _uuid = const Uuid();
   final List<Vendor> _vendors = [];
 
   /// Load all vendors
-  Future<void> loadVendors() async {
+  Future<void> loadVendors(String hotelId) async {
     emit(VendorLoading());
     try {
-      final vendors = await _repository.getVendors();
+      final vendors = await _repository.getVendors(hotelId);
       _vendors.clear();
       _vendors.addAll(vendors);
       emit(VendorLoaded(List.from(_vendors)));
@@ -42,9 +40,11 @@ class VendorCubit extends Cubit<VendorState> {
     bool isPreferred = false,
     double? creditLimit,
     String? gstNumber,
+    required String hotelId,
   }) async {
     final vendor = Vendor(
       id: _uuid.v4(),
+      hotelId: hotelId,
       name: name,
       category: category,
       contactPerson: contactPerson,
@@ -55,7 +55,7 @@ class VendorCubit extends Cubit<VendorState> {
       isPreferred: isPreferred,
       creditLimit: creditLimit,
       gstNumber: gstNumber,
-      createdAt: DateTime.now(),
+      createdOn: DateTime.now(),
     );
 
     try {

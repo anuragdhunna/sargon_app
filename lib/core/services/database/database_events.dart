@@ -1,392 +1,215 @@
 part of '../database_service.dart';
 
 extension DatabaseEvents on DatabaseService {
-  DatabaseReference get hallsRef => _ref('halls');
-  DatabaseReference get eventsRef => _ref('events');
-  DatabaseReference get eventPOsRef => _ref('event_pos');
-  DatabaseReference get eventStaffRef => _ref('event_staff');
-  DatabaseReference get eventTaxesRef => _ref('event_taxes');
-  DatabaseReference get eventIncidentsRef => _ref('event_incidents');
-  DatabaseReference get hallFeaturesRef => _ref('hall_features');
+  CollectionReference _hallsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('halls');
+  CollectionReference _eventsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('events');
+  CollectionReference _eventPOsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('event_pos');
+  CollectionReference _eventStaffRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('event_staff');
+  CollectionReference _eventTaxesRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('event_taxes');
+  CollectionReference _eventIncidentsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('event_incidents');
+  CollectionReference _hallFeaturesRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('hall_features');
 
   /// Stream all incidents for an event
-  Stream<List<EventIncident>> streamEventIncidents(String eventId) {
-    return eventIncidentsRef.child(eventId).onValue.map((event) {
-      try {
-        if (event.snapshot.value == null) return <EventIncident>[];
-        final Map<dynamic, dynamic> data = _toMap(event.snapshot.value);
-        return data.entries
-            .map((e) {
-              try {
-                return EventIncident.fromJson(_toMap(e.value));
-              } catch (e) {
-                return null;
-              }
-            })
-            .whereType<EventIncident>()
-            .toList()
-          ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
-      } catch (e) {
-        return <EventIncident>[];
-      }
+  Stream<List<EventIncident>> streamEventIncidents(
+    String hotelId,
+    String eventId,
+  ) {
+    return _eventIncidentsRef(
+      hotelId,
+    ).where('eventId', isEqualTo: eventId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return EventIncident.fromJson(data);
+      }).toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
     });
   }
 
   /// Save Event Incident
   Future<void> saveEventIncident(EventIncident incident) async {
-    await eventIncidentsRef
-        .child(incident.eventId)
-        .child(incident.id)
-        .set(incident.toJson());
+    await _eventIncidentsRef(
+      incident.hotelId,
+    ).doc(incident.id).set(incident.toJson());
   }
 
   /// On-demand fetch incidents
-  Future<List<EventIncident>> fetchEventIncidents(String eventId) async {
-    final snapshot = await eventIncidentsRef.child(eventId).get();
-    if (!snapshot.exists || snapshot.value == null) return [];
-    final Map<dynamic, dynamic> data = _toMap(snapshot.value);
-    return data.entries
-        .map((e) {
-          try {
-            return EventIncident.fromJson(_toMap(e.value));
-          } catch (e) {
-            return null;
-          }
-        })
-        .whereType<EventIncident>()
-        .toList()
-      ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  Future<List<EventIncident>> fetchEventIncidents(
+    String hotelId,
+    String eventId,
+  ) async {
+    final snapshot = await _eventIncidentsRef(
+      hotelId,
+    ).where('eventId', isEqualTo: eventId).get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return EventIncident.fromJson(data);
+    }).toList()..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
   /// Stream all halls (real-time)
-  Stream<List<Hall>> streamHalls() {
-    return hallsRef.onValue.map((event) {
-      try {
-        if (event.snapshot.value == null) return <Hall>[];
-        final dynamic value = event.snapshot.value;
-        Map<dynamic, dynamic> data;
-
-        if (value is Map) {
-          data = value;
-        } else if (value is List) {
-          data = value.asMap();
-        } else {
-          return <Hall>[];
-        }
-
-        return data.entries
-            .where((e) => e.value != null)
-            .map((e) {
-              try {
-                final hallData = _toMap(e.value);
-                return Hall.fromJson(hallData);
-              } catch (e) {
-                debugPrint('Error parsing hall: $e');
-                return null;
-              }
-            })
-            .whereType<Hall>()
-            .toList();
-      } catch (e) {
-        debugPrint('Error in streamHalls: $e');
-        return <Hall>[];
-      }
+  Stream<List<Hall>> streamHalls(String hotelId) {
+    return _hallsRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Hall.fromJson(data);
+      }).toList();
     });
   }
 
   /// Save hall
   Future<void> saveHall(Hall hall) async {
-    await hallsRef.child(hall.id).set(hall.toJson());
+    await _hallsRef(hall.hotelId).doc(hall.id).set(hall.toJson());
   }
 
   /// Delete hall
-  Future<void> deleteHall(String id) async {
-    await hallsRef.child(id).remove();
+  Future<void> deleteHall(String hotelId, String id) async {
+    await _hallsRef(hotelId).doc(id).delete();
   }
 
   /// Stream all hall features
-  Stream<List<HallFeature>> streamHallFeatures() {
-    return hallFeaturesRef.onValue.map((event) {
-      if (event.snapshot.value == null) return <HallFeature>[];
-      final dynamic value = event.snapshot.value;
-      Map<dynamic, dynamic> data;
-
-      if (value is Map) {
-        data = value;
-      } else if (value is List) {
-        data = value.asMap();
-      } else {
-        return <HallFeature>[];
-      }
-
-      return data.entries
-          .where((e) => e.value != null)
-          .map((e) {
-            try {
-              final featureData = _toMap(e.value);
-              return HallFeature.fromJson(featureData);
-            } catch (e) {
-              debugPrint('Error parsing hall feature: $e');
-              return null;
-            }
-          })
-          .whereType<HallFeature>()
-          .toList();
+  Stream<List<HallFeature>> streamHallFeatures(String hotelId) {
+    return _hallFeaturesRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return HallFeature.fromJson(data);
+      }).toList();
     });
   }
 
   /// Save hall feature
   Future<void> saveHallFeature(HallFeature feature) async {
-    await hallFeaturesRef.child(feature.id).set(feature.toJson());
+    await _hallFeaturesRef(
+      feature.hotelId,
+    ).doc(feature.id).set(feature.toJson());
   }
 
   /// Delete hall feature
-  Future<void> deleteHallFeature(String id) async {
-    await hallFeaturesRef.child(id).remove();
+  Future<void> deleteHallFeature(String hotelId, String id) async {
+    await _hallFeaturesRef(hotelId).doc(id).delete();
   }
 
   /// Stream all events (real-time)
-  Stream<List<PrivateEvent>> streamEvents() {
-    return eventsRef.onValue.map((event) {
-      try {
-        if (event.snapshot.value == null) return <PrivateEvent>[];
-        final dynamic value = event.snapshot.value;
-        Map<dynamic, dynamic> data;
-
-        if (value is Map) {
-          data = value;
-        } else if (value is List) {
-          data = value.asMap();
-        } else {
-          return <PrivateEvent>[];
-        }
-
-        return data.entries
-            .where((e) => e.value != null)
-            .map((e) {
-              try {
-                final eventData = _toMap(e.value);
-                return PrivateEvent.fromJson(eventData);
-              } catch (e) {
-                debugPrint('Error parsing event: $e');
-                return null;
-              }
-            })
-            .whereType<PrivateEvent>()
-            .toList()
-          ..sort((a, b) => b.date.compareTo(a.date));
-      } catch (e) {
-        debugPrint('Error in streamEvents: $e');
-        return <PrivateEvent>[];
-      }
+  Stream<List<PrivateEvent>> streamEvents(String hotelId) {
+    return _eventsRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return PrivateEvent.fromJson(data);
+      }).toList()..sort((a, b) => b.date.compareTo(a.date));
     });
   }
 
   /// Save event
   Future<void> saveEvent(PrivateEvent event) async {
-    await eventsRef.child(event.id).set(event.toJson());
+    await _eventsRef(event.hotelId).doc(event.id).set(event.toJson());
   }
 
   /// Update event status
-  Future<void> updateEventStatus(String eventId, EventStatus status) async {
-    await eventsRef.child(eventId).update({
+  Future<void> updateEventStatus(
+    String hotelId,
+    String eventId,
+    EventStatus status,
+  ) async {
+    await _eventsRef(hotelId).doc(eventId).update({
       'status': status.name,
       'updatedAt': DateTime.now().toIso8601String(),
     });
   }
 
   /// Stream POs for an event (real-time)
-  Stream<List<EventPO>> streamEventPOs(String eventId) {
-    return eventPOsRef.child(eventId).onValue.map((event) {
-      try {
-        if (event.snapshot.value == null) return <EventPO>[];
-        final dynamic value = event.snapshot.value;
-        Map<dynamic, dynamic> data;
-
-        if (value is Map) {
-          data = value;
-        } else if (value is List) {
-          data = value.asMap();
-        } else {
-          return <EventPO>[];
-        }
-
-        return data.entries
-            .where((e) => e.value != null)
-            .map((e) {
-              try {
-                final poData = _toMap(e.value);
-                return EventPO.fromJson(poData);
-              } catch (e) {
-                debugPrint('Error parsing event PO: $e');
-                return null;
-              }
-            })
-            .whereType<EventPO>()
-            .toList();
-      } catch (e) {
-        debugPrint('Error in streamEventPOs: $e');
-        return <EventPO>[];
-      }
+  Stream<List<EventPO>> streamEventPOs(String hotelId, String eventId) {
+    return _eventPOsRef(
+      hotelId,
+    ).where('eventId', isEqualTo: eventId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return EventPO.fromJson(data);
+      }).toList();
     });
   }
 
   /// Save Event PO
   Future<void> saveEventPO(EventPO po) async {
-    await eventPOsRef.child(po.eventId).child(po.id).set(po.toJson());
+    await _eventPOsRef(po.hotelId).doc(po.id).set(po.toJson());
   }
 
   /// Delete Event PO
-  Future<void> deleteEventPO(String eventId, String poId) async {
-    await eventPOsRef.child(eventId).child(poId).remove();
+  Future<void> deleteEventPO(String hotelId, String poId) async {
+    await _eventPOsRef(hotelId).doc(poId).delete();
   }
 
   /// Stream Staff Assignments for an event
-  Stream<List<EventStaffAssignment>> streamStaffAssignments(String eventId) {
-    return eventStaffRef.child(eventId).onValue.map((event) {
-      try {
-        if (event.snapshot.value == null) return <EventStaffAssignment>[];
-        final dynamic value = event.snapshot.value;
-        Map<dynamic, dynamic> data;
-
-        if (value is Map) {
-          data = value;
-        } else if (value is List) {
-          data = value.asMap();
-        } else {
-          return <EventStaffAssignment>[];
-        }
-
-        return data.entries
-            .where((e) => e.value != null)
-            .map((e) {
-              try {
-                final assignmentData = _toMap(e.value);
-                return EventStaffAssignment.fromJson(assignmentData);
-              } catch (e) {
-                debugPrint('Error parsing staff assignment: $e');
-                return null;
-              }
-            })
-            .whereType<EventStaffAssignment>()
-            .toList();
-      } catch (e) {
-        debugPrint('Error in streamStaffAssignments: $e');
-        return <EventStaffAssignment>[];
-      }
+  Stream<List<EventStaffAssignment>> streamStaffAssignments(
+    String hotelId,
+    String eventId,
+  ) {
+    return _eventStaffRef(
+      hotelId,
+    ).where('eventId', isEqualTo: eventId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return EventStaffAssignment.fromJson(data);
+      }).toList();
     });
   }
 
   /// Save Staff Assignment
   Future<void> saveStaffAssignment(EventStaffAssignment assignment) async {
-    await eventStaffRef
-        .child(assignment.eventId)
-        .child(assignment.id)
-        .set(assignment.toJson());
+    await _eventStaffRef(
+      assignment.hotelId,
+    ).doc(assignment.id).set(assignment.toJson());
   }
 
   /// Stream Event Tax Rules
-  Stream<List<TaxRule>> streamEventTaxRules() {
-    return eventTaxesRef.onValue.map((event) {
-      try {
-        if (event.snapshot.value == null) return <TaxRule>[];
-        final dynamic value = event.snapshot.value;
-        Map<dynamic, dynamic> data;
-
-        if (value is Map) {
-          data = value;
-        } else if (value is List) {
-          data = value.asMap();
-        } else {
-          return <TaxRule>[];
-        }
-
-        return data.entries
-            .where((e) => e.value != null)
-            .map((e) {
-              try {
-                final taxData = _toMap(e.value);
-                return TaxRule.fromJson(taxData);
-              } catch (e) {
-                debugPrint('Error parsing event tax rule: $e');
-                return null;
-              }
-            })
-            .whereType<TaxRule>()
-            .toList();
-      } catch (e) {
-        debugPrint('Error in streamEventTaxRules: $e');
-        return <TaxRule>[];
-      }
+  Stream<List<TaxRule>> streamEventTaxRules(String hotelId) {
+    return _eventTaxesRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return TaxRule.fromJson(data);
+      }).toList();
     });
   }
 
   /// On-demand fetch all halls
-  Future<List<Hall>> fetchHalls() async {
-    final snapshot = await hallsRef.get();
-    if (!snapshot.exists || snapshot.value == null) return [];
-    final Map<dynamic, dynamic> data = _toMap(snapshot.value);
-    return data.entries
-        .map((e) {
-          try {
-            return Hall.fromJson(_toMap(e.value));
-          } catch (e) {
-            return null;
-          }
-        })
-        .whereType<Hall>()
-        .toList();
+  Future<List<Hall>> fetchHalls(String hotelId) async {
+    final snapshot = await _hallsRef(hotelId).get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return Hall.fromJson(data);
+    }).toList();
   }
 
   /// On-demand fetch all events
-  Future<List<PrivateEvent>> fetchEvents() async {
-    final snapshot = await eventsRef.get();
-    if (!snapshot.exists || snapshot.value == null) return [];
-    final Map<dynamic, dynamic> data = _toMap(snapshot.value);
-    return data.entries
-        .map((e) {
-          try {
-            return PrivateEvent.fromJson(_toMap(e.value));
-          } catch (e) {
-            return null;
-          }
-        })
-        .whereType<PrivateEvent>()
-        .toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+  Future<List<PrivateEvent>> fetchEvents(String hotelId) async {
+    final snapshot = await _eventsRef(hotelId).get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return PrivateEvent.fromJson(data);
+    }).toList()..sort((a, b) => b.date.compareTo(a.date));
   }
 
   /// On-demand fetch POs for an event
-  Future<List<EventPO>> fetchEventPOs(String eventId) async {
-    final snapshot = await eventPOsRef.child(eventId).get();
-    if (!snapshot.exists || snapshot.value == null) return [];
-    final Map<dynamic, dynamic> data = _toMap(snapshot.value);
-    return data.entries
-        .map((e) {
-          try {
-            return EventPO.fromJson(_toMap(e.value));
-          } catch (e) {
-            return null;
-          }
-        })
-        .whereType<EventPO>()
-        .toList();
+  Future<List<EventPO>> fetchEventPOs(String hotelId, String eventId) async {
+    final snapshot = await _eventPOsRef(
+      hotelId,
+    ).where('eventId', isEqualTo: eventId).get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return EventPO.fromJson(data);
+    }).toList();
   }
 
   /// On-demand fetch event taxes
-  Future<List<TaxRule>> fetchEventTaxRules() async {
-    final snapshot = await eventTaxesRef.get();
-    if (!snapshot.exists || snapshot.value == null) return [];
-    final Map<dynamic, dynamic> data = _toMap(snapshot.value);
-    return data.entries
-        .map((e) {
-          try {
-            return TaxRule.fromJson(_toMap(e.value));
-          } catch (e) {
-            return null;
-          }
-        })
-        .whereType<TaxRule>()
-        .toList();
+  Future<List<TaxRule>> fetchEventTaxRules(String hotelId) async {
+    final snapshot = await _eventTaxesRef(hotelId).get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return TaxRule.fromJson(data);
+    }).toList();
   }
 }

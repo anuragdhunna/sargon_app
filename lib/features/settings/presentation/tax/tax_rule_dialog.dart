@@ -48,10 +48,12 @@ class _TaxRuleDialogState extends State<TaxRuleDialog> {
       final authState = context.read<AuthCubit>().state;
       String userId = 'unknown';
       String userName = 'Unknown User';
+      String hotelId = 'default';
 
       if (authState is AuthVerified) {
         userId = authState.userId;
         userName = authState.userName;
+        hotelId = authState.hotelId;
       }
 
       final cgst = double.tryParse(_cgstController.text) ?? 0.0;
@@ -59,6 +61,7 @@ class _TaxRuleDialogState extends State<TaxRuleDialog> {
 
       final rule = TaxRule(
         id: widget.existingRule?.id ?? const Uuid().v4(),
+        hotelId: hotelId,
         name: _nameController.text,
         cgstPercent: cgst,
         sgstPercent: sgst,
@@ -70,6 +73,7 @@ class _TaxRuleDialogState extends State<TaxRuleDialog> {
           rule,
           userId,
           userName,
+          hotelId,
         );
         if (mounted) Navigator.of(context).pop();
       } catch (e) {
@@ -158,15 +162,18 @@ class _TaxRuleDialogState extends State<TaxRuleDialog> {
                       final authState = context.read<AuthCubit>().state;
                       String userId = 'unknown';
                       String userName = 'Unknown User';
+                      String hotelId = 'default';
                       if (authState is AuthVerified) {
                         userId = authState.userId;
                         userName = authState.userName;
+                        hotelId = authState.hotelId;
                       }
 
                       await context.read<SettingsRepository>().deleteTaxRule(
                         widget.existingRule!.id,
                         userId,
                         userName,
+                        hotelId,
                       );
                       if (context.mounted) Navigator.pop(context);
                     }

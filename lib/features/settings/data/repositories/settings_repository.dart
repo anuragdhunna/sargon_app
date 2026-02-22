@@ -1,5 +1,4 @@
 import 'package:hotel_manager/core/models/models.dart';
-import 'package:hotel_manager/core/models/billing_models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/core/services/audit_service.dart';
 
@@ -15,14 +14,20 @@ class SettingsRepository {
 
   // --- Tax Rules ---
 
-  Stream<List<TaxRule>> streamTaxRules() {
-    return _databaseService.streamTaxRules();
+  Stream<List<TaxRule>> streamTaxRules(String hotelId) {
+    return _databaseService.streamTaxRules(hotelId);
   }
 
-  Future<void> saveTaxRule(TaxRule rule, String userId, String userName) async {
+  Future<void> saveTaxRule(
+    TaxRule rule,
+    String userId,
+    String userName,
+    String hotelId,
+  ) async {
     await _databaseService.saveTaxRule(rule);
 
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: 'admin',
@@ -43,10 +48,12 @@ class SettingsRepository {
     String taxRuleId,
     String userId,
     String userName,
+    String hotelId,
   ) async {
-    await _databaseService.deleteTaxRule(taxRuleId);
+    await _databaseService.deleteTaxRule(hotelId, taxRuleId);
 
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: 'admin',
@@ -59,18 +66,20 @@ class SettingsRepository {
 
   // --- Service Charge Rules ---
 
-  Stream<List<ServiceChargeRule>> streamServiceChargeRules() {
-    return _databaseService.streamServiceChargeRules();
+  Stream<List<ServiceChargeRule>> streamServiceChargeRules(String hotelId) {
+    return _databaseService.streamServiceChargeRules(hotelId);
   }
 
   Future<void> saveServiceChargeRule(
     ServiceChargeRule rule,
     String userId,
     String userName,
+    String hotelId,
   ) async {
     await _databaseService.saveServiceChargeRule(rule);
 
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: 'admin',
@@ -82,20 +91,42 @@ class SettingsRepository {
     );
   }
 
+  Future<void> deleteServiceChargeRule(
+    String id,
+    String userId,
+    String userName,
+    String hotelId,
+  ) async {
+    await _databaseService.deleteServiceChargeRule(hotelId, id);
+
+    await _auditService.log(
+      hotelId: hotelId,
+      userId: userId,
+      userName: userName,
+      userRole: 'admin',
+      action: AuditAction.delete,
+      entity: 'service_charge_rule',
+      entityId: id,
+      description: 'Deleted service charge: $id',
+    );
+  }
+
   // --- Tables ---
 
-  Stream<List<TableEntity>> streamTables() {
-    return _databaseService.streamTables();
+  Stream<List<TableEntity>> streamTables(String hotelId) {
+    return _databaseService.streamTables(hotelId);
   }
 
   Future<void> saveTable(
     TableEntity table,
     String userId,
     String userName,
+    String hotelId,
   ) async {
     await _databaseService.saveTable(table);
 
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: 'admin',
@@ -111,10 +142,12 @@ class SettingsRepository {
     String tableId,
     String userId,
     String userName,
+    String hotelId,
   ) async {
-    await _databaseService.deleteTable(tableId);
+    await _databaseService.deleteTable(hotelId, tableId);
 
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: 'admin',
@@ -127,16 +160,18 @@ class SettingsRepository {
 
   // --- Menu Management ---
 
-  Stream<List<MenuItem>> streamMenuItems() =>
-      _databaseService.streamMenuItems();
+  Stream<List<MenuItem>> streamMenuItems(String hotelId) =>
+      _databaseService.streamMenuItems(hotelId);
 
   Future<void> saveMenuItem(
     MenuItem item,
     String userId,
     String userName,
+    String hotelId,
   ) async {
     await _databaseService.saveMenuItem(item);
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: 'admin',
@@ -152,9 +187,11 @@ class SettingsRepository {
     String itemId,
     String userId,
     String userName,
+    String hotelId,
   ) async {
-    await _databaseService.deleteMenuItem(itemId);
+    await _databaseService.deleteMenuItem(hotelId, itemId);
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: userName,
       userRole: 'admin',

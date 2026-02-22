@@ -60,21 +60,26 @@ abstract class BaseFirestoreRepository<T extends BaseEntity> {
   }
 
   /// Get all non-deleted documents.
-  Future<List<T>> getAll() async {
-    final snapshot = await baseQuery.get();
+  Future<List<T>> getAll({String? hotelId}) async {
+    final snapshot = await getBaseQuery(hotelId: hotelId).get();
     return snapshot.docs.map((doc) => fromJson(doc.data())).toList();
   }
 
   /// Stream all non-deleted documents.
-  Stream<List<T>> streamAll() {
-    return baseQuery.snapshots().map(
+  Stream<List<T>> streamAll({String? hotelId}) {
+    return getBaseQuery(hotelId: hotelId).snapshots().map(
       (snapshot) => snapshot.docs.map((doc) => fromJson(doc.data())).toList(),
     );
   }
 
   /// Base query that filters out deleted documents.
-  Query<Map<String, dynamic>> get baseQuery =>
-      collection.where('isDeleted', isEqualTo: false);
+  Query<Map<String, dynamic>> getBaseQuery({String? hotelId}) {
+    var query = collection.where('isDeleted', isEqualTo: false);
+    if (hotelId != null) {
+      query = query.where('hotelId', isEqualTo: hotelId);
+    }
+    return query;
+  }
 
   /// Child classes must implement this to convert Firestore data to [T].
   T fromJson(Map<String, dynamic> json);

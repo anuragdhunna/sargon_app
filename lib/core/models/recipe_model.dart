@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../core/models/inventory_item_model.dart';
+import 'inventory_models.dart';
 
 /// Represents an ingredient used in a menu item recipe
 class RecipeIngredient extends Equatable {

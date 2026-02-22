@@ -3,11 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
+import 'package:hotel_manager/core/models/inventory_models.dart';
 import 'package:hotel_manager/features/inventory/goods_receipt/presentation/widgets/receiving_inputs.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart'
     show InventoryCubit;
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_state.dart';
-import 'package:hotel_manager/features/inventory/stock/data/inventory_model.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 class ManualItemCardWidget extends StatelessWidget {
@@ -43,7 +43,7 @@ class ManualItemCardWidget extends StatelessWidget {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<InventoryItem>(
-                        value: input.selectedItem,
+                        initialValue: input.selectedItem,
                         decoration: AppDesign.inputDecoration(
                           label: 'Select Item *',
                           hint: 'Choose inventory item',

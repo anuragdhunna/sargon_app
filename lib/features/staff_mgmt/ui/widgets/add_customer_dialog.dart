@@ -8,6 +8,8 @@ import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 import 'package:hotel_manager/features/staff_mgmt/logic/customer_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddCustomerDialog extends StatefulWidget {
@@ -145,14 +147,20 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
 
       final data = _formKey.currentState!.value;
 
+      final authState = context.read<AuthCubit>().state;
+      final hotelId = (authState is AuthVerified)
+          ? authState.hotelId
+          : 'default';
+
       final newCustomer = Customer(
         id: 'cust_${DateTime.now().millisecondsSinceEpoch}',
+        hotelId: hotelId,
         name: data['name'],
         phone: data['phone'],
         email: data['email'],
         idProofType: data['idProofType'],
         idProofNumber: data['idProofNumber'],
-        createdAt: DateTime.now(),
+        createdOn: DateTime.now(),
       );
 
       try {

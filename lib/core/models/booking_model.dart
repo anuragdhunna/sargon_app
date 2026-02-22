@@ -1,5 +1,5 @@
 import 'base_entity.dart';
-import 'package:hotel_manager/core/models/payment_models.dart';
+import 'payment_models.dart';
 
 /// Booking status enum
 enum BookingStatus { confirmed, checkedIn, checkedOut, cancelled }
@@ -49,7 +49,8 @@ class Booking extends BaseEntity {
   static const int schemaVersion = 2;
 
   const Booking({
-    required String id,
+    required super.id,
+    required super.hotelId,
     required this.guestName,
     required this.guestPhone,
     this.guestEmail,
@@ -69,24 +70,15 @@ class Booking extends BaseEntity {
     this.paidAmount = 0.0,
     this.paymentMethod,
     this.paymentReference,
-    String? createdBy,
+    super.createdBy,
     DateTime? createdAt,
     DateTime? createdOn,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool isDeleted = false,
-    String? deletedBy,
-    DateTime? deletedOn,
-  }) : super(
-         id: id,
-         createdBy: createdBy,
-         createdOn: createdOn ?? createdAt,
-         updatedBy: updatedBy,
-         updatedOn: updatedOn,
-         isDeleted: isDeleted,
-         deletedBy: deletedBy,
-         deletedOn: deletedOn,
-       );
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+    super.deletedBy,
+    super.deletedOn,
+  }) : super(createdOn: createdOn ?? createdAt);
 
   /// Getter for backward compatibility
   DateTime get createdAt => createdOn ?? DateTime.now();
@@ -119,6 +111,7 @@ class Booking extends BaseEntity {
 
   Booking copyWith({
     String? id,
+    String? hotelId,
     String? guestName,
     String? guestPhone,
     String? guestEmail,
@@ -142,6 +135,7 @@ class Booking extends BaseEntity {
   }) {
     return Booking(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       guestName: guestName ?? this.guestName,
       guestPhone: guestPhone ?? this.guestPhone,
       guestEmail: guestEmail ?? this.guestEmail,
@@ -172,6 +166,7 @@ class Booking extends BaseEntity {
   }
 
   /// Convert to JSON for Firebase
+  @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toAuditJson(),
@@ -202,6 +197,7 @@ class Booking extends BaseEntity {
   factory Booking.fromJson(Map<String, dynamic> json) {
     return Booking(
       id: json['id'] as String,
+      hotelId: json['hotelId'] as String? ?? 'default',
       guestName: json['guestName'] as String,
       guestPhone: json['guestPhone'] as String,
       guestEmail: json['guestEmail'] as String?,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
-import 'package:hotel_manager/features/orders/data/menu_item_model.dart';
+import 'package:hotel_manager/core/models/restaurant_models.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 /// Reusable menu item card widget for displaying menu items in a grid

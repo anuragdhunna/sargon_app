@@ -23,8 +23,10 @@ class _CreatePODialogState extends State<CreatePODialog> {
   @override
   void initState() {
     super.initState();
+    final authState = context.read<AuthCubit>().state;
+    if (authState is! AuthVerified) return;
     // Refresh vendors to ensure we have latest data
-    context.read<VendorCubit>().loadVendors();
+    context.read<VendorCubit>().loadVendors(authState.hotelId);
   }
 
   @override
@@ -136,6 +138,7 @@ class _CreatePODialogState extends State<CreatePODialog> {
       userId: authState.userId,
       userName: authState.userName,
       userRole: authState.role.name,
+      hotelId: authState.hotelId,
     );
 
     Navigator.pop(context);
@@ -359,7 +362,7 @@ class _CreatePODialogState extends State<CreatePODialog> {
                     Expanded(
                       flex: 4,
                       child: DropdownButtonFormField<InventoryItem>(
-                        value: item.selectedItem,
+                        initialValue: item.selectedItem,
                         decoration: const InputDecoration(
                           labelText: 'Item *',
                           border: OutlineInputBorder(),
@@ -369,7 +372,7 @@ class _CreatePODialogState extends State<CreatePODialog> {
                           ),
                         ),
                         items: state.items.map((inventoryItem) {
-                          return DropdownMenuItem(
+                          return DropdownMenuItem<InventoryItem>(
                             value: inventoryItem,
                             child: Text(
                               inventoryItem.name,
@@ -416,8 +419,9 @@ class _CreatePODialogState extends State<CreatePODialog> {
                         validator: (value) {
                           if (value == null || value.isEmpty) return 'Req';
                           if (double.tryParse(value) == null ||
-                              double.parse(value) <= 0)
+                              double.parse(value) <= 0) {
                             return 'Inv';
+                          }
                           return null;
                         },
                       ),
@@ -448,8 +452,9 @@ class _CreatePODialogState extends State<CreatePODialog> {
                         validator: (value) {
                           if (value == null || value.isEmpty) return 'Req';
                           if (double.tryParse(value) == null ||
-                              double.parse(value) <= 0)
+                              double.parse(value) <= 0) {
                             return 'Inv';
+                          }
                           return null;
                         },
                       ),

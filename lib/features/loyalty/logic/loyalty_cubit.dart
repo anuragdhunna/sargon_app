@@ -16,18 +16,22 @@ class LoyaltyCubit extends Cubit<LoyaltyState> {
     : _loyaltyRepository = loyaltyRepository,
       super(LoyaltyInitial());
 
-  void loadLoyaltyData() {
+  void loadLoyaltyData(String hotelId) {
     emit(LoyaltyLoading());
 
     _tiersSubscription?.cancel();
     _rulesSubscription?.cancel();
 
-    _tiersSubscription = _loyaltyRepository.watchLoyaltyTiers().listen((tiers) {
+    _tiersSubscription = _loyaltyRepository.watchLoyaltyTiers(hotelId).listen((
+      tiers,
+    ) {
       _currentTiers = tiers;
       _emitLoaded();
     }, onError: (e) => emit(LoyaltyError(e.toString())));
 
-    _rulesSubscription = _loyaltyRepository.watchPointRules().listen((rules) {
+    _rulesSubscription = _loyaltyRepository.watchPointRules(hotelId).listen((
+      rules,
+    ) {
       _currentRules = rules;
       _emitLoaded();
     }, onError: (e) => emit(LoyaltyError(e.toString())));

@@ -8,6 +8,7 @@ import '../../../../component/cards/app_card.dart';
 import '../../../../component/inputs/app_text_field.dart';
 import '../../../../core/models/models.dart';
 import '../../../../component/inputs/app_phone_field.dart';
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import '../../logic/event_cubit.dart';
 
 class EventDetailsScreen extends StatefulWidget {
@@ -169,7 +170,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
           ...event.featureSelections.where((s) => s.isSelected).map((s) {
             final feature = state.hallFeatures.firstWhere(
               (f) => f.id == s.featureId,
-              orElse: () => HallFeature(id: s.featureId, name: s.featureId),
+              orElse: () => HallFeature(
+                id: s.featureId,
+                hotelId: context.hotelId,
+                name: s.featureId,
+                description: '',
+                isActive: true,
+              ),
             );
             return Column(
               children: [
@@ -288,10 +295,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     (s) => s.id == a.managerId,
                     orElse: () => User(
                       id: 'unknown',
+                      hotelId: context.hotelId,
                       name: 'Unknown Manager',
+                      email: '',
                       phoneNumber: '',
                       role: UserRole.manager,
-                      createdAt: DateTime.now(),
+                      status: UserStatus.active,
+                      createdOn: DateTime.now(),
                     ),
                   );
                   return ListTile(
@@ -417,7 +427,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           assignment?.id ??
                           context.read<EventCubit>().repository.nextId(
                             'event_staff',
+                            hotelId: context.hotelId,
                           ),
+                      hotelId: context.hotelId,
                       eventId: event.id,
                       managerId: selectedManagerId!,
                       staffIds: selectedStaffIds,
@@ -564,11 +576,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     (v) => v.id == po.vendorId,
                     orElse: () => Vendor(
                       id: 'unknown',
+                      hotelId: context.hotelId,
                       name: 'Unknown Vendor',
                       category: VendorCategory.other,
                       contactPerson: '',
                       phoneNumber: '',
-                      createdAt: DateTime.now(),
+                      createdOn: DateTime.now(),
                     ),
                   );
                   return ListTile(
@@ -698,12 +711,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     final newVendor = Vendor(
                       id: context.read<EventCubit>().repository.nextId(
                         'vendors',
+                        hotelId: context.hotelId,
                       ),
+                      hotelId: context.hotelId,
                       name: newVendorNameController.text,
                       category: VendorCategory.other,
                       contactPerson: 'Event Admin',
                       phoneNumber: newVendorPhoneController.text,
-                      createdAt: DateTime.now(),
+                      createdOn: DateTime.now(),
                     );
                     if (!context.mounted) return;
                     await context.read<EventCubit>().saveVendor(newVendor);
@@ -725,7 +740,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                     EventPO(
                       id: context.read<EventCubit>().repository.nextId(
                         'event_pos',
+                        hotelId: context.hotelId,
                       ),
+                      hotelId: context.hotelId,
                       eventId: event.id,
                       vendorId: finalVendorId,
                       description: descController.text,
@@ -903,7 +920,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
               final incident = EventIncident(
                 id: context.read<EventCubit>().repository.nextId(
                   'event_incidents',
+                  hotelId: context.hotelId,
                 ),
+                hotelId: context.hotelId,
                 eventId: event.id,
                 title: titleController.text,
                 description: descController.text,

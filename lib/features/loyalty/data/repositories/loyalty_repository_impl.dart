@@ -9,23 +9,24 @@ class LoyaltyRepositoryImpl implements LoyaltyRepository {
     : _databaseService = databaseService;
 
   @override
-  Stream<List<LoyaltyTier>> watchLoyaltyTiers() =>
-      _databaseService.streamLoyaltyTiers();
+  Stream<List<LoyaltyTier>> watchLoyaltyTiers(String hotelId) =>
+      _databaseService.streamLoyaltyTiers(hotelId);
 
   @override
-  Future<List<LoyaltyTier>> getLoyaltyTiers() =>
-      _databaseService.getLoyaltyTiers();
+  Future<List<LoyaltyTier>> getLoyaltyTiers(String hotelId) =>
+      _databaseService.getLoyaltyTiers(hotelId);
 
   @override
   Future<void> saveLoyaltyTier(LoyaltyTier tier) =>
       _databaseService.saveLoyaltyTier(tier);
 
   @override
-  Stream<List<PointRule>> watchPointRules() =>
-      _databaseService.streamPointRules();
+  Stream<List<PointRule>> watchPointRules(String hotelId) =>
+      _databaseService.streamPointRules(hotelId);
 
   @override
-  Future<List<PointRule>> getPointRules() => _databaseService.getPointRules();
+  Future<List<PointRule>> getPointRules(String hotelId) =>
+      _databaseService.getPointRules(hotelId);
 
   @override
   Future<void> savePointRule(PointRule rule) =>
@@ -37,10 +38,11 @@ class LoyaltyRepositoryImpl implements LoyaltyRepository {
 
   @override
   Future<void> updateCustomerLoyalty(
+    String hotelId,
     String customerId,
     LoyaltyInfo loyaltyInfo,
   ) async {
-    final customer = await _databaseService.getCustomer(customerId);
+    final customer = await _databaseService.getCustomer(hotelId, customerId);
     if (customer != null) {
       final updatedCustomer = customer.copyWith(loyaltyInfo: loyaltyInfo);
       await _databaseService.saveCustomer(updatedCustomer);

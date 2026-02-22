@@ -25,6 +25,7 @@ void main() {
 
   final testRoom = const Room(
     id: '101',
+    hotelId: 'test-hotel',
     roomNumber: '101',
     type: RoomType.deluxe,
     status: RoomStatus.available,
@@ -45,6 +46,7 @@ void main() {
         userId: 'admin',
         userName: 'Admin User',
         role: UserRole.manager,
+        hotelId: 'test-hotel',
       ),
     );
   });

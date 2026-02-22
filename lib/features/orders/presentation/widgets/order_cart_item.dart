@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_manager/core/models/ordering_models.dart';
 
-import 'package:hotel_manager/features/orders/data/order_model.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 /// A reusable cart item widget used in the order taking screen.

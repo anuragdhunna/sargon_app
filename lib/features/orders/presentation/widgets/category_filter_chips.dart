@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_manager/features/orders/data/menu_item_model.dart';
+import 'package:hotel_manager/core/models/restaurant_models.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
 /// Category filter chips widget for menu filtering

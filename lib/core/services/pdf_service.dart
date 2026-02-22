@@ -167,7 +167,7 @@ class PdfService {
                       'Date:',
                       style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
                     ),
-                    pw.Text(_dateFormat.format(po.createdAt)),
+                    pw.Text(_dateFormat.format(po.createdOn ?? DateTime.now())),
                   ],
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../../theme/app_design.dart';
@@ -195,14 +196,16 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
                       final taxRules = state.eventTaxRules.isNotEmpty
                           ? state.eventTaxRules
                           : [
-                              const TaxRule(
+                              TaxRule(
                                 id: 'gst5',
+                                hotelId: context.hotelId,
                                 name: 'GST 5%',
                                 cgstPercent: 2.5,
                                 sgstPercent: 2.5,
                               ),
-                              const TaxRule(
+                              TaxRule(
                                 id: 'gst18',
+                                hotelId: context.hotelId,
                                 name: 'GST 18%',
                                 cgstPercent: 9,
                                 sgstPercent: 9,
@@ -324,9 +327,13 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
         .fold(0, (sum, h) => sum + h.capacity);
 
     final event = PrivateEvent(
+      hotelId: context.hotelId,
       id:
           widget.event?.id ??
-          context.read<EventCubit>().repository.nextId('events'),
+          context.read<EventCubit>().repository.nextId(
+            'events',
+            hotelId: context.hotelId,
+          ),
       name: _nameController.text,
       guestName: _guestNameController.text,
       guestPhone: _guestPhoneController.text,
@@ -346,7 +353,7 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
         manualPrice: widget.event?.pricing.manualPrice,
       ),
       createdOn: widget.event?.createdOn ?? DateTime.now(),
-      createdBy: widget.event?.createdBy ?? 'admin',
+      createdBy: widget.event?.createdBy,
       advancePayment: widget.event?.advancePayment ?? 0.0,
       notes: widget.event?.notes,
       featureSelections: _featureSelections,
@@ -718,7 +725,7 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
               if (isSelected) ...[
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: arrangement,
+                  initialValue: arrangement,
                   decoration: const InputDecoration(
                     labelText: 'Arranged By',
                     prefixIcon: Icon(Icons.person_outline),

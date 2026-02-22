@@ -121,6 +121,7 @@ class IncidentManagementScreen extends StatelessWidget {
                         final data = formKey.currentState!.value;
                         final incident = Incident(
                           id: const Uuid().v4(),
+                          hotelId: authState.hotelId,
                           title: data['title'],
                           description: data['description'] ?? '',
                           reportedBy: authState.userName,
@@ -134,6 +135,7 @@ class IncidentManagementScreen extends StatelessWidget {
                           userId: authState.userId,
                           userName: authState.userName,
                           userRole: authState.role.name,
+                          hotelId: authState.hotelId,
                         );
                         Navigator.pop(dialogContext);
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -201,7 +203,7 @@ class _IncidentCard extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: priorityColor.withOpacity(0.1),
+                    color: priorityColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -249,6 +251,7 @@ class _IncidentCard extends StatelessWidget {
                         userId: authState.userId,
                         userName: authState.userName,
                         userRole: authState.role.name,
+                        hotelId: authState.hotelId,
                       );
                     }
                   },

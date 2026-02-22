@@ -28,8 +28,12 @@ class _RoomsScreenState extends State<RoomsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load rooms on init
-    context.read<RoomCubit>().loadRooms();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthCubit>().state;
+      if (authState is AuthVerified) {
+        context.read<RoomCubit>().loadRooms(authState.hotelId);
+      }
+    });
   }
 
   @override
@@ -110,7 +114,12 @@ class _RoomsScreenState extends State<RoomsScreen> {
                   Text('Error: ${state.message}'),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => context.read<RoomCubit>().loadRooms(),
+                    onPressed: () {
+                      final authState = context.read<AuthCubit>().state;
+                      if (authState is AuthVerified) {
+                        context.read<RoomCubit>().loadRooms(authState.hotelId);
+                      }
+                    },
                     child: const Text('Retry'),
                   ),
                 ],
@@ -399,6 +408,7 @@ class _RoomsScreenState extends State<RoomsScreen> {
       final authState = context.read<AuthCubit>().state;
       if (authState is AuthVerified) {
         context.read<RoomCubit>().updateRoomStatus(
+          hotelId: authState.hotelId,
           roomId: room.id,
           newStatus: RoomStatus.available,
           userId: authState.userId,

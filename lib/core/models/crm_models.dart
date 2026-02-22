@@ -1,37 +1,168 @@
 import 'package:equatable/equatable.dart';
 import 'base_entity.dart';
 
+/// Customer model
+class Customer extends BaseEntity {
+  final String name;
+  final String phone;
+  final String? email;
+  final DateTime? lastVisit;
+  final int totalBookings;
+  final double totalSpent;
+  final String? idProofType;
+  final String? idProofNumber;
+  final String? idProofImageUrl;
+  final LoyaltyInfo? loyaltyInfo;
+
+  const Customer({
+    required super.id,
+    required super.hotelId,
+    required this.name,
+    required this.phone,
+    this.email,
+    this.lastVisit,
+    this.totalBookings = 0,
+    this.totalSpent = 0.0,
+    this.idProofType,
+    this.idProofNumber,
+    this.idProofImageUrl,
+    this.loyaltyInfo,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
+
+  /// Getter for backward compatibility
+  DateTime get createdAt => createdOn ?? DateTime.now();
+
+  @override
+  List<Object?> get props => [
+    ...super.props,
+    name,
+    phone,
+    email,
+    lastVisit,
+    totalBookings,
+    totalSpent,
+    idProofType,
+    idProofNumber,
+    idProofImageUrl,
+    loyaltyInfo,
+  ];
+
+  Customer copyWith({
+    String? id,
+    String? hotelId,
+    String? name,
+    String? phone,
+    String? email,
+    DateTime? lastVisit,
+    int? totalBookings,
+    double? totalSpent,
+    LoyaltyInfo? loyaltyInfo,
+  }) {
+    return Customer(
+      id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      email: email ?? this.email,
+      lastVisit: lastVisit ?? this.lastVisit,
+      totalBookings: totalBookings ?? this.totalBookings,
+      totalSpent: totalSpent ?? this.totalSpent,
+      idProofType: idProofType,
+      idProofNumber: idProofNumber,
+      idProofImageUrl: idProofImageUrl,
+      loyaltyInfo: loyaltyInfo ?? this.loyaltyInfo,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      ...super.toAuditJson(),
+      'name': name,
+      'phone': phone,
+      'email': email,
+      'lastVisit': lastVisit?.toIso8601String(),
+      'totalBookings': totalBookings,
+      'totalSpent': totalSpent,
+      'idProofType': idProofType,
+      'idProofNumber': idProofNumber,
+      'idProofImageUrl': idProofImageUrl,
+      if (loyaltyInfo != null) 'loyaltyInfo': loyaltyInfo?.toJson(),
+    };
+  }
+
+  factory Customer.fromJson(Map<String, dynamic> json) {
+    return Customer(
+      id: json['id'] as String,
+      hotelId: json['hotelId'] as String? ?? 'default',
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      email: json['email'] as String?,
+      lastVisit: BaseEntity.parseDateTime(json['lastVisit']),
+      totalBookings: json['totalBookings'] as int? ?? 0,
+      totalSpent: (json['totalSpent'] as num?)?.toDouble() ?? 0.0,
+      idProofType: json['idProofType'] as String?,
+      idProofNumber: json['idProofNumber'] as String?,
+      idProofImageUrl: json['idProofImageUrl'] as String?,
+      loyaltyInfo: json['loyaltyInfo'] != null
+          ? LoyaltyInfo.fromJson(Map<String, dynamic>.from(json['loyaltyInfo']))
+          : null,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['createdAt'],
+      ),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
+    );
+  }
+}
+
 /// Loyalty Tier model
 class LoyaltyTier extends BaseEntity {
-  final String name; // e.g., Silver, Gold, Platinum
+  final String name;
   final double minSpend;
-  final double earnMultiplier; // e.g., 1.0, 1.25
-  final double redeemMultiplier; // e.g., 1.0
+  final double earnMultiplier;
+  final double redeemMultiplier;
   final List<String> benefits;
   final bool isActive;
 
   const LoyaltyTier({
-    required String id,
+    required super.id,
+    required super.hotelId,
     required this.name,
     required this.minSpend,
     required this.earnMultiplier,
     this.redeemMultiplier = 1.0,
     this.benefits = const [],
     this.isActive = true,
-    String? createdBy,
-    DateTime? createdOn,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool isDeleted = false,
-  }) : super(
-         id: id,
-         createdOn: createdOn,
-         createdBy: createdBy,
-         updatedBy: updatedBy,
-         updatedOn: updatedOn,
-         isDeleted: isDeleted,
-       );
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
 
+  @override
+  List<Object?> get props => [
+    ...super.props,
+    name,
+    minSpend,
+    earnMultiplier,
+    isActive,
+  ];
+
+  @override
   Map<String, dynamic> toJson() => {
     ...super.toAuditJson(),
     'name': name,
@@ -44,6 +175,7 @@ class LoyaltyTier extends BaseEntity {
 
   factory LoyaltyTier.fromJson(Map<String, dynamic> json) => LoyaltyTier(
     id: json['id'],
+    hotelId: json['hotelId'] as String? ?? 'default',
     name: json['name'],
     minSpend: (json['minSpend'] as num).toDouble(),
     earnMultiplier: (json['earnMultiplier'] as num).toDouble(),
@@ -56,50 +188,39 @@ class LoyaltyTier extends BaseEntity {
     updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
     isDeleted: json['isDeleted'] ?? false,
   );
-
-  @override
-  List<Object?> get props => [
-    ...super.props,
-    name,
-    minSpend,
-    earnMultiplier,
-    isActive,
-  ];
 }
 
 /// Point Earning Rule
-enum PointEarnType { bill_amount, category, item }
+enum PointEarnType { billAmount, category, item }
 
 class PointRule extends BaseEntity {
   final PointEarnType earnType;
-  final double earnValue; // points per ₹100 or flat points
+  final double earnValue;
   final List<String> applicableCategoryIds;
   final List<String> applicableItemIds;
   final double minBillAmount;
   final bool isActive;
 
   const PointRule({
-    required String id,
+    required super.id,
+    required super.hotelId,
     required this.earnType,
     required this.earnValue,
     this.applicableCategoryIds = const [],
     this.applicableItemIds = const [],
     this.minBillAmount = 0,
     this.isActive = true,
-    String? createdBy,
-    DateTime? createdOn,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool isDeleted = false,
-  }) : super(
-         id: id,
-         createdOn: createdOn,
-         createdBy: createdBy,
-         updatedBy: updatedBy,
-         updatedOn: updatedOn,
-         isDeleted: isDeleted,
-       );
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
 
+  @override
+  List<Object?> get props => [...super.props, earnType, earnValue, isActive];
+
+  @override
   Map<String, dynamic> toJson() => {
     ...super.toAuditJson(),
     'earnType': earnType.name,
@@ -112,6 +233,7 @@ class PointRule extends BaseEntity {
 
   factory PointRule.fromJson(Map<String, dynamic> json) => PointRule(
     id: json['id'],
+    hotelId: json['hotelId'] as String? ?? 'default',
     earnType: PointEarnType.values.firstWhere(
       (e) => e.name == json['earnType'],
     ),
@@ -128,9 +250,6 @@ class PointRule extends BaseEntity {
     updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
     isDeleted: json['isDeleted'] ?? false,
   );
-
-  @override
-  List<Object?> get props => [id, earnType, earnValue, isActive];
 }
 
 /// Point Redemption Record
@@ -141,25 +260,29 @@ class PointRedemption extends BaseEntity {
   final DateTime redeemedAt;
 
   const PointRedemption({
-    required String id,
+    required super.id,
+    required super.hotelId,
     required this.billId,
     required this.pointsUsed,
     required this.monetaryValue,
     required this.redeemedAt,
-    String? createdBy,
-    DateTime? createdOn,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool isDeleted = false,
-  }) : super(
-         id: id,
-         createdOn: createdOn ?? redeemedAt,
-         createdBy: createdBy,
-         updatedBy: updatedBy,
-         updatedOn: updatedOn,
-         isDeleted: isDeleted,
-       );
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
 
+  @override
+  List<Object?> get props => [
+    ...super.props,
+    billId,
+    pointsUsed,
+    monetaryValue,
+    redeemedAt,
+  ];
+
+  @override
   Map<String, dynamic> toJson() => {
     ...super.toAuditJson(),
     'billId': billId,
@@ -171,6 +294,7 @@ class PointRedemption extends BaseEntity {
   factory PointRedemption.fromJson(Map<String, dynamic> json) =>
       PointRedemption(
         id: json['id'],
+        hotelId: json['hotelId'] as String? ?? 'default',
         billId: json['billId'],
         pointsUsed: json['pointsUsed'] as int,
         monetaryValue: (json['monetaryValue'] as num).toDouble(),
@@ -182,17 +306,9 @@ class PointRedemption extends BaseEntity {
         updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
         isDeleted: json['isDeleted'] ?? false,
       );
-
-  @override
-  List<Object?> get props => [
-    ...super.props,
-    billId,
-    pointsUsed,
-    monetaryValue,
-  ];
 }
 
-/// Extended Customer Loyalty Info (to be stored in Customer model or as a reference)
+/// Loyalty Info
 class LoyaltyInfo extends Equatable {
   final String tierId;
   final int totalPoints;
@@ -207,6 +323,15 @@ class LoyaltyInfo extends Equatable {
     this.lifetimeSpend = 0,
     this.lastActivityAt,
   });
+
+  @override
+  List<Object?> get props => [
+    tierId,
+    totalPoints,
+    availablePoints,
+    lifetimeSpend,
+    lastActivityAt,
+  ];
 
   LoyaltyInfo copyWith({
     String? tierId,
@@ -237,16 +362,6 @@ class LoyaltyInfo extends Equatable {
     totalPoints: json['totalPoints'] as int? ?? 0,
     availablePoints: json['availablePoints'] as int? ?? 0,
     lifetimeSpend: (json['lifetimeSpend'] as num?)?.toDouble() ?? 0,
-    lastActivityAt: json['lastActivityAt'] != null
-        ? DateTime.parse(json['lastActivityAt'])
-        : null,
+    lastActivityAt: BaseEntity.parseDateTime(json['lastActivityAt']),
   );
-
-  @override
-  List<Object?> get props => [
-    tierId,
-    totalPoints,
-    availablePoints,
-    lifetimeSpend,
-  ];
 }

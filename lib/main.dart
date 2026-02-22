@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hotel_manager/core/navigation/app_router.dart';
@@ -7,14 +5,10 @@ import 'package:hotel_manager/core/services/firebase_service.dart';
 import 'package:hotel_manager/core/services/auth_service.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/core/services/notification_service.dart';
-import 'package:hotel_manager/core/services/audit_service.dart';
 import 'package:hotel_manager/features/attendance/logic/attendance_cubit.dart';
-import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
-import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/features/checklists/logic/checklist_cubit.dart';
 import 'package:hotel_manager/features/dashboard/logic/dashboard_cubit.dart';
 import 'package:hotel_manager/features/incidents/logic/incident_cubit.dart';
-import 'package:hotel_manager/features/inventory/goods_receipt/logic/goods_receipt_cubit.dart';
 import 'package:hotel_manager/features/inventory/inventory_index.dart';
 import 'package:hotel_manager/features/orders/logic/order_cubit.dart';
 import 'package:hotel_manager/features/performance/logic/performance_cubit.dart';
@@ -34,6 +28,7 @@ import 'package:hotel_manager/features/settings/data/repositories/settings_repos
 import 'package:hotel_manager/features/inventory/logic/stock_manager_service.dart';
 import 'package:hotel_manager/features/notifications/data/repositories/notification_repository.dart';
 import 'package:hotel_manager/features/notifications/logic/notification_cubit.dart';
+import 'package:hotel_manager/features/orders/presentation/order_history/cubit/order_history_cubit.dart';
 import 'package:hotel_manager/features/events/data/repositories/event_repository.dart';
 import 'package:hotel_manager/features/events/logic/event_cubit.dart';
 
@@ -114,14 +109,13 @@ void main() async {
           ),
           BlocProvider(
             create: (context) =>
-                InventoryCubit(repository: InventoryRepository())
-                  ..loadInventory(),
+                InventoryCubit(repository: InventoryRepository()),
           ),
           BlocProvider(
             create: (context) => PurchaseOrderCubit(
               repository: InventoryRepository(),
               notificationRepository: context.read<INotificationRepository>(),
-            )..loadPurchaseOrders(),
+            ),
           ),
           BlocProvider(
             create: (context) => VendorCubit(repository: InventoryRepository()),
@@ -134,7 +128,10 @@ void main() async {
             ),
           ),
           BlocProvider<AttendanceCubit>(create: (context) => AttendanceCubit()),
-          BlocProvider<IncidentCubit>(create: (context) => IncidentCubit()),
+          BlocProvider<IncidentCubit>(
+            create: (context) =>
+                IncidentCubit(databaseService: databaseService),
+          ),
           BlocProvider<PerformanceCubit>(
             create: (context) => PerformanceCubit(),
           ),
@@ -153,23 +150,29 @@ void main() async {
             create: (context) => BillingCubit(databaseService: databaseService),
           ),
           BlocProvider<OfferCubit>(
-            create: (context) =>
-                OfferCubit(offerRepository: context.read<OfferRepository>())
-                  ..loadOffers(),
+            create: (context) => OfferCubit(
+              offerRepository: context.read<OfferRepository>(),
+            )..loadOffers('hotel_1'), // TODO: Use actual hotelId from state
           ),
           BlocProvider<DashboardCubit>(
             create: (context) =>
                 DashboardCubit(databaseService: databaseService),
           ),
           BlocProvider<LoyaltyCubit>(
-            create: (context) => LoyaltyCubit(
-              loyaltyRepository: context.read<LoyaltyRepository>(),
-            )..loadLoyaltyData(),
+            create: (context) =>
+                LoyaltyCubit(
+                  loyaltyRepository: context.read<LoyaltyRepository>(),
+                )..loadLoyaltyData(
+                  'hotel_1',
+                ), // TODO: Use actual hotelId from state
           ),
           BlocProvider<NotificationCubit>(
             create: (context) => NotificationCubit(
               notificationRepository: context.read<INotificationRepository>(),
             ),
+          ),
+          BlocProvider<OrderHistoryCubit>(
+            create: (context) => OrderHistoryCubit(),
           ),
         ],
         child: HotelManagerApp(router: router),
@@ -188,17 +191,35 @@ class HotelManagerApp extends StatelessWidget {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthVerified) {
-          // Small delay to allow Firebase Auth token to propagate to Database instance
-          Future.delayed(const Duration(milliseconds: 500), () {
-            if (context.mounted) {
-              context.read<TableCubit>().loadTables();
-              context.read<OrderCubit>().loadOrders();
-              context.read<BillingCubit>().loadBillingData();
-              context.read<UserCubit>().loadUsers();
-              context.read<RoomCubit>().loadRooms();
-              context.read<InventoryCubit>().loadInventory();
-            }
-          });
+          final hotelId = state.hotelId;
+
+          // Propagate hotelId to services and cubits immediately
+          if (context.mounted) {
+            // Core Logic
+            context.read<TableCubit>().loadTables(hotelId);
+            context.read<OrderCubit>().loadOrders(hotelId);
+            context.read<BillingCubit>().loadBillingData(hotelId: hotelId);
+            context.read<UserCubit>().loadUsers(hotelId);
+            context.read<RoomCubit>().loadRooms(hotelId);
+            context.read<IncidentCubit>().loadIncidents(hotelId);
+            context.read<ChecklistCubit>().loadChecklists(hotelId);
+            context.read<PurchaseOrderCubit>().loadPurchaseOrders(hotelId);
+            context.read<VendorCubit>().loadVendors(hotelId);
+
+            // Event Management
+            final eventCubit = context.read<EventCubit>();
+            eventCubit.setHotelId(hotelId);
+            eventCubit.streamHalls();
+            eventCubit.streamEvents();
+            eventCubit.streamMenuItems();
+            eventCubit.streamVendors();
+            eventCubit.fetchEventTaxRules();
+
+            // Inventory
+            context.read<InventoryCubit>().loadInventory(hotelId);
+            context.read<PurchaseOrderCubit>().loadPurchaseOrders(hotelId);
+            context.read<VendorCubit>().loadVendors(hotelId);
+          }
         }
       },
       child: MaterialApp.router(

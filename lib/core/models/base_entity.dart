@@ -5,6 +5,9 @@ import 'package:equatable/equatable.dart';
 abstract class BaseEntity extends Equatable {
   final String id;
 
+  /// Multi-tenant identifier for the hotel
+  final String hotelId;
+
   /// User ID who created the document (set by backend)
   final String? createdBy;
 
@@ -28,6 +31,7 @@ abstract class BaseEntity extends Equatable {
 
   const BaseEntity({
     required this.id,
+    required this.hotelId,
     this.createdBy,
     this.createdOn,
     this.updatedBy,
@@ -43,6 +47,7 @@ abstract class BaseEntity extends Equatable {
   /// Map common audit fields to JSON for backend consumption.
   Map<String, dynamic> toAuditJson() => {
     'id': id,
+    'hotelId': hotelId,
     'isDeleted': isDeleted,
     if (createdBy != null) 'createdBy': createdBy,
     if (createdOn != null) 'createdOn': createdOn!.toIso8601String(),
@@ -68,6 +73,7 @@ abstract class BaseEntity extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    hotelId,
     createdBy,
     createdOn,
     updatedBy,

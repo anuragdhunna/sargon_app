@@ -10,22 +10,15 @@ class DashboardCubit extends Cubit<DashboardState> {
     : _db = databaseService,
       super(DashboardInitial());
 
-  Future<void> refresh() async {
+  Future<void> refresh(String hotelId) async {
     emit(DashboardLoading());
     try {
       // Fetch Snapshots for all required data
-      final tablesSnap = await _db.tablesRef.get();
-      final ordersSnap = await _db.ordersRef.get();
-      final billsSnap = await _db.billsRef.get();
-      final roomsSnap = await _db.roomsRef.get();
-      final inventorySnap = await _db.inventoryRef.get();
-
-      // Parse Data
-      final tables = _mapList(tablesSnap.value, TableEntity.fromJson);
-      final orders = _mapList(ordersSnap.value, Order.fromJson);
-      final bills = _mapList(billsSnap.value, Bill.fromJson);
-      final rooms = _mapList(roomsSnap.value, Room.fromJson);
-      final invItems = _mapList(inventorySnap.value, InventoryItem.fromJson);
+      final tables = await _db.getTables(hotelId);
+      final orders = await _db.getOrders(hotelId);
+      final bills = await _db.getBills(hotelId);
+      final rooms = await _db.getRooms(hotelId);
+      final invItems = await _db.getInventory(hotelId);
 
       final now = DateTime.now();
       final todayBills = bills
@@ -57,7 +50,7 @@ class DashboardCubit extends Cubit<DashboardState> {
           if (p.method == PaymentMethod.cash) cashTotal += p.amount;
           if (p.method == PaymentMethod.card) cardTotal += p.amount;
           if (p.method == PaymentMethod.upi) upiTotal += p.amount;
-          if (p.method == PaymentMethod.bill_to_room) {
+          if (p.method == PaymentMethod.billToRoom) {
             billToRoomTotal += p.amount;
           }
         }
@@ -155,47 +148,5 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
-  List<T> _mapList<T>(
-    dynamic value,
-    T Function(Map<String, dynamic>) fromJson,
-  ) {
-    if (value == null) return [];
-
-    // Robust conversion for LinkedMap/List from Firebase
-    Map<String, dynamic> data = _recursiveToMap(value);
-
-    return data.entries
-        .map((e) {
-          final val = e.value;
-          if (val is Map<String, dynamic>) {
-            return fromJson(val);
-          }
-          return null;
-        })
-        .whereType<T>()
-        .toList();
-  }
-
-  Map<String, dynamic> _recursiveToMap(dynamic value) {
-    if (value == null) return {};
-    if (value is Map) {
-      return value.map((k, v) => MapEntry(k.toString(), _recursiveConvert(v)));
-    }
-    if (value is List) {
-      return value.asMap().map(
-        (k, v) => MapEntry(k.toString(), _recursiveConvert(v)),
-      );
-    }
-    return {};
-  }
-
-  dynamic _recursiveConvert(dynamic value) {
-    if (value is Map) {
-      return value.map((k, v) => MapEntry(k.toString(), _recursiveConvert(v)));
-    }
-    if (value is List) {
-      return value.map((i) => _recursiveConvert(i)).toList();
-    }
-    return value;
-  }
+  // _mapList and recursive converters are no longer needed as the get methods already handle parsing
 }

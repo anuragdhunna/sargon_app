@@ -26,15 +26,17 @@ class AuthVerified extends AuthState {
   final UserRole role;
   final String userId;
   final String userName;
+  final String hotelId;
 
   const AuthVerified({
     required this.role,
     required this.userId,
     required this.userName,
+    required this.hotelId,
   });
 
   @override
-  List<Object?> get props => [role, userId, userName];
+  List<Object?> get props => [role, userId, userName, hotelId];
 }
 
 class AuthError extends AuthState {

@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 abstract class IAuditService {
   Future<void> log({
+    required String hotelId,
     required String userId,
     required String userName,
     required String userRole,
@@ -13,7 +14,7 @@ abstract class IAuditService {
     required String description,
     Map<String, dynamic>? metadata,
   });
-  Stream<List<AuditLog>> streamAllLogs();
+  Stream<List<AuditLog>> streamAuditLogs(String hotelId);
 }
 
 /// Service for managing audit logs
@@ -31,17 +32,14 @@ class AuditService implements IAuditService {
   }
 
   factory AuditService() {
-    if (_instance == null) {
-      // Return a temporary instance if not initialized (though it should be in main)
-      // This is to avoid hard crashes during initialization if some cubit calls it too early
-      return AuditService._internal(databaseService: DatabaseService());
-    }
+    _instance ??= AuditService._internal(databaseService: DatabaseService());
     return _instance!;
   }
 
   /// Log an action with automatic timestamp
   @override
   Future<void> log({
+    required String hotelId,
     required String userId,
     required String userName,
     required String userRole,
@@ -53,6 +51,7 @@ class AuditService implements IAuditService {
   }) async {
     final log = AuditLog(
       id: _uuid.v4(),
+      hotelId: hotelId,
       timestamp: DateTime.now(),
       userId: userId,
       userName: userName,
@@ -65,13 +64,12 @@ class AuditService implements IAuditService {
     );
 
     await _databaseService.saveAuditLog(log);
-    print('AUDIT LOG: ${log.description}');
   }
 
   /// Stream all logs (for admin view)
   @override
-  Stream<List<AuditLog>> streamAllLogs() {
-    return _databaseService.streamAuditLogs();
+  Stream<List<AuditLog>> streamAuditLogs(String hotelId) {
+    return _databaseService.streamAuditLogs(hotelId);
   }
 
   /// Legacy method for backward compatibility - use streamAllLogs instead

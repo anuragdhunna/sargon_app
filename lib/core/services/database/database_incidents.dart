@@ -1,27 +1,36 @@
 part of '../database_service.dart';
 
 extension DatabaseIncidents on DatabaseService {
-  DatabaseReference get incidentsRef => _ref('incidents');
+  CollectionReference _incidentsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('incidents');
 
   /// Stream all incidents (real-time)
-  Stream<List<Incident>> streamIncidents() {
-    return incidentsRef.onValue.map((event) {
-      if (event.snapshot.value == null) return <Incident>[];
-      final dynamic value = event.snapshot.value;
-      if (value == null) return <Incident>[];
-      final Map<dynamic, dynamic> data = (value is Map)
-          ? value
-          : (value is List ? value.asMap() : {});
-
-      return data.entries.map((e) {
-        final incidentData = _toMap(e.value);
-        return Incident.fromJson(incidentData);
+  Stream<List<Incident>> streamIncidents(String hotelId) {
+    return _incidentsRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Incident.fromJson(data);
       }).toList();
     });
   }
 
   /// Save incident
   Future<void> saveIncident(Incident incident) async {
-    await incidentsRef.child(incident.id).set(incident.toJson());
+    await _incidentsRef(
+      incident.hotelId,
+    ).doc(incident.id).set(incident.toJson());
+  }
+
+  /// Update incident status
+  Future<void> updateIncidentStatus(
+    String hotelId,
+    String id,
+    String status,
+  ) async {
+    await _incidentsRef(hotelId).doc(id).update({
+      'status': status,
+      if (status == IncidentStatus.resolved.name)
+        'resolvedAt': DateTime.now().toIso8601String(),
+    });
   }
 }

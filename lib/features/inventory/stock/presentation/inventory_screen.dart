@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hotel_manager/core/models/inventory_models.dart';
 import 'package:hotel_manager/features/inventory/purchase_orders/presentation/purchase_orders_screen.dart';
-import 'package:hotel_manager/features/inventory/stock/data/inventory_model.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_state.dart';
 import 'package:hotel_manager/features/inventory/stock/presentation/add_inventory_item_dialog.dart';

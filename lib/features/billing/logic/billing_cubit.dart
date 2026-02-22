@@ -27,13 +27,24 @@ class BillingCubit extends Cubit<BillingState> {
        _auditService = auditService ?? AuditService(),
        super(BillingInitial());
 
-  Future<void> loadBillingData() async {
+  Future<void> loadBillingData({required String hotelId}) async {
     // Proactively set defaults to avoid any "not loaded" state
     _taxRules = [
-      TaxRule(id: 'gst_5', name: 'GST 5%', cgstPercent: 2.5, sgstPercent: 2.5),
+      TaxRule(
+        id: 'gst_5',
+        hotelId: hotelId,
+        name: 'GST 5%',
+        cgstPercent: 2.5,
+        sgstPercent: 2.5,
+      ),
     ];
     _scRules = [
-      ServiceChargeRule(id: 'sc_10', name: 'Service Charge 10%', percent: 10.0),
+      ServiceChargeRule(
+        id: 'sc_10',
+        hotelId: hotelId,
+        name: 'Service Charge 10%',
+        percent: 10.0,
+      ),
     ];
     _emitLoaded();
 
@@ -42,31 +53,35 @@ class BillingCubit extends Cubit<BillingState> {
 
     try {
       // Attempt to fetch live rules, but don't crash if it fails (permission-denied fallback)
-      final taxRules = await _databaseService.getTaxRules().catchError(
-        (e) => <TaxRule>[],
-      );
-      final scRules = await _databaseService.getServiceChargeRules().catchError(
-        (e) => <ServiceChargeRule>[],
-      );
+      final taxRules = await _databaseService
+          .getTaxRules(hotelId)
+          .catchError((e) => <TaxRule>[]);
+      final scRules = await _databaseService
+          .getServiceChargeRules(hotelId)
+          .catchError((e) => <ServiceChargeRule>[]);
 
       if (taxRules.isNotEmpty) _taxRules = taxRules;
       if (scRules.isNotEmpty) _scRules = scRules;
 
       // Stream Bills (safely)
-      _billsSubscription = _databaseService.streamBills().listen(
-        (bills) {
-          _bills = bills;
-          _emitLoaded();
-        },
-        onError: (e) {
-          debugPrint('Bill stream permission issue (non-fatal): $e');
-          _emitLoaded(); // Keep using defaults
-        },
-      );
+      _billsSubscription = _databaseService
+          .streamBills(hotelId)
+          .listen(
+            (bills) {
+              _bills = bills;
+              _emitLoaded();
+            },
+            onError: (e) {
+              debugPrint('Bill stream permission issue (non-fatal): $e');
+              _emitLoaded(); // Keep using defaults
+            },
+          );
 
       // Stream Offers (safely)
       if (_databaseService is DatabaseService) {
-        _offersSubscription = _databaseService.streamOffers().listen((offers) {
+        _offersSubscription = (_databaseService).streamOffers(hotelId).listen((
+          offers,
+        ) {
           _offers = offers;
           _emitLoaded();
         });
@@ -92,6 +107,7 @@ class BillingCubit extends Cubit<BillingState> {
 
   /// Create a bill from one or more orders
   Future<String> createBill({
+    required String hotelId,
     required String tableId,
     required List<Order> orders,
     required String taxRuleId,
@@ -152,6 +168,7 @@ class BillingCubit extends Cubit<BillingState> {
     }
 
     final bill = Bill(
+      hotelId: hotelId,
       id: 'bill_${DateTime.now().millisecondsSinceEpoch}',
       tableId: tableId,
       roomId: roomId,
@@ -196,22 +213,28 @@ class BillingCubit extends Cubit<BillingState> {
 
     // If it's a room bill, attach to folio
     if (bookingId != null) {
-      await _attachBillToFolio(bookingId, bill);
+      await _attachBillToFolio(bookingId, bill, hotelId);
     }
 
     // Update order statuses to billed
     for (final orderId in orders.map((o) => o.id)) {
       await _databaseService.updateOrderPaymentStatus(
+        hotelId,
         orderId,
         PaymentStatus.billed,
       );
     }
 
     // Update table status to billed
-    await _databaseService.updateTableStatus(tableId, TableStatus.billed);
+    await _databaseService.updateTableStatus(
+      hotelId,
+      tableId,
+      TableStatus.billed,
+    );
 
     // Audit Log
     await _auditService.log(
+      hotelId: hotelId,
       userId: 'system',
       userName: 'Billing System',
       userRole: 'finance',
@@ -231,6 +254,7 @@ class BillingCubit extends Cubit<BillingState> {
     String billId,
     Offer offer,
     String userId,
+    String hotelId,
   ) async {
     final currentState = state;
     if (currentState is! BillingLoaded) return;
@@ -244,7 +268,10 @@ class BillingCubit extends Cubit<BillingState> {
 
     // For manual application, we need to recalculate the whole tax summary
     // Since manual discounts are usually bill-level
-    final orders = await _databaseService.getOrdersByIds(bill.orderIds);
+    final orders = await _databaseService.getOrdersByIds(
+      hotelId,
+      bill.orderIds,
+    );
     final taxRule = currentState.taxRules.firstWhere(
       (r) => r.id == bill.taxRuleId,
     );
@@ -257,6 +284,7 @@ class BillingCubit extends Cubit<BillingState> {
     final manualOffers = [
       ...updatedDiscounts.map(
         (d) => Offer(
+          hotelId: hotelId,
           id: d.offerId,
           name: d.name,
           offerType: OfferType.bill,
@@ -305,6 +333,7 @@ class BillingCubit extends Cubit<BillingState> {
 
     // Audit Log
     await _auditService.log(
+      hotelId: hotelId,
       userId: userId,
       userName: 'Staff',
       userRole: 'finance',
@@ -321,6 +350,7 @@ class BillingCubit extends Cubit<BillingState> {
     required String billId,
     required double amount,
     required PaymentMethod method,
+    required String hotelId,
     String? reference,
     String? roomId,
     String? bookingId,
@@ -344,11 +374,11 @@ class BillingCubit extends Cubit<BillingState> {
       payments: updatedPayments,
       roomId: roomId ?? bill.roomId,
       bookingId: bookingId ?? bill.bookingId,
-      paymentStatus: method == PaymentMethod.bill_to_room
+      paymentStatus: method == PaymentMethod.billToRoom
           ? PaymentStatus.toRoom
           : (totalPaid >= bill.grandTotal
                 ? PaymentStatus.paid
-                : PaymentStatus.partially_paid),
+                : PaymentStatus.partiallyPaid),
       closedAt: totalPaid >= bill.grandTotal ? DateTime.now() : null,
     );
 
@@ -363,12 +393,11 @@ class BillingCubit extends Cubit<BillingState> {
         final points = (updatedBill.grandTotal / 100).floor();
         if (points > 0) {
           // Fetch current loyalty info or start fresh
-          final customerSnap = await db.customersRef
-              .child(updatedBill.customerId!)
-              .get();
-          if (customerSnap.exists) {
-            final customerData = db.toMap(customerSnap.value);
-            final customer = Customer.fromJson(customerData);
+          final customer = await db.getCustomer(
+            hotelId,
+            updatedBill.customerId!,
+          );
+          if (customer != null) {
             final currentLoyalty =
                 customer.loyaltyInfo ??
                 const LoyaltyInfo(
@@ -400,23 +429,28 @@ class BillingCubit extends Cubit<BillingState> {
 
     // If fully paid or billed to room, handle downstream updates
     if (totalPaid >= updatedBill.grandTotal ||
-        method == PaymentMethod.bill_to_room) {
+        method == PaymentMethod.billToRoom) {
       // If billed to room, attach to folio
-      if (method == PaymentMethod.bill_to_room && bookingId != null) {
-        await _attachBillToFolio(bookingId, updatedBill);
+      if (method == PaymentMethod.billToRoom && bookingId != null) {
+        await _attachBillToFolio(bookingId, updatedBill, hotelId);
       }
 
       // Update order statuses
-      final orderStatus = method == PaymentMethod.bill_to_room
+      final orderStatus = method == PaymentMethod.billToRoom
           ? PaymentStatus.toRoom
           : PaymentStatus.paid;
 
       for (final orderId in bill.orderIds) {
-        await _databaseService.updateOrderPaymentStatus(orderId, orderStatus);
+        await _databaseService.updateOrderPaymentStatus(
+          hotelId,
+          orderId,
+          orderStatus,
+        );
       }
 
       // Table status: cleaning if settled, but if billed to room it might also be free
       await _databaseService.updateTableStatus(
+        hotelId,
         bill.tableId,
         TableStatus.cleaning,
       );
@@ -424,6 +458,7 @@ class BillingCubit extends Cubit<BillingState> {
 
     // Audit Log
     await _auditService.log(
+      hotelId: hotelId,
       userId: 'system',
       userName: 'Billing System',
       userRole: 'finance',
@@ -436,8 +471,15 @@ class BillingCubit extends Cubit<BillingState> {
     );
   }
 
-  Future<void> _attachBillToFolio(String bookingId, Bill bill) async {
-    final existingFolio = await _databaseService.getFolioByBookingId(bookingId);
+  Future<void> _attachBillToFolio(
+    String bookingId,
+    Bill bill,
+    String hotelId,
+  ) async {
+    final existingFolio = await _databaseService.getFolioByBookingId(
+      hotelId,
+      bookingId,
+    );
 
     RoomFolio folio;
     if (existingFolio != null) {
@@ -449,6 +491,7 @@ class BillingCubit extends Cubit<BillingState> {
     } else {
       folio = RoomFolio(
         id: 'folio_${DateTime.now().millisecondsSinceEpoch}',
+        hotelId: hotelId,
         roomId: bill.roomId ?? 'unknown',
         bookingId: bookingId,
         billIds: [bill.id],
@@ -462,10 +505,14 @@ class BillingCubit extends Cubit<BillingState> {
   /// Settle all charges in a folio
   Future<void> settleFolio({
     required String bookingId,
+    required String hotelId,
     required PaymentMethod method,
     String? reference,
   }) async {
-    final folio = await _databaseService.getFolioByBookingId(bookingId);
+    final folio = await _databaseService.getFolioByBookingId(
+      hotelId,
+      bookingId,
+    );
     if (folio == null) return;
 
     final currentState = state;
@@ -500,6 +547,7 @@ class BillingCubit extends Cubit<BillingState> {
       // Update order statuses to paid
       for (final orderId in bill.orderIds) {
         await _databaseService.updateOrderPaymentStatus(
+          hotelId,
           orderId,
           PaymentStatus.paid,
         );
@@ -512,6 +560,7 @@ class BillingCubit extends Cubit<BillingState> {
 
     // Audit Log
     await _auditService.log(
+      hotelId: hotelId,
       userId: 'system',
       userName: 'Billing System',
       userRole: 'finance',
@@ -522,6 +571,20 @@ class BillingCubit extends Cubit<BillingState> {
     );
   }
 
+  Future<void> deleteServiceChargeRule(String hotelId, String id) async {
+    try {
+      await _databaseService.deleteServiceChargeRule(hotelId, id);
+      // Local state is updated via subscription if active, otherwise we fetch
+      if (_scSubscription == null) {
+        final rules = await _databaseService.getServiceChargeRules(hotelId);
+        _scRules = rules;
+        _emitLoaded();
+      }
+    } catch (e) {
+      debugPrint('Error deleting service charge rule: $e');
+    }
+  }
+
   @override
   Future<void> close() {
     _billsSubscription?.cancel();
@@ -529,22 +592,5 @@ class BillingCubit extends Cubit<BillingState> {
     _scSubscription?.cancel();
     _offersSubscription?.cancel();
     return super.close();
-  }
-}
-
-extension on RoomFolio {
-  RoomFolio copyWith({
-    List<String>? billIds,
-    double? totalAmount,
-    PaymentStatus? paymentStatus,
-  }) {
-    return RoomFolio(
-      id: id,
-      roomId: roomId,
-      bookingId: bookingId,
-      billIds: billIds ?? this.billIds,
-      totalAmount: totalAmount ?? this.totalAmount,
-      paymentStatus: paymentStatus ?? this.paymentStatus,
-    );
   }
 }

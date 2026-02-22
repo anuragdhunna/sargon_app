@@ -25,29 +25,26 @@ class NotificationModel extends BaseEntity {
 
   const NotificationModel({
     required super.id,
+    required super.hotelId,
     required this.title,
     required this.body,
     required this.type,
     this.isRead = false,
     this.targetRoute,
     this.metadata,
-    DateTime? createdAt,
-    DateTime? createdOn,
     super.createdBy,
-    DateTime? updatedAt,
-    DateTime? updatedOn,
+    super.createdOn,
     super.updatedBy,
+    super.updatedOn,
     super.isDeleted,
-  }) : super(
-         createdOn: createdOn ?? createdAt,
-         updatedOn: updatedOn ?? updatedAt,
-       );
+  });
 
   /// Getter for backward compatibility
   DateTime get createdAt => createdOn ?? DateTime.now();
 
   NotificationModel copyWith({
     String? id,
+    String? hotelId,
     String? title,
     String? body,
     NotificationType? type,
@@ -62,6 +59,7 @@ class NotificationModel extends BaseEntity {
   }) {
     return NotificationModel(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       title: title ?? this.title,
       body: body ?? this.body,
       type: type ?? this.type,
@@ -87,6 +85,7 @@ class NotificationModel extends BaseEntity {
     metadata,
   ];
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toAuditJson(),
@@ -102,6 +101,7 @@ class NotificationModel extends BaseEntity {
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
       id: json['id'] as String,
+      hotelId: json['hotelId'] as String? ?? 'default',
       title: json['title'] as String,
       body: json['body'] as String,
       type: NotificationType.values.firstWhere(

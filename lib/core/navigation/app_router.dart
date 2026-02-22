@@ -51,11 +51,20 @@ import 'package:hotel_manager/core/models/models.dart';
 class AuthNotifier extends ChangeNotifier {
   AuthNotifier(this._authCubit) {
     _authCubit.stream.listen((state) {
-      notifyListeners();
+      final lastState = _lastState;
+      if (lastState.runtimeType != state.runtimeType ||
+          (state is AuthVerified &&
+              lastState is AuthVerified &&
+              state.role != lastState.role)) {
+        debugPrint('🔄 AuthNotifier: State changed to ${state.runtimeType}');
+        _lastState = state;
+        notifyListeners();
+      }
     });
   }
 
   final AuthCubit _authCubit;
+  AuthState _lastState = AuthInitial();
 
   AuthState get authState => _authCubit.state;
   bool get isAuthenticated => _authCubit.state is AuthVerified;
@@ -70,33 +79,46 @@ GoRouter createRouter(AuthCubit authCubit) {
     refreshListenable: authNotifier,
     redirect: (context, state) {
       final authState = authNotifier.authState;
+      final location = state.matchedLocation;
 
       // Check if user is authenticated
       final isAuthenticated = authState is AuthVerified;
-      final isLoginRoute =
-          state.matchedLocation == '/login' || state.matchedLocation == '/otp';
+      final isLoginRoute = location == '/login' || location == '/otp';
+
+      debugPrint('🚀 Router Redirect: $location (Auth: $isAuthenticated)');
 
       // Redirect to login if not authenticated and trying to access protected route
       if (!isAuthenticated && !isLoginRoute) {
+        debugPrint('↪️ Redirecting to login: Unauthorized');
         return LoginScreen.routeName;
       }
 
       // If authenticated and on login page, redirect to default route for role
-      if (isAuthenticated && isLoginRoute) {
-        final verifiedState = authState;
-        return RoleGuard.getDefaultRoute(verifiedState.role);
+      if (authState is AuthVerified && isLoginRoute) {
+        final defaultRoute = RoleGuard.getDefaultRoute(authState.role);
+        debugPrint('↪️ Redirecting to $defaultRoute: Already Authenticated');
+        return defaultRoute;
       }
 
       // Check role-based access
-      if (isAuthenticated && !isLoginRoute) {
-        final verifiedState = authState;
-        final route = state.matchedLocation
-            .split('?')
-            .first; // Remove query params
+      if (authState is AuthVerified && !isLoginRoute) {
+        final route = location.split('?').first; // Remove query params
 
-        if (!RoleGuard.canAccess(verifiedState.role, route)) {
-          // Redirect to default route if unauthorized
-          return RoleGuard.getDefaultRoute(verifiedState.role);
+        if (!RoleGuard.canAccess(authState.role, route)) {
+          final defaultRoute = RoleGuard.getDefaultRoute(authState.role);
+          // Only redirect if we are not already at the default route to avoid infinite loops
+          if (route != defaultRoute) {
+            debugPrint(
+              '↪️ Redirecting to $defaultRoute: Access Denied for $route',
+            );
+            return defaultRoute;
+          }
+          // If we are at the default route but access is still denied,
+          // this is a critical loop. We should go back to login as safety.
+          debugPrint(
+            '❌ CRITICAL: Access denied to default route $defaultRoute. Safety log out.',
+          );
+          return LoginScreen.routeName;
         }
       }
 

@@ -84,18 +84,16 @@ class RoomCubit extends Cubit<RoomState> {
 
   RoomCubit({required RoomRepository repository, required this.checklistCubit})
     : _repository = repository,
-      super(RoomInitial()) {
-    loadRooms();
-  }
+      super(RoomInitial());
 
   /// Load all rooms and bookings in real-time
-  void loadRooms() {
+  void loadRooms(String hotelId) {
     emit(RoomLoading());
     _roomsSubscription?.cancel();
     _bookingsSubscription?.cancel();
 
     // Combined stream would be better but let's handle them separately for now
-    _roomsSubscription = _repository.streamRooms().listen((rooms) {
+    _roomsSubscription = _repository.streamRooms(hotelId).listen((rooms) {
       final currentState = state;
       if (currentState is RoomLoaded) {
         emit(currentState.copyWith(rooms: rooms));
@@ -104,7 +102,9 @@ class RoomCubit extends Cubit<RoomState> {
       }
     }, onError: (e) => emit(RoomError('Failed to load rooms: $e')));
 
-    _bookingsSubscription = _repository.streamBookings().listen((bookings) {
+    _bookingsSubscription = _repository.streamBookings(hotelId).listen((
+      bookings,
+    ) {
       final currentState = state;
       if (currentState is RoomLoaded) {
         emit(
@@ -205,6 +205,7 @@ class RoomCubit extends Cubit<RoomState> {
 
   /// Create a new booking
   Future<void> createBooking({
+    required String hotelId,
     required String roomId,
     required String guestName,
     required String guestPhone,
@@ -239,6 +240,7 @@ class RoomCubit extends Cubit<RoomState> {
     try {
       final booking = Booking(
         id: _uuid.v4(),
+        hotelId: hotelId,
         guestName: guestName,
         guestPhone: guestPhone,
         guestEmail: guestEmail,
@@ -248,7 +250,7 @@ class RoomCubit extends Cubit<RoomState> {
         totalAmount: totalAmount,
         status: BookingStatus.confirmed,
         bookedBy: bookedByUserName,
-        createdAt: DateTime.now(),
+        createdOn: DateTime.now(),
         notes: notes,
         idProofType: idProofType,
         idProofNumber: idProofNumber,
@@ -268,7 +270,11 @@ class RoomCubit extends Cubit<RoomState> {
       if (checkIn.year == now.year &&
           checkIn.month == now.month &&
           checkIn.day == now.day) {
-        await _repository.updateRoomStatus(roomId, RoomStatus.reserved);
+        await _repository.updateRoomStatus(
+          hotelId,
+          roomId,
+          RoomStatus.reserved,
+        );
       }
     } catch (e) {
       emit(RoomError('Failed to create booking: $e'));
@@ -277,6 +283,7 @@ class RoomCubit extends Cubit<RoomState> {
 
   /// Check-in a guest
   Future<void> checkIn({
+    required String hotelId,
     required String bookingId,
     required String roomId,
     required String userId,
@@ -284,10 +291,17 @@ class RoomCubit extends Cubit<RoomState> {
     required String userRole,
   }) async {
     try {
-      await _repository.bookingsRef.child(bookingId).update({
-        'status': BookingStatus.checkedIn.name,
-      });
-      await _repository.updateRoomStatus(roomId, RoomStatus.occupied);
+      final booking = await _repository.getBookingById(hotelId, bookingId);
+      if (booking != null) {
+        await _repository.saveBooking(
+          booking.copyWith(status: BookingStatus.checkedIn),
+        );
+        await _repository.updateRoomStatus(
+          hotelId,
+          roomId,
+          RoomStatus.occupied,
+        );
+      }
     } catch (e) {
       emit(RoomError('Failed to check in: $e'));
     }
@@ -295,6 +309,7 @@ class RoomCubit extends Cubit<RoomState> {
 
   /// Check-out a guest
   Future<void> checkOut({
+    required String hotelId,
     required String bookingId,
     required String roomId,
     required String userId,
@@ -302,19 +317,27 @@ class RoomCubit extends Cubit<RoomState> {
     required String userRole,
   }) async {
     try {
-      await _repository.bookingsRef.child(bookingId).update({
-        'status': BookingStatus.checkedOut.name,
-      });
-      await _repository.updateRoomStatus(roomId, RoomStatus.cleaning);
-
-      // Create cleaning checklist
-      final currentState = state;
-      if (currentState is RoomLoaded) {
-        final room = currentState.rooms.firstWhere((r) => r.id == roomId);
-        checklistCubit.createCleaningChecklist(
-          roomId: roomId,
-          roomNumber: room.roomNumber,
+      final booking = await _repository.getBookingById(hotelId, bookingId);
+      if (booking != null) {
+        await _repository.saveBooking(
+          booking.copyWith(status: BookingStatus.checkedOut),
         );
+        await _repository.updateRoomStatus(
+          hotelId,
+          roomId,
+          RoomStatus.cleaning,
+        );
+
+        // Create cleaning checklist
+        final currentState = state;
+        if (currentState is RoomLoaded) {
+          final room = currentState.rooms.firstWhere((r) => r.id == roomId);
+          checklistCubit.createCleaningChecklist(
+            hotelId: room.hotelId,
+            roomId: roomId,
+            roomNumber: room.roomNumber,
+          );
+        }
       }
     } catch (e) {
       emit(RoomError('Failed to check out: $e'));
@@ -323,6 +346,7 @@ class RoomCubit extends Cubit<RoomState> {
 
   /// Update room status manually
   Future<void> updateRoomStatus({
+    required String hotelId,
     required String roomId,
     required RoomStatus newStatus,
     required String userId,
@@ -330,7 +354,7 @@ class RoomCubit extends Cubit<RoomState> {
     required String userRole,
   }) async {
     try {
-      await _repository.updateRoomStatus(roomId, newStatus);
+      await _repository.updateRoomStatus(hotelId, roomId, newStatus);
     } catch (e) {
       emit(RoomError('Failed to update room status: $e'));
     }

@@ -1,11 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'base_entity.dart';
 import 'payment_models.dart';
-import 'offer_model.dart';
+import 'promotion_models.dart'; // For BillDiscount
 
 /// Tax calculation rule model
-class TaxRule extends Equatable {
-  final String id;
+class TaxRule extends BaseEntity {
   final String name; // e.g., "GST 5%", "GST 18%"
   final double cgstPercent;
   final double sgstPercent;
@@ -13,20 +12,27 @@ class TaxRule extends Equatable {
   final bool isActive;
 
   const TaxRule({
-    required this.id,
+    required super.id,
+    required super.hotelId,
     required this.name,
     required this.cgstPercent,
     required this.sgstPercent,
     this.igstPercent = 0,
     this.isActive = true,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
   double getEffectiveTax() {
     return cgstPercent + sgstPercent + igstPercent;
   }
 
+  @override
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'name': name,
     'cgstPercent': cgstPercent,
     'sgstPercent': sgstPercent,
@@ -36,16 +42,22 @@ class TaxRule extends Equatable {
 
   factory TaxRule.fromJson(Map<String, dynamic> json) => TaxRule(
     id: json['id'],
+    hotelId: json['hotelId'] as String? ?? 'default',
     name: json['name'],
     cgstPercent: (json['cgstPercent'] as num).toDouble(),
     sgstPercent: (json['sgstPercent'] as num).toDouble(),
     igstPercent: (json['igstPercent'] as num).toDouble(),
     isActive: json['isActive'] ?? true,
+    createdBy: json['createdBy'] as String?,
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'] as String?,
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
 
   @override
   List<Object?> get props => [
-    id,
+    ...super.props,
     name,
     cgstPercent,
     sgstPercent,
@@ -55,23 +67,29 @@ class TaxRule extends Equatable {
 }
 
 /// Service charge rule model
-class ServiceChargeRule extends Equatable {
-  final String id;
+class ServiceChargeRule extends BaseEntity {
   final String name; // e.g., "Service Charge 10%"
   final double percent;
   final bool isOptional;
   final bool isActive;
 
   const ServiceChargeRule({
-    required this.id,
+    required super.id,
+    required super.hotelId,
     required this.name,
     required this.percent,
     this.isOptional = true,
     this.isActive = true,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'name': name,
     'percent': percent,
     'isOptional': isOptional,
@@ -81,14 +99,26 @@ class ServiceChargeRule extends Equatable {
   factory ServiceChargeRule.fromJson(Map<String, dynamic> json) =>
       ServiceChargeRule(
         id: json['id'],
+        hotelId: json['hotelId'] as String? ?? 'default',
         name: json['name'],
         percent: (json['percent'] as num).toDouble(),
         isOptional: json['isOptional'] ?? true,
         isActive: json['isActive'] ?? true,
+        createdBy: json['createdBy'] as String?,
+        createdOn: BaseEntity.parseDateTime(json['createdOn']),
+        updatedBy: json['updatedBy'] as String?,
+        updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+        isDeleted: json['isDeleted'] ?? false,
       );
 
   @override
-  List<Object?> get props => [id, name, percent, isOptional, isActive];
+  List<Object?> get props => [
+    ...super.props,
+    name,
+    percent,
+    isOptional,
+    isActive,
+  ];
 }
 
 /// Summary of taxes applied to a bill
@@ -177,7 +207,8 @@ class Bill extends BaseEntity {
   final int redeemedPoints;
 
   const Bill({
-    required String id,
+    required super.id,
+    required super.hotelId,
     required this.tableId,
     this.roomId,
     this.bookingId,
@@ -197,78 +228,66 @@ class Bill extends BaseEntity {
     this.payments = const [],
     this.customerId,
     this.redeemedPoints = 0,
-    String? createdBy,
-    DateTime? createdOn,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool isDeleted = false,
-  }) : super(
-         id: id,
-         createdOn: createdOn ?? openedAt,
-         createdBy: createdBy,
-         updatedBy: updatedBy,
-         updatedOn: updatedOn,
-         isDeleted: isDeleted,
-       );
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
 
   Bill copyWith({
     String? id,
+    String? hotelId,
     String? tableId,
     String? roomId,
     String? bookingId,
     List<String>? orderIds,
     double? subTotal,
     String? taxRuleId,
-    String? serviceChargeRuleId,
     BillTaxSummary? taxSummary,
     PaymentStatus? paymentStatus,
     PaymentMethod? paymentMethod,
     DateTime? openedAt,
     DateTime? closedAt,
     bool? serviceChargeApplied,
-    String? serviceChargeRemovedBy,
-    String? serviceChargeRemovalReason,
     List<BillDiscount>? discounts,
     List<BillPayment>? payments,
     String? customerId,
     int? redeemedPoints,
+    bool? isDeleted,
     String? createdBy,
     DateTime? createdOn,
     String? updatedBy,
     DateTime? updatedOn,
-    bool? isDeleted,
   }) {
     return Bill(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       tableId: tableId ?? this.tableId,
       roomId: roomId ?? this.roomId,
       bookingId: bookingId ?? this.bookingId,
       orderIds: orderIds ?? this.orderIds,
       subTotal: subTotal ?? this.subTotal,
       taxRuleId: taxRuleId ?? this.taxRuleId,
-      serviceChargeRuleId: serviceChargeRuleId ?? this.serviceChargeRuleId,
       taxSummary: taxSummary ?? this.taxSummary,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       openedAt: openedAt ?? this.openedAt,
       closedAt: closedAt ?? this.closedAt,
       serviceChargeApplied: serviceChargeApplied ?? this.serviceChargeApplied,
-      serviceChargeRemovedBy:
-          serviceChargeRemovedBy ?? this.serviceChargeRemovedBy,
-      serviceChargeRemovalReason:
-          serviceChargeRemovalReason ?? this.serviceChargeRemovalReason,
       discounts: discounts ?? this.discounts,
       payments: payments ?? this.payments,
       customerId: customerId ?? this.customerId,
       redeemedPoints: redeemedPoints ?? this.redeemedPoints,
+      isDeleted: isDeleted ?? this.isDeleted,
       createdBy: createdBy ?? this.createdBy,
       createdOn: createdOn ?? this.createdOn,
       updatedBy: updatedBy ?? this.updatedBy,
       updatedOn: updatedOn ?? this.updatedOn,
-      isDeleted: isDeleted ?? this.isDeleted,
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     ...super.toAuditJson(),
     'tableId': tableId,
@@ -294,49 +313,52 @@ class Bill extends BaseEntity {
     'redeemedPoints': redeemedPoints,
   };
 
-  factory Bill.fromJson(Map<String, dynamic> json) => Bill(
-    id: json['id'],
-    tableId: json['tableId'],
-    roomId: json['roomId'],
-    bookingId: json['bookingId'],
-    orderIds: List<String>.from(json['orderIds'] ?? []),
-    subTotal: (json['subTotal'] as num).toDouble(),
-    taxRuleId: json['taxRuleId'],
-    serviceChargeRuleId: json['serviceChargeRuleId'],
-    taxSummary: BillTaxSummary.fromJson(json['taxSummary']),
-    paymentStatus: PaymentStatus.values.firstWhere(
-      (e) => e.name == json['paymentStatus'],
-      orElse: () => PaymentStatus.pending,
-    ),
-    paymentMethod: json['paymentMethod'] != null
-        ? PaymentMethod.values.firstWhere(
-            (e) => e.name == json['paymentMethod'],
-            orElse: () => PaymentMethod.cash,
-          )
-        : null,
-    openedAt: BaseEntity.parseDateTime(json['openedAt']) ?? DateTime.now(),
-    closedAt: BaseEntity.parseDateTime(json['closedAt']),
-    serviceChargeApplied: json['serviceChargeApplied'] ?? true,
-    serviceChargeRemovedBy: json['serviceChargeRemovedBy'],
-    serviceChargeRemovalReason: json['serviceChargeRemovalReason'],
-    discounts:
-        (json['discounts'] as List?)
-            ?.map((d) => BillDiscount.fromJson(Map<String, dynamic>.from(d)))
-            .toList() ??
-        [],
-    payments:
-        (json['payments'] as List?)
-            ?.map((p) => BillPayment.fromJson(Map<String, dynamic>.from(p)))
-            .toList() ??
-        [],
-    customerId: json['customerId'],
-    redeemedPoints: json['redeemedPoints'] ?? 0,
-    createdBy: json['createdBy'] as String?,
-    createdOn: BaseEntity.parseDateTime(json['createdOn']),
-    updatedBy: json['updatedBy'] as String?,
-    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
-    isDeleted: json['isDeleted'] ?? false,
-  );
+  factory Bill.fromJson(Map<String, dynamic> json) {
+    return Bill(
+      id: json['id'],
+      hotelId: json['hotelId'] as String? ?? 'default',
+      tableId: json['tableId'],
+      roomId: json['roomId'],
+      bookingId: json['bookingId'],
+      orderIds: List<String>.from(json['orderIds'] ?? []),
+      subTotal: (json['subTotal'] as num).toDouble(),
+      taxRuleId: json['taxRuleId'],
+      serviceChargeRuleId: json['serviceChargeRuleId'],
+      taxSummary: BillTaxSummary.fromJson(json['taxSummary']),
+      paymentStatus: PaymentStatus.values.firstWhere(
+        (e) => e.name == json['paymentStatus'],
+        orElse: () => PaymentStatus.pending,
+      ),
+      paymentMethod: json['paymentMethod'] != null
+          ? PaymentMethod.values.firstWhere(
+              (e) => e.name == json['paymentMethod'],
+              orElse: () => PaymentMethod.cash,
+            )
+          : null,
+      openedAt: BaseEntity.parseDateTime(json['openedAt']) ?? DateTime.now(),
+      closedAt: BaseEntity.parseDateTime(json['closedAt']),
+      serviceChargeApplied: json['serviceChargeApplied'] ?? true,
+      serviceChargeRemovedBy: json['serviceChargeRemovedBy'],
+      serviceChargeRemovalReason: json['serviceChargeRemovalReason'],
+      discounts:
+          (json['discounts'] as List?)
+              ?.map((d) => BillDiscount.fromJson(Map<String, dynamic>.from(d)))
+              .toList() ??
+          [],
+      payments:
+          (json['payments'] as List?)
+              ?.map((p) => BillPayment.fromJson(Map<String, dynamic>.from(p)))
+              .toList() ??
+          [],
+      customerId: json['customerId'],
+      redeemedPoints: json['redeemedPoints'] ?? 0,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(json['createdOn']),
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -391,8 +413,7 @@ class BillPayment extends Equatable {
 }
 
 /// Guest Room Folio for consolidated checkout settlement
-class RoomFolio extends Equatable {
-  final String id;
+class RoomFolio extends BaseEntity {
   final String roomId;
   final String bookingId;
   final List<String> billIds; // attached restaurant/bar bills
@@ -400,16 +421,56 @@ class RoomFolio extends Equatable {
   final PaymentStatus paymentStatus;
 
   const RoomFolio({
-    required this.id,
+    required super.id,
+    required super.hotelId,
     required this.roomId,
     required this.bookingId,
     required this.billIds,
     required this.totalAmount,
     this.paymentStatus = PaymentStatus.pending,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
   });
 
+  @override
+  List<Object?> get props => [
+    ...super.props,
+    roomId,
+    bookingId,
+    billIds,
+    totalAmount,
+    paymentStatus,
+  ];
+
+  RoomFolio copyWith({
+    String? id,
+    String? hotelId,
+    List<String>? billIds,
+    double? totalAmount,
+    PaymentStatus? paymentStatus,
+  }) {
+    return RoomFolio(
+      id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
+      roomId: roomId,
+      bookingId: bookingId,
+      billIds: billIds ?? this.billIds,
+      totalAmount: totalAmount ?? this.totalAmount,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
+    );
+  }
+
+  @override
   Map<String, dynamic> toJson() => {
-    'id': id,
+    ...super.toAuditJson(),
     'roomId': roomId,
     'bookingId': bookingId,
     'billIds': billIds,
@@ -419,6 +480,7 @@ class RoomFolio extends Equatable {
 
   factory RoomFolio.fromJson(Map<String, dynamic> json) => RoomFolio(
     id: json['id'],
+    hotelId: json['hotelId'] as String? ?? 'default',
     roomId: json['roomId'],
     bookingId: json['bookingId'],
     billIds: List<String>.from(json['billIds'] ?? []),
@@ -427,8 +489,10 @@ class RoomFolio extends Equatable {
       (e) => e.name == json['paymentStatus'],
       orElse: () => PaymentStatus.pending,
     ),
+    createdBy: json['createdBy'] as String?,
+    createdOn: BaseEntity.parseDateTime(json['createdOn']),
+    updatedBy: json['updatedBy'] as String?,
+    updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+    isDeleted: json['isDeleted'] ?? false,
   );
-
-  @override
-  List<Object?> get props => [id, roomId, bookingId, billIds, paymentStatus];
 }

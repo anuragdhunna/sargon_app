@@ -15,9 +15,9 @@ class Offer extends BaseEntity {
   final double discountValue;
   final List<String> applicableItemIds;
   final List<String> applicableCategoryIds;
-  final List<String> applicableDays; // e.g., ["Monday", "Tuesday"]
-  final String? startTime; // HH:mm
-  final String? endTime; // HH:mm
+  final List<String> applicableDays;
+  final String? startTime;
+  final String? endTime;
   final DateTime? validFrom;
   final DateTime? validTo;
   final double minBillAmount;
@@ -29,6 +29,7 @@ class Offer extends BaseEntity {
 
   const Offer({
     required super.id,
+    required super.hotelId,
     required this.name,
     required this.offerType,
     required this.discountType,
@@ -42,7 +43,7 @@ class Offer extends BaseEntity {
     this.validTo,
     this.minBillAmount = 0,
     this.maxDiscountAmount = double.infinity,
-    this.usageLimitPerDay = 0, // 0 means no limit
+    this.usageLimitPerDay = 0,
     this.autoApply = false,
     this.isActive = true,
     this.description,
@@ -53,6 +54,17 @@ class Offer extends BaseEntity {
     super.isDeleted,
   });
 
+  @override
+  List<Object?> get props => [
+    ...super.props,
+    name,
+    offerType,
+    discountType,
+    discountValue,
+    isActive,
+  ];
+
+  @override
   Map<String, dynamic> toJson() => {
     ...super.toAuditJson(),
     'name': name,
@@ -80,6 +92,7 @@ class Offer extends BaseEntity {
     final maxDisc = (json['maxDiscountAmount'] as num?)?.toDouble() ?? -1;
     return Offer(
       id: json['id'],
+      hotelId: json['hotelId'] as String? ?? 'default',
       name: json['name'],
       offerType: OfferType.values.firstWhere(
         (e) => e.name == json['offerType'],
@@ -110,69 +123,6 @@ class Offer extends BaseEntity {
       isDeleted: json['isDeleted'] ?? false,
     );
   }
-
-  Offer copyWith({
-    String? id,
-    String? name,
-    OfferType? offerType,
-    DiscountType? discountType,
-    double? discountValue,
-    List<String>? applicableItemIds,
-    List<String>? applicableCategoryIds,
-    List<String>? applicableDays,
-    String? startTime,
-    String? endTime,
-    DateTime? validFrom,
-    DateTime? validTo,
-    double? minBillAmount,
-    double? maxDiscountAmount,
-    int? usageLimitPerDay,
-    bool? autoApply,
-    bool? isActive,
-    String? description,
-    String? createdBy,
-    DateTime? createdOn,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool? isDeleted,
-  }) {
-    return Offer(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      offerType: offerType ?? this.offerType,
-      discountType: discountType ?? this.discountType,
-      discountValue: discountValue ?? this.discountValue,
-      applicableItemIds: applicableItemIds ?? this.applicableItemIds,
-      applicableCategoryIds:
-          applicableCategoryIds ?? this.applicableCategoryIds,
-      applicableDays: applicableDays ?? this.applicableDays,
-      startTime: startTime ?? this.startTime,
-      endTime: endTime ?? this.endTime,
-      validFrom: validFrom ?? this.validFrom,
-      validTo: validTo ?? this.validTo,
-      minBillAmount: minBillAmount ?? this.minBillAmount,
-      maxDiscountAmount: maxDiscountAmount ?? this.maxDiscountAmount,
-      usageLimitPerDay: usageLimitPerDay ?? this.usageLimitPerDay,
-      autoApply: autoApply ?? this.autoApply,
-      isActive: isActive ?? this.isActive,
-      description: description ?? this.description,
-      createdBy: createdBy ?? this.createdBy,
-      createdOn: createdOn ?? this.createdOn,
-      updatedBy: updatedBy ?? this.updatedBy,
-      updatedOn: updatedOn ?? this.updatedOn,
-      isDeleted: isDeleted ?? this.isDeleted,
-    );
-  }
-
-  @override
-  List<Object?> get props => [
-    ...super.props,
-    name,
-    offerType,
-    discountType,
-    discountValue,
-    isActive,
-  ];
 }
 
 /// Applied Bill Discount
@@ -199,6 +149,9 @@ class BillDiscount extends Equatable {
     required this.appliedAt,
   });
 
+  @override
+  List<Object?> get props => [id, offerId, discountAmount, appliedAt];
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'offerId': offerId,
@@ -224,7 +177,4 @@ class BillDiscount extends Equatable {
     reason: json['reason'],
     appliedAt: DateTime.parse(json['appliedAt']),
   );
-
-  @override
-  List<Object?> get props => [id, offerId, discountAmount, appliedAt];
 }

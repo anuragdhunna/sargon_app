@@ -97,7 +97,7 @@ class GuestDetailsDialog extends StatelessWidget {
               margin: const EdgeInsets.only(top: 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: _getStatusColor(booking.status).withOpacity(0.1),
+                color: _getStatusColor(booking.status).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: _getStatusColor(booking.status)),
               ),
@@ -230,6 +230,7 @@ class GuestDetailsDialog extends StatelessWidget {
     if (authState is! AuthVerified) return;
 
     await context.read<RoomCubit>().checkIn(
+      hotelId: authState.hotelId,
       bookingId: booking.id,
       roomId: room.id,
       userId: authState.userId,
@@ -253,6 +254,7 @@ class GuestDetailsDialog extends StatelessWidget {
     if (authState is! AuthVerified) return;
 
     await context.read<RoomCubit>().checkOut(
+      hotelId: authState.hotelId,
       bookingId: booking.id,
       roomId: room.id,
       userId: authState.userId,

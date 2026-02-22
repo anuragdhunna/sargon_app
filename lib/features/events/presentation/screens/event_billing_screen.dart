@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import '../../../../theme/app_design.dart';
 import '../../../../component/buttons/premium_button.dart';
 import '../../../../component/cards/app_card.dart';
@@ -82,14 +83,21 @@ class _EventBillingScreenState extends State<EventBillingScreen> {
     );
   }
 
-  final List<TaxRule> _defaultTaxRules = [
-    const TaxRule(
+  List<TaxRule> get _defaultTaxRules => [
+    TaxRule(
       id: 'gst5',
+      hotelId: context.hotelId,
       name: 'GST 5%',
       cgstPercent: 2.5,
       sgstPercent: 2.5,
     ),
-    const TaxRule(id: 'gst18', name: 'GST 18%', cgstPercent: 9, sgstPercent: 9),
+    TaxRule(
+      id: 'gst18',
+      hotelId: context.hotelId,
+      name: 'GST 18%',
+      cgstPercent: 9,
+      sgstPercent: 9,
+    ),
   ];
 
   Widget _buildBillSummaryCard(
@@ -109,7 +117,7 @@ class _EventBillingScreenState extends State<EventBillingScreen> {
           const Divider(height: 24),
           _buildBillRow('Subtotal', subtotal),
           _buildBillRow(
-            'Service Charge (${_serviceChargePercent}%)',
+            'Service Charge ($_serviceChargePercent%)',
             serviceCharge,
           ),
           _buildBillRow(
@@ -168,7 +176,7 @@ class _EventBillingScreenState extends State<EventBillingScreen> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<TaxRule>(
-            value: _selectedTaxRule,
+            initialValue: _selectedTaxRule,
             decoration: const InputDecoration(labelText: 'Tax Rule'),
             items: taxRules
                 .map((r) => DropdownMenuItem(value: r, child: Text(r.name)))

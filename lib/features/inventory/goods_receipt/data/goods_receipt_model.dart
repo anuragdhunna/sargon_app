@@ -6,4 +6,4 @@
 /// @deprecated Use 'package:hotel_manager/core/models/goods_receipt_model.dart' instead.
 library;
 
-export 'package:hotel_manager/core/models/goods_receipt_model.dart';
+export 'package:hotel_manager/core/models/purchase_models.dart';

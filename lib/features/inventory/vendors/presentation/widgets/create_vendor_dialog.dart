@@ -1,3 +1,4 @@
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import '../../../inventory_index.dart';
 
 class CreateVendorDialog extends StatefulWidget {
@@ -29,6 +30,7 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
         category: _category,
         contactPerson: _contactPersonController.text.trim(),
         phoneNumber: _phoneController.text.trim(),
+        hotelId: context.hotelId,
       );
       Navigator.pop(context);
     }

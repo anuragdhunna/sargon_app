@@ -173,6 +173,7 @@ class _OfferCard extends StatelessWidget {
                 value: offer.isActive,
                 onChanged: (val) {
                   final updated = Offer(
+                    hotelId: offer.hotelId,
                     id: offer.id,
                     name: offer.name,
                     offerType: offer.offerType,
@@ -286,6 +287,7 @@ class _HappyHourCard extends StatelessWidget {
                 value: happyHour.isActive,
                 onChanged: (val) {
                   final updated = HappyHour(
+                    hotelId: happyHour.hotelId,
                     id: happyHour.id,
                     name: happyHour.name,
                     applicableDays: happyHour.applicableDays,
@@ -416,6 +418,7 @@ class _OfferFormDialogState extends State<_OfferFormDialog> {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               final val = _formKey.currentState!.value;
               final newOffer = Offer(
+                hotelId: widget.offer?.hotelId ?? '',
                 id:
                     widget.offer?.id ??
                     'off_${DateTime.now().millisecondsSinceEpoch}',
@@ -570,6 +573,7 @@ class _HappyHourFormDialogState extends State<_HappyHourFormDialog> {
             if (_formKey.currentState?.saveAndValidate() ?? false) {
               final val = _formKey.currentState!.value;
               final newHH = HappyHour(
+                hotelId: widget.happyHour?.hotelId ?? '',
                 id:
                     widget.happyHour?.id ??
                     'hh_${DateTime.now().millisecondsSinceEpoch}',

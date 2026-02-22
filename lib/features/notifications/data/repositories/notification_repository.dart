@@ -2,14 +2,18 @@ import '../../../../core/models/models.dart';
 import '../../../../core/services/notification_service.dart';
 
 abstract class INotificationRepository {
-  Stream<List<NotificationModel>> streamNotifications({int limit = 20});
-  Future<List<NotificationModel>> getNotifications({
+  Stream<List<NotificationModel>> streamNotifications(
+    String hotelId, {
+    int limit = 20,
+  });
+  Future<List<NotificationModel>> getNotifications(
+    String hotelId, {
     int limit = 10,
     DateTime? before,
   });
-  Future<void> addNotification(NotificationModel notification);
-  Future<void> markAsRead(String id);
-  Future<void> markAllAsRead(List<String> ids);
+  Future<void> addNotification(String hotelId, NotificationModel notification);
+  Future<void> markAsRead(String hotelId, String id);
+  Future<void> markAllAsRead(String hotelId, List<String> ids);
 }
 
 class NotificationRepository implements INotificationRepository {
@@ -19,22 +23,29 @@ class NotificationRepository implements INotificationRepository {
     : _service = service ?? NotificationService();
 
   @override
-  Stream<List<NotificationModel>> streamNotifications({int limit = 20}) =>
-      _service.streamNotifications(limit: limit);
+  Stream<List<NotificationModel>> streamNotifications(
+    String hotelId, {
+    int limit = 20,
+  }) => _service.streamNotifications(hotelId, limit: limit);
 
   @override
-  Future<List<NotificationModel>> getNotifications({
+  Future<List<NotificationModel>> getNotifications(
+    String hotelId, {
     int limit = 10,
     DateTime? before,
-  }) => _service.getNotifications(limit: limit, before: before);
+  }) => _service.getNotifications(hotelId, limit: limit, before: before);
 
   @override
-  Future<void> addNotification(NotificationModel notification) =>
-      _service.addNotification(notification);
+  Future<void> addNotification(
+    String hotelId,
+    NotificationModel notification,
+  ) => _service.addNotification(hotelId, notification);
 
   @override
-  Future<void> markAsRead(String id) => _service.markAsRead(id);
+  Future<void> markAsRead(String hotelId, String id) =>
+      _service.markAsRead(hotelId, id);
 
   @override
-  Future<void> markAllAsRead(List<String> ids) => _service.markAllAsRead(ids);
+  Future<void> markAllAsRead(String hotelId, List<String> ids) =>
+      _service.markAllAsRead(hotelId, ids);
 }

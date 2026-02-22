@@ -5,6 +5,8 @@ import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/features/billing/logic/billing_cubit.dart';
 import 'package:hotel_manager/component/feedback/custom_snackbar.dart';
 import 'package:hotel_manager/features/rooms/logic/room_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 
 class PaymentDialog extends StatefulWidget {
   final Bill bill;
@@ -48,7 +50,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppDesign.primaryStart.withOpacity(0.05),
+                color: AppDesign.primaryStart.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -136,7 +138,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
                 fillColor: AppDesign.neutral50,
               ),
             ),
-            if (_selectedMethod == PaymentMethod.bill_to_room) ...[
+            if (_selectedMethod == PaymentMethod.billToRoom) ...[
               const SizedBox(height: 16),
               const Text(
                 'Select Guest Room',
@@ -270,7 +272,7 @@ class _PaymentDialogState extends State<PaymentDialog> {
               return;
             }
 
-            if (_selectedMethod == PaymentMethod.bill_to_room &&
+            if (_selectedMethod == PaymentMethod.billToRoom &&
                 (_selectedRoomId == null || _selectedBookingId == null)) {
               CustomSnackbar.showError(
                 context,
@@ -280,10 +282,16 @@ class _PaymentDialogState extends State<PaymentDialog> {
             }
 
             try {
+              final authState = context.read<AuthCubit>().state;
+              final hotelId = authState is AuthVerified
+                  ? authState.hotelId
+                  : 'default';
+
               await context.read<BillingCubit>().addPayment(
                 billId: widget.bill.id,
                 amount: amount,
                 method: _selectedMethod,
+                hotelId: hotelId,
                 reference: _refController.text,
                 roomId: _selectedRoomId,
                 bookingId: _selectedBookingId,

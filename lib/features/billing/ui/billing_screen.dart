@@ -5,6 +5,9 @@ import '../../../theme/app_design.dart';
 import '../logic/billing_cubit.dart';
 import '../logic/billing_state.dart';
 import '../logic/discount_calculator.dart';
+import '../../auth/logic/auth_cubit.dart';
+import '../../auth/logic/auth_state.dart';
+import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import '../../../component/buttons/premium_button.dart';
 import 'widgets/bill_summary_card.dart';
 import 'widgets/offer_selection_sheet.dart';
@@ -41,8 +44,12 @@ class _BillingScreenState extends State<BillingScreen> {
     super.initState();
     // Default to guest name if linked to a room booking
     if (widget.orders.isNotEmpty && widget.orders.first.guestName != null) {
+      final authState = context.read<AuthCubit>().state;
+      final hotelId = authState is AuthVerified ? authState.hotelId : 'default';
+
       _selectedCustomer = Customer(
         id: widget.orders.first.bookingId ?? 'guest',
+        hotelId: hotelId,
         name: widget.orders.first.guestName!,
         phone: 'Contact Guest', // Placeholder
         loyaltyInfo: const LoyaltyInfo(
@@ -310,7 +317,9 @@ class _BillingScreenState extends State<BillingScreen> {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: AppDesign.primaryStart.withOpacity(0.1),
+                  backgroundColor: AppDesign.primaryStart.withValues(
+                    alpha: 0.1,
+                  ),
                   child: Text(
                     _selectedCustomer!.name[0].toUpperCase(),
                     style: const TextStyle(
@@ -425,7 +434,7 @@ class _BillingScreenState extends State<BillingScreen> {
                   PaymentMethod.upi,
                   PaymentMethod.card,
                   if (widget.orders.any((o) => o.roomId != null))
-                    PaymentMethod.bill_to_room,
+                    PaymentMethod.billToRoom,
                 ].map((method) {
                   final isSelected = _selectedPaymentMethod == method;
                   return InkWell(
@@ -488,7 +497,7 @@ class _BillingScreenState extends State<BillingScreen> {
         return Icons.qr_code_scanner;
       case PaymentMethod.card:
         return Icons.credit_card;
-      case PaymentMethod.bill_to_room:
+      case PaymentMethod.billToRoom:
         return Icons.room_service;
       default:
         return Icons.payment;
@@ -530,6 +539,7 @@ class _BillingScreenState extends State<BillingScreen> {
 
     try {
       final billId = await context.read<BillingCubit>().createBill(
+        hotelId: context.hotelId,
         tableId: widget.tableId,
         orders: widget.orders,
         taxRuleId: taxRule?.id ?? 'gst_5',
@@ -545,6 +555,7 @@ class _BillingScreenState extends State<BillingScreen> {
           billId: billId,
           amount: summary.grandTotal,
           method: _selectedPaymentMethod!,
+          hotelId: context.hotelId,
           roomId: widget.orders
               .firstWhere(
                 (o) => o.roomId != null,

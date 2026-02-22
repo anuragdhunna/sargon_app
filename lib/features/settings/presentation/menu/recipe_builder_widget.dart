@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hotel_manager/core/models/inventory_item_model.dart';
+import 'package:hotel_manager/core/models/inventory_models.dart';
 import 'package:hotel_manager/core/models/recipe_model.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_state.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/theme/app_design.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 
 class RecipeBuilderWidget extends StatefulWidget {
   final List<RecipeIngredient> initialRecipe;
@@ -30,7 +32,11 @@ class _RecipeBuilderWidgetState extends State<RecipeBuilderWidget> {
     super.initState();
     _recipe = List.from(widget.initialRecipe);
     // Ensure inventory is loaded
-    context.read<InventoryCubit>().loadInventory();
+    context.read<InventoryCubit>().loadInventory(
+      context.read<AuthCubit>().state is AuthVerified
+          ? (context.read<AuthCubit>().state as AuthVerified).hotelId
+          : 'default',
+    );
   }
 
   void _addIngredient(InventoryItem item, double quantity) {

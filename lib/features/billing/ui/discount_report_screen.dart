@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import '../../../core/models/models.dart';
 import '../../../core/services/database/interfaces/billing_database.dart';
 import '../../../core/services/database_service.dart';
@@ -26,34 +29,41 @@ class _DiscountReportScreenState extends State<DiscountReportScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: StreamBuilder<List<Bill>>(
-        stream: _db.streamBills(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      body: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, authState) {
+          final hotelId = authState is AuthVerified
+              ? authState.hotelId
+              : 'default';
+          return StreamBuilder<List<Bill>>(
+            stream: _db.streamBills(hotelId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-          final bills = snapshot.data ?? [];
-          final today = DateTime.now();
-          final todaysBills = bills
-              .where(
-                (b) =>
-                    b.openedAt.year == today.year &&
-                    b.openedAt.month == today.month &&
-                    b.openedAt.day == today.day,
-              )
-              .toList();
+              final bills = snapshot.data ?? [];
+              final today = DateTime.now();
+              final todaysBills = bills
+                  .where(
+                    (b) =>
+                        b.openedAt.year == today.year &&
+                        b.openedAt.month == today.month &&
+                        b.openedAt.day == today.day,
+                  )
+                  .toList();
 
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              _buildMetricGrid(todaysBills),
-              const SizedBox(height: 24),
-              _buildDiscountsList(todaysBills),
-            ],
+              return ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  _buildMetricGrid(todaysBills),
+                  const SizedBox(height: 24),
+                  _buildDiscountsList(todaysBills),
+                ],
+              );
+            },
           );
         },
       ),

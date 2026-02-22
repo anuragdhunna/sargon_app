@@ -23,9 +23,16 @@ void main() {
     mockAuthCubit = MockAuthCubit();
 
     // Default mock behavior for initialization
-    when(() => mockRoomCubit.loadRooms()).thenReturn(null);
+    when(() => mockRoomCubit.loadRooms(any())).thenReturn(null);
     when(() => mockRoomCubit.getFilteredRooms()).thenReturn([]);
-    when(() => mockAuthCubit.state).thenReturn(AuthInitial());
+    when(() => mockAuthCubit.state).thenReturn(
+      const AuthVerified(
+        userId: 'user1',
+        userName: 'User One',
+        hotelId: 'hotel1',
+        role: UserRole.manager,
+      ),
+    );
   });
 
   Widget createWidgetUnderTest() {
@@ -62,7 +69,7 @@ void main() {
         await tester.pumpWidget(createWidgetUnderTest());
 
         // Note: loadRooms() is called once in initState
-        verify(() => mockRoomCubit.loadRooms()).called(1);
+        verify(() => mockRoomCubit.loadRooms(any())).called(1);
 
         expect(find.text('Error: $errorMessage'), findsOneWidget);
         expect(find.text('Retry'), findsOneWidget);
@@ -72,7 +79,7 @@ void main() {
         await tester.pump();
 
         // Verify: Logic was called again (Total 2)
-        verify(() => mockRoomCubit.loadRooms()).called(1);
+        verify(() => mockRoomCubit.loadRooms(any())).called(1);
       },
     );
 
@@ -80,6 +87,7 @@ void main() {
       final rooms = [
         const Room(
           id: '101',
+          hotelId: 'test-hotel',
           roomNumber: '101',
           type: RoomType.single,
           status: RoomStatus.available,
@@ -110,6 +118,7 @@ void main() {
       final rooms = [
         const Room(
           id: '101',
+          hotelId: 'test-hotel',
           roomNumber: '101',
           type: RoomType.single,
           status: RoomStatus.available,

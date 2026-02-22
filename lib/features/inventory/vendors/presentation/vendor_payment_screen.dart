@@ -63,7 +63,7 @@ class _VendorPaymentScreenState extends State<VendorPaymentScreen> {
 
                     // Calculate outstanding amounts per vendor
                     final vendorPayments = vendors
-                        .map((vendor) {
+                        .map((Vendor vendor) {
                           final vendorPOs = poState.orders
                               .where((po) => po.vendorId == vendor.id)
                               .toList();

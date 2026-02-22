@@ -6,6 +6,8 @@ import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/features/billing/logic/billing_cubit.dart';
 import 'package:hotel_manager/features/billing/logic/billing_state.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/core/services/pdf_service.dart';
@@ -41,62 +43,70 @@ class RoomFolioScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<RoomFolio?>(
-        stream: databaseService.streamFolio(bookingId),
-        builder: (context, folioSnapshot) {
-          return BlocBuilder<BillingCubit, BillingState>(
-            builder: (context, billingState) {
-              if (billingState is BillingLoading ||
-                  folioSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      body: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, authState) {
+          final hotelId = authState is AuthVerified
+              ? authState.hotelId
+              : 'default';
+          return StreamBuilder<RoomFolio?>(
+            stream: databaseService.streamFolio(hotelId, bookingId),
+            builder: (context, folioSnapshot) {
+              return BlocBuilder<BillingCubit, BillingState>(
+                builder: (context, billingState) {
+                  if (billingState is BillingLoading ||
+                      folioSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-              final folio = folioSnapshot.data;
-              final bills = billingState is BillingLoaded
-                  ? billingState.bills
-                        .where((b) => b.bookingId == bookingId)
-                        .toList()
-                  : <Bill>[];
+                  final folio = folioSnapshot.data;
+                  final bills = billingState is BillingLoaded
+                      ? billingState.bills
+                            .where((b) => b.bookingId == bookingId)
+                            .toList()
+                      : <Bill>[];
 
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _FolioHeader(bookingId: bookingId),
-                    const SizedBox(height: 24),
-                    _ChargesSummary(
-                      bookingId: bookingId,
-                      bills: bills,
-                      folio: folio,
-                      onPrint: () => PdfService.generateConsolidatedFolio(
-                        bookingId,
-                        bills,
-                        bills.fold(0, (sum, b) => sum + b.grandTotal),
-                        bills.fold(0, (sum, b) => sum + b.paidAmount),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Text(
-                      'Details of Charges',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    ...bills.map((bill) => _BillItemCard(bill: bill)),
-                    if (bills.isEmpty)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 40),
-                          child: Text(
-                            'No restaurant bills linked to this room yet.',
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FolioHeader(bookingId: bookingId),
+                        const SizedBox(height: 24),
+                        _ChargesSummary(
+                          bookingId: bookingId,
+                          bills: bills,
+                          folio: folio,
+                          onPrint: () => PdfService.generateConsolidatedFolio(
+                            bookingId,
+                            bills,
+                            bills.fold(0, (sum, b) => sum + b.grandTotal),
+                            bills.fold(0, (sum, b) => sum + b.paidAmount),
                           ),
                         ),
-                      ),
-                  ],
-                ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Details of Charges',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...bills.map((bill) => _BillItemCard(bill: bill)),
+                        if (bills.isEmpty)
+                          const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Text(
+                                'No restaurant bills linked to this room yet.',
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
               );
             },
           );
@@ -271,8 +281,12 @@ class _ChargesSummary extends StatelessWidget {
   void _settle(BuildContext context, PaymentMethod method) async {
     Navigator.pop(context); // Close dialog
 
+    final authState = context.read<AuthCubit>().state;
+    final hotelId = authState is AuthVerified ? authState.hotelId : 'default';
+
     await context.read<BillingCubit>().settleFolio(
       bookingId: bookingId,
+      hotelId: hotelId,
       method: method,
     );
 

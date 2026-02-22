@@ -7,38 +7,56 @@ part 'event_state.dart';
 
 class EventCubit extends Cubit<EventState> {
   final EventRepository _repository;
+  String? _hotelId;
 
   EventRepository get repository => _repository;
 
   EventCubit(this._repository) : super(const EventInitial());
 
+  void setHotelId(String hotelId) {
+    _hotelId = hotelId;
+  }
+
+  String get hotelId {
+    if (_hotelId == null) {
+      throw Exception('HotelId not set in EventCubit');
+    }
+    return _hotelId!;
+  }
+
   void streamHalls() {
     emit(state.copyWith(status: EventStatusType.loading));
-    _repository.streamHalls().listen(
-      (halls) =>
-          emit(state.copyWith(halls: halls, status: EventStatusType.loaded)),
-      onError: (e) => emit(
-        state.copyWith(status: EventStatusType.error, message: e.toString()),
-      ),
-    );
+    _repository
+        .streamHalls(hotelId)
+        .listen(
+          (halls) => emit(
+            state.copyWith(halls: halls, status: EventStatusType.loaded),
+          ),
+          onError: (e) => emit(
+            state.copyWith(
+              status: EventStatusType.error,
+              message: e.toString(),
+            ),
+          ),
+        );
   }
 
   void streamMenuItems() {
-    _repository.streamMenuItems().listen(
-      (items) => emit(state.copyWith(menuItems: items)),
-    );
+    _repository
+        .streamMenuItems(hotelId)
+        .listen((items) => emit(state.copyWith(menuItems: items)));
   }
 
   void streamVendors() {
-    _repository.streamVendors().listen(
-      (vendors) => emit(state.copyWith(vendors: vendors)),
-    );
+    _repository
+        .streamVendors(hotelId)
+        .listen((vendors) => emit(state.copyWith(vendors: vendors)));
   }
 
   void streamStaff() {
-    _repository.streamStaff().listen(
-      (staff) => emit(state.copyWith(staff: staff)),
-    );
+    _repository
+        .streamStaff(hotelId)
+        .listen((staff) => emit(state.copyWith(staff: staff)));
   }
 
   Future<void> saveVendor(Vendor vendor) async {
@@ -53,13 +71,19 @@ class EventCubit extends Cubit<EventState> {
 
   void streamEvents() {
     emit(state.copyWith(status: EventStatusType.loading));
-    _repository.streamEvents().listen(
-      (events) =>
-          emit(state.copyWith(events: events, status: EventStatusType.loaded)),
-      onError: (e) => emit(
-        state.copyWith(status: EventStatusType.error, message: e.toString()),
-      ),
-    );
+    _repository
+        .streamEvents(hotelId)
+        .listen(
+          (events) => emit(
+            state.copyWith(events: events, status: EventStatusType.loaded),
+          ),
+          onError: (e) => emit(
+            state.copyWith(
+              status: EventStatusType.error,
+              message: e.toString(),
+            ),
+          ),
+        );
   }
 
   Future<void> saveHall(Hall hall) async {
@@ -95,8 +119,9 @@ class EventCubit extends Cubit<EventState> {
     for (var event in state.events) {
       if (event.id == newEvent.id) continue;
       if (event.status != EventStatus.confirmed &&
-          event.status != EventStatus.live)
+          event.status != EventStatus.live) {
         continue;
+      }
 
       // Check date
       if (event.date.year == newEvent.date.year &&
@@ -180,9 +205,9 @@ class EventCubit extends Cubit<EventState> {
   }
 
   void streamEventTaxRules() {
-    _repository.streamEventTaxRules().listen(
-      (rules) => emit(state.copyWith(eventTaxRules: rules)),
-    );
+    _repository
+        .streamEventTaxRules(hotelId)
+        .listen((rules) => emit(state.copyWith(eventTaxRules: rules)));
   }
 
   void streamEventIncidents(String eventId) {
@@ -215,7 +240,7 @@ class EventCubit extends Cubit<EventState> {
   Future<void> fetchHalls() async {
     emit(state.copyWith(status: EventStatusType.loading));
     try {
-      final halls = await _repository.fetchHalls();
+      final halls = await _repository.fetchHalls(hotelId);
       emit(state.copyWith(halls: halls, status: EventStatusType.loaded));
     } catch (e) {
       emit(
@@ -227,7 +252,7 @@ class EventCubit extends Cubit<EventState> {
   Future<void> fetchEvents() async {
     emit(state.copyWith(status: EventStatusType.loading));
     try {
-      final events = await _repository.fetchEvents();
+      final events = await _repository.fetchEvents(hotelId);
       emit(state.copyWith(events: events, status: EventStatusType.loaded));
     } catch (e) {
       emit(
@@ -238,7 +263,7 @@ class EventCubit extends Cubit<EventState> {
 
   Future<void> fetchEventTaxRules() async {
     try {
-      final rules = await _repository.fetchEventTaxRules();
+      final rules = await _repository.fetchEventTaxRules(hotelId);
       emit(state.copyWith(eventTaxRules: rules));
     } catch (e) {
       // Quietly handle or log
@@ -259,8 +284,9 @@ class EventCubit extends Cubit<EventState> {
       if (event.id == excludeEventId) continue;
       // Only confirmed/live/billed events cause conflicts. Drafts do not lock halls.
       if (event.status == EventStatus.draft ||
-          event.status == EventStatus.archived)
+          event.status == EventStatus.archived) {
         continue;
+      }
 
       // Check date
       if (event.date.year == date.year &&
@@ -301,22 +327,13 @@ class EventCubit extends Cubit<EventState> {
   // Hall Features
   Future<void> fetchHallFeatures() async {
     emit(state.copyWith(status: EventStatusType.loading));
-    try {
-      final features = await _repository.fetchHallFeatures();
-      emit(
-        state.copyWith(hallFeatures: features, status: EventStatusType.loaded),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(status: EventStatusType.error, message: e.toString()),
-      );
-    }
+    streamHallFeatures(); // Switch to stream for real-time updates
   }
 
   void streamHallFeatures() {
-    _repository.streamHallFeatures().listen(
-      (features) => emit(state.copyWith(hallFeatures: features)),
-    );
+    _repository
+        .streamHallFeatures(hotelId)
+        .listen((features) => emit(state.copyWith(hallFeatures: features)));
   }
 
   Future<void> saveHallFeature(HallFeature feature) async {

@@ -1,12 +1,9 @@
 import 'dart:async';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../core/models/models.dart';
-import '../../data/inventory_repository.dart';
 import '../../inventory_index.dart';
 import '../../../notifications/data/repositories/notification_repository.dart';
-import 'purchase_order_state.dart';
 
 class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
   final IInventoryRepository _repository;
@@ -26,22 +23,30 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
        _auditService = auditService ?? AuditService(),
        super(PurchaseOrderInitial());
 
-  void loadPurchaseOrders() {
+  void loadPurchaseOrders(String hotelId) {
     emit(PurchaseOrderLoading());
     _subscription?.cancel();
-    _subscription = _repository.streamPurchaseOrders().listen(
-      (orders) {
-        _orders.clear();
-        _orders.addAll(orders);
-        _orders.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-        emit(PurchaseOrderLoaded(List.from(_orders)));
-      },
-      onError: (e) {
-        emit(
-          PurchaseOrderError('Failed to load purchase orders: ${e.toString()}'),
+    _subscription = _repository
+        .streamPurchaseOrders(hotelId)
+        .listen(
+          (orders) {
+            _orders.clear();
+            _orders.addAll(orders);
+            _orders.sort(
+              (a, b) => (b.createdOn ?? DateTime(0)).compareTo(
+                a.createdOn ?? DateTime(0),
+              ),
+            );
+            emit(PurchaseOrderLoaded(List.from(_orders)));
+          },
+          onError: (e) {
+            emit(
+              PurchaseOrderError(
+                'Failed to load purchase orders: ${e.toString()}',
+              ),
+            );
+          },
         );
-      },
-    );
   }
 
   Future<void> createPurchaseOrder({
@@ -56,24 +61,26 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     required String userId,
     required String userName,
     required String userRole,
+    required String hotelId,
   }) async {
     final dateStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final sequence = (_orders.length + 1).toString().padLeft(4, '0');
     final poNumber = 'PO-$dateStr-$sequence';
 
-    final settings = await _repository.getAppSettings();
+    final settings = await _repository.getAppSettings(hotelId);
     final status = settings.requiresPOApproval
         ? POStatus.pendingApproval
         : POStatus.sent;
 
     final po = PurchaseOrder(
       id: _uuid.v4(),
+      hotelId: hotelId,
       poNumber: poNumber,
       vendorId: vendorId,
       vendorName: vendorName,
       lineItems: lineItems,
       status: status,
-      createdAt: DateTime.now(),
+      createdOn: DateTime.now(),
       createdBy: createdBy,
       expectedDeliveryDate: expectedDeliveryDate,
       notes: notes,
@@ -86,13 +93,15 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
 
       if (status == POStatus.pendingApproval) {
         await _notificationRepository.addNotification(
+          hotelId,
           NotificationModel(
+            hotelId: hotelId,
             id: _uuid.v4(),
             title: 'PO Approval Required',
             body:
                 'Purchase Order ${po.poNumber} from $vendorName requires approval.',
             type: NotificationType.inventory,
-            createdAt: DateTime.now(),
+            createdOn: DateTime.now(),
             targetRoute: '/inventory/purchase-orders/${po.id}',
           ),
         );
@@ -102,6 +111,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
       emit(PurchaseOrderLoaded(List.from(_orders)));
 
       _auditService.log(
+        hotelId: hotelId,
         userId: userId,
         userName: userName,
         userRole: userRole,
@@ -124,6 +134,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     required String userId,
     required String userName,
     required String userRole,
+    required String hotelId,
   }) async {
     try {
       final index = _orders.indexWhere((o) => o.id == poId);
@@ -137,6 +148,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
         emit(PurchaseOrderLoaded(List.from(_orders)));
 
         _auditService.log(
+          hotelId: hotelId,
           userId: userId,
           userName: userName,
           userRole: userRole,
@@ -213,6 +225,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     required String userId,
     required String userName,
     required String userRole,
+    required String hotelId,
   }) async {
     try {
       final index = _orders.indexWhere((o) => o.id == poId);
@@ -223,6 +236,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
         emit(PurchaseOrderLoaded(List.from(_orders)));
 
         _auditService.log(
+          hotelId: hotelId,
           userId: userId,
           userName: userName,
           userRole: userRole,
@@ -243,6 +257,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
     required String userId,
     required String userName,
     required String userRole,
+    required String hotelId,
   }) async {
     try {
       final index = _orders.indexWhere((o) => o.id == poId);
@@ -263,6 +278,7 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
           emit(PurchaseOrderLoaded(List.from(_orders)));
 
           _auditService.log(
+            hotelId: hotelId,
             userId: userId,
             userName: userName,
             userRole: userRole,

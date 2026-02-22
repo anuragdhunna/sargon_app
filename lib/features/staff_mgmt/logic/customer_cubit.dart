@@ -34,17 +34,17 @@ class CustomerCubit extends Cubit<CustomerState> {
 
   CustomerCubit({required DatabaseService databaseService})
     : _databaseService = databaseService,
-      super(CustomerInitial()) {
-    loadCustomers();
-  }
+      super(CustomerInitial());
 
-  void loadCustomers() {
+  void loadCustomers(String hotelId) {
     emit(CustomerLoading());
     _subscription?.cancel();
-    _subscription = _databaseService.streamCustomers().listen(
-      (customers) => emit(CustomerLoaded(customers)),
-      onError: (e) => emit(CustomerError(e.toString())),
-    );
+    _subscription = _databaseService
+        .streamCustomers(hotelId)
+        .listen(
+          (customers) => emit(CustomerLoaded(customers)),
+          onError: (e) => emit(CustomerError(e.toString())),
+        );
   }
 
   Future<void> saveCustomer(Customer customer) async {

@@ -12,24 +12,30 @@ class TableCubit extends Cubit<TableState> {
     : _databaseService = databaseService,
       super(TableInitial());
 
-  void loadTables() {
+  void loadTables(String hotelId) {
     if (state is! TableLoaded) {
       emit(TableLoading());
     }
     _tablesSubscription?.cancel();
-    _tablesSubscription = _databaseService.streamTables().listen(
-      (tables) {
-        emit(TableLoaded(tables: tables));
-      },
-      onError: (e) {
-        emit(TableError(message: e.toString()));
-      },
-    );
+    _tablesSubscription = _databaseService
+        .streamTables(hotelId)
+        .listen(
+          (tables) {
+            emit(TableLoaded(tables: tables));
+          },
+          onError: (e) {
+            emit(TableError(message: e.toString()));
+          },
+        );
   }
 
-  Future<void> updateTableStatus(String tableId, TableStatus status) async {
+  Future<void> updateTableStatus(
+    String hotelId,
+    String tableId,
+    TableStatus status,
+  ) async {
     try {
-      await _databaseService.updateTableStatus(tableId, status);
+      await _databaseService.updateTableStatus(hotelId, tableId, status);
     } catch (e) {
       emit(TableError(message: e.toString()));
     }

@@ -5,10 +5,10 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/component/feedback/custom_snackbar.dart';
+import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
-import 'package:hotel_manager/component/inputs/app_text_field.dart';
-import 'package:hotel_manager/features/inventory/stock/data/inventory_model.dart';
+import 'package:hotel_manager/core/models/inventory_models.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
 import 'package:flutter/services.dart';
 import 'package:uuid/uuid.dart';
@@ -169,9 +169,13 @@ class AddInventoryItemDialog extends StatelessWidget {
                     onPressed: () {
                       if (formKey.currentState?.saveAndValidate() ?? false) {
                         final data = formKey.currentState!.value;
+                        final authState = context.read<AuthCubit>().state;
+                        if (authState is! AuthVerified) return;
+
                         try {
                           final item = InventoryItem(
                             id: const Uuid().v4(),
+                            hotelId: authState.hotelId,
                             name: data['name'],
                             category: data['category'],
                             quantity: double.parse(data['quantity'] ?? '0'),
@@ -182,24 +186,22 @@ class AddInventoryItemDialog extends StatelessWidget {
                             pricePerUnit: double.parse(data['price'] ?? '0'),
                           );
 
-                          final authState = context.read<AuthCubit>().state;
-                          if (authState is AuthVerified) {
-                            context.read<InventoryCubit>().addItem(
-                              item,
-                              userId: authState.userId,
-                              userName: authState.userName,
-                              userRole: authState.role.name,
-                            );
-                            context.pop();
-                            CustomSnackbar.showSuccess(
-                              context,
-                              'Item added successfully!',
-                            );
-                          }
+                          context.read<InventoryCubit>().addItem(
+                            hotelId: authState.hotelId,
+                            item,
+                            userId: authState.userId,
+                            userName: authState.userName,
+                            userRole: authState.role.name,
+                          );
+                          context.pop();
+                          CustomSnackbar.showSuccess(
+                            context,
+                            'Item added successfully!',
+                          );
                         } catch (e) {
                           CustomSnackbar.showError(
                             context,
-                            'Invalid input. Please check all fields.',
+                            'Error adding item. Please try again.',
                           );
                         }
                       } else {

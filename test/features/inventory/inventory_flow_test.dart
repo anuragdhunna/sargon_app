@@ -46,23 +46,28 @@ void main() {
     mockNotifications = MockNotificationRepository();
 
     // Setup default responses
-    when(() => mockRepo.getVendors()).thenAnswer((_) async => []);
-    when(() => mockRepo.getPurchaseOrders()).thenAnswer((_) async => []);
-    when(() => mockRepo.getGoodsReceipts()).thenAnswer((_) async => []);
+    when(() => mockRepo.getVendors(any())).thenAnswer((_) async => []);
+    when(() => mockRepo.getPurchaseOrders(any())).thenAnswer((_) async => []);
+    when(() => mockRepo.getGoodsReceipts(any())).thenAnswer((_) async => []);
+    when(() => mockRepo.getAppSettings(any())).thenAnswer(
+      (_) async => const AppSettings(id: 'settings', hotelId: 'test-hotel'),
+    );
     when(
-      () => mockRepo.getAppSettings(),
-    ).thenAnswer((_) async => const AppSettings());
-    when(() => mockRepo.streamInventory()).thenAnswer((_) => Stream.value([]));
+      () => mockRepo.streamInventory(any()),
+    ).thenAnswer((_) => Stream.value([]));
     when(() => mockRepo.saveVendor(any())).thenAnswer((_) async => {});
     when(() => mockRepo.savePurchaseOrder(any())).thenAnswer((_) async => {});
     when(() => mockRepo.saveGoodsReceipt(any())).thenAnswer((_) async => {});
-    when(() => mockRepo.addStock(any(), any())).thenAnswer((_) async => {});
     when(
-      () => mockRepo.updateInventoryQuantity(any(), any()),
+      () => mockRepo.addStock(any(), any(), any()),
+    ).thenAnswer((_) async => {});
+    when(
+      () => mockRepo.updateInventoryQuantity(any(), any(), any()),
     ).thenAnswer((_) async => {});
 
     when(
       () => mockAudit.log(
+        hotelId: any(named: 'hotelId'),
         userId: any(named: 'userId'),
         userName: any(named: 'userName'),
         userRole: any(named: 'userRole'),
@@ -75,7 +80,7 @@ void main() {
     ).thenAnswer((_) async => {});
 
     when(
-      () => mockNotifications.addNotification(any()),
+      () => mockNotifications.addNotification(any(), any()),
     ).thenAnswer((_) async => {});
 
     vendorCubit = VendorCubit(repository: mockRepo);
@@ -112,6 +117,7 @@ void main() {
         category: VendorCategory.dairy,
         contactPerson: 'John Milk',
         phoneNumber: '1234567890',
+        hotelId: 'test-hotel',
       );
 
       final vendor = (vendorCubit.state as VendorLoaded).vendors.first;
@@ -121,6 +127,7 @@ void main() {
       // 2. Setup mock inventory items
       final milkItem = InventoryItem(
         id: 'item_milk',
+        hotelId: 'test-hotel',
         name: 'Milk',
         category: ItemCategory.food,
         unit: UnitType.liters,
@@ -131,9 +138,9 @@ void main() {
 
       // Push inventory data to inventoryCubit
       when(
-        () => mockRepo.streamInventory(),
+        () => mockRepo.streamInventory(any()),
       ).thenAnswer((_) => Stream.value([milkItem]));
-      inventoryCubit.loadInventory();
+      inventoryCubit.loadInventory('test-hotel');
       await expectLater(
         inventoryCubit.stream,
         emitsThrough(isA<InventoryLoaded>()),
@@ -158,6 +165,7 @@ void main() {
         userId: 'user_1',
         userName: 'Admin',
         userRole: 'admin',
+        hotelId: 'test-hotel',
       );
 
       final po = (poCubit.state as PurchaseOrderLoaded).orders.first;
@@ -167,6 +175,7 @@ void main() {
       verify(
         () => mockAudit.log(
           userId: 'user_1',
+          hotelId: any(named: 'hotelId'),
           action: AuditAction.createPO,
           entity: 'purchase_order',
           entityId: po.id,
@@ -197,13 +206,16 @@ void main() {
         userId: 'user_1',
         userName: 'Admin',
         userRole: 'admin',
+        hotelId: 'test-hotel',
       );
 
       // Verify GRN saved
       verify(() => mockRepo.saveGoodsReceipt(any())).called(1);
 
       // Verify Stock updated in database
-      verify(() => mockRepo.addStock('item_milk', 15.0)).called(1);
+      verify(
+        () => mockRepo.addStock('test-hotel', 'item_milk', 15.0),
+      ).called(1);
 
       // Verify PO partially updated
       final updatedPO = (poCubit.state as PurchaseOrderLoaded).orders.first;
@@ -232,6 +244,7 @@ void main() {
         userId: 'user_1',
         userName: 'Admin',
         userRole: 'admin',
+        hotelId: 'test-hotel',
       );
 
       // Verify PO completed
@@ -244,6 +257,7 @@ void main() {
       verify(
         () => mockAudit.log(
           userId: 'user_1',
+          hotelId: any(named: 'hotelId'),
           action: AuditAction.receive,
           entity: 'goods_receipt',
           entityId: any(named: 'entityId'),

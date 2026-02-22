@@ -39,38 +39,43 @@ class UserCubit extends Cubit<UserState> {
     : _databaseService = databaseService,
       super(UserInitial());
 
-  void loadUsers() {
+  void loadUsers(String hotelId) {
     emit(UserLoading());
     _usersSubscription?.cancel();
-    _usersSubscription = _databaseService.streamUsers().listen(
-      (users) {
-        emit(UserLoaded(users, allUsers: users));
-      },
-      onError: (error) {
-        emit(UserError(error.toString()));
-      },
-    );
+    _usersSubscription = _databaseService
+        .streamUsers(hotelId)
+        .listen(
+          (users) {
+            emit(UserLoaded(users, allUsers: users));
+          },
+          onError: (error) {
+            emit(UserError(error.toString()));
+          },
+        );
   }
 
   Future<void> addUser(User user) async {
     await _databaseService.saveUser(user);
   }
 
-  Future<void> toggleUserStatus(String userId) async {
-    final user = await _databaseService.getUser(userId);
-    if (user != null) {
-      final newStatus = user.status == UserStatus.active
-          ? UserStatus.inactive
-          : UserStatus.active;
-      await _databaseService.saveUser(user.copyWith(status: newStatus));
+  Future<void> toggleUserStatus(
+    String hotelId,
+    String userId,
+    bool isActive,
+  ) async {
+    try {
+      await _databaseService.updateUserStatus(hotelId, userId, isActive);
+    } catch (e) {
+      emit(UserError(e.toString()));
     }
   }
 
-  Future<void> deleteUser(String userId) async {
-    // Instead of actual delete, we could just deactivate,
-    // but the requirement says provide a toggle switch.
-    // We'll keep delete just in case, but preferred is toggle.
-    await _databaseService.usersRef.child(userId).remove();
+  Future<void> deleteUser(String hotelId, String userId) async {
+    try {
+      await _databaseService.deleteUser(hotelId, userId);
+    } catch (e) {
+      emit(UserError(e.toString()));
+    }
   }
 
   void filterUsers(UserRole? role) {

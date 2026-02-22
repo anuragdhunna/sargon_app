@@ -10,21 +10,25 @@ class OrderTakingCubit extends Cubit<OrderTakingState> {
 
   OrderTakingCubit({
     required SettingsRepository settingsRepository,
+    required String hotelId,
     String? initialTableId,
     String? initialRoomId,
   }) : _settingsRepository = settingsRepository,
        super(
          OrderTakingState(
+           hotelId: hotelId,
            selectedTableId: initialTableId,
            selectedRoom: initialRoomId,
            orderType: initialRoomId != null ? 'Room' : 'Table',
          ),
        ) {
-    _loadMenuItems();
+    _loadMenuItems(hotelId);
   }
 
-  void _loadMenuItems() {
-    _menuSubscription = _settingsRepository.streamMenuItems().listen((items) {
+  void _loadMenuItems(String hotelId) {
+    _menuSubscription = _settingsRepository.streamMenuItems(hotelId).listen((
+      items,
+    ) {
       setMenuItems(items);
     });
   }

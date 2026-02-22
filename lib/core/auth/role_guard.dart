@@ -19,8 +19,8 @@ import 'package:hotel_manager/features/billing/ui/discount_report_screen.dart';
 class RoleGuard {
   /// Check if a user role has access to a specific route
   static bool canAccess(UserRole role, String route) {
-    // Owner has access to everything
-    if (role == UserRole.owner) return true;
+    // Owner and Super Admin have access to everything
+    if (role == UserRole.owner || role == UserRole.superAdmin) return true;
 
     // Handle sub-routes by checking prefixes
     if (route.startsWith(AttendanceScreen.routeName)) {

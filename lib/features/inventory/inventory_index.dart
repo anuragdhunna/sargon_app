@@ -23,30 +23,30 @@ export 'package:hotel_manager/component/feedback/custom_snackbar.dart';
 export 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 export 'package:hotel_manager/features/auth/logic/auth_state.dart';
 
+// Core Models
+export 'package:hotel_manager/core/models/inventory_models.dart';
+export 'package:hotel_manager/core/models/purchase_models.dart';
+
 // Data
 export 'package:hotel_manager/features/inventory/data/inventory_repository.dart';
 
 // Stock Management
-export 'package:hotel_manager/features/inventory/stock/data/inventory_model.dart';
 export 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
 export 'package:hotel_manager/features/inventory/stock/logic/inventory_state.dart';
 
 // Goods Receipt
-export 'package:hotel_manager/features/inventory/goods_receipt/data/goods_receipt_model.dart';
 export 'package:hotel_manager/features/inventory/goods_receipt/logic/goods_receipt_cubit.dart';
 export 'package:hotel_manager/features/inventory/goods_receipt/logic/goods_receipt_state.dart';
 export 'package:hotel_manager/features/inventory/goods_receipt/presentation/goods_receiving_screen.dart';
 export 'package:hotel_manager/features/inventory/goods_receipt/presentation/grn_tracking_screen.dart';
 
 // Purchase Orders
-export 'package:hotel_manager/features/inventory/purchase_orders/data/purchase_order_model.dart';
 export 'package:hotel_manager/features/inventory/purchase_orders/logic/purchase_order_cubit.dart';
 export 'package:hotel_manager/features/inventory/purchase_orders/logic/purchase_order_state.dart';
 export 'package:hotel_manager/features/inventory/purchase_orders/presentation/po_detail_screen.dart';
 export 'package:hotel_manager/features/inventory/purchase_orders/presentation/purchase_orders_screen.dart';
 
 // Vendors
-export 'package:hotel_manager/features/inventory/vendors/data/vendor_model.dart';
 export 'package:hotel_manager/features/inventory/vendors/logic/vendor_cubit.dart';
 export 'package:hotel_manager/features/inventory/vendors/logic/vendor_state.dart';
 export 'package:hotel_manager/features/inventory/vendors/presentation/widgets/create_vendor_dialog.dart';

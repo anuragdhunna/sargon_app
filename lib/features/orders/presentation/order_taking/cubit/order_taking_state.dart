@@ -9,6 +9,7 @@ class OrderTakingState extends Equatable {
   final List<OrderItem> cart;
   final OrderTakingStatus status;
   final String? errorMessage;
+  final String hotelId;
 
   // Selection state
   final String orderType;
@@ -34,6 +35,7 @@ class OrderTakingState extends Equatable {
     this.selectedCustomer,
     this.searchQuery = '',
     this.selectedCategory,
+    required this.hotelId,
   });
 
   OrderTakingState copyWith({
@@ -49,8 +51,10 @@ class OrderTakingState extends Equatable {
     Customer? selectedCustomer,
     String? searchQuery,
     MenuCategory? selectedCategory,
+    String? hotelId,
   }) {
     return OrderTakingState(
+      hotelId: hotelId ?? this.hotelId,
       allMenuItems: allMenuItems ?? this.allMenuItems,
       filteredItems: filteredItems ?? this.filteredItems,
       cart: cart ?? this.cart,
@@ -83,5 +87,6 @@ class OrderTakingState extends Equatable {
     selectedCustomer,
     searchQuery,
     selectedCategory,
+    hotelId,
   ];
 }

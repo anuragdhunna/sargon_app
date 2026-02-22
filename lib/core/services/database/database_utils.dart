@@ -1,33 +1,33 @@
 part of '../database_service.dart';
 
 extension DatabaseUtils on DatabaseService {
-  /// Generate a new push key (unique ID)
-  String generateKey(String path) {
-    return _ref(path).push().key ??
-        DateTime.now().millisecondsSinceEpoch.toString();
+  /// Generate a new unique ID
+  String generateKey(String collectionPath, {String? hotelId}) {
+    if (hotelId != null) {
+      return _hotelDoc(hotelId).collection(collectionPath).doc().id;
+    }
+    return _firestore.collection(collectionPath).doc().id;
   }
 
   /// Enable offline persistence
   void enableOfflinePersistence() {
-    if (!kIsWeb) {
-      _database.setPersistenceEnabled(true);
-      debugPrint('✅ Offline persistence enabled');
-    }
+    _firestore.settings = const Settings(persistenceEnabled: true);
+    debugPrint('✅ Firestore offline persistence enabled');
   }
 
   /// Go offline (disconnect from server)
   void goOffline() {
-    _database.goOffline();
-    debugPrint('📴 Database offline');
+    _firestore.disableNetwork();
+    debugPrint('📴 Firestore offline');
   }
 
   /// Go online (reconnect to server)
   void goOnline() {
-    _database.goOnline();
-    debugPrint('📶 Database online');
+    _firestore.enableNetwork();
+    debugPrint('📶 Firestore online');
   }
 
-  /// Public helper to convert Firebase data to Map
+  /// Public helper to convert Firestore data to Map
   Map<String, dynamic> toMap(dynamic value) => _toMap(value);
 
   /// Helper to convert Firebase dynamic value to `Map<String, dynamic>` recursively

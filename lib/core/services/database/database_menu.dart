@@ -1,42 +1,45 @@
 part of '../database_service.dart';
 
 extension DatabaseMenu on DatabaseService {
-  DatabaseReference get menuRef => _ref('menu_items');
+  CollectionReference _menuItemsRef(String hotelId) =>
+      _hotelDoc(hotelId).collection('menu_items');
 
   /// Stream all menu items
-  Stream<List<MenuItem>> streamMenuItems() {
-    return menuRef.onValue.map((event) {
-      if (event.snapshot.value == null) return [];
-      final data = _toMap(event.snapshot.value);
-      return data.entries
-          .map((e) => MenuItem.fromJson(_toMap(e.value)))
+  Stream<List<MenuItem>> streamMenuItems(String hotelId) {
+    return _menuItemsRef(hotelId).snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return MenuItem.fromJson(data);
+          })
           .where((item) => item.isAvailable)
           .toList();
     });
   }
 
   /// Get all menu items (one-time)
-  Future<List<MenuItem>> getMenuItems() async {
-    final snapshot = await menuRef.get();
-    if (snapshot.value == null) return [];
-    final data = _toMap(snapshot.value);
-    return data.entries.map((e) => MenuItem.fromJson(_toMap(e.value))).toList();
+  Future<List<MenuItem>> getMenuItems(String hotelId) async {
+    final snapshot = await _menuItemsRef(hotelId).get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return MenuItem.fromJson(data);
+    }).toList();
   }
 
   /// Get single menu item
-  Future<MenuItem?> getMenuItem(String id) async {
-    final snapshot = await menuRef.child(id).get();
-    if (snapshot.value == null) return null;
-    return MenuItem.fromJson(_toMap(snapshot.value));
+  Future<MenuItem?> getMenuItem(String hotelId, String id) async {
+    final doc = await _menuItemsRef(hotelId).doc(id).get();
+    if (!doc.exists) return null;
+    return MenuItem.fromJson(doc.data() as Map<String, dynamic>);
   }
 
   /// Save or Update Menu Item
   Future<void> saveMenuItem(MenuItem item) async {
-    await menuRef.child(item.id).set(item.toJson());
+    await _menuItemsRef(item.hotelId).doc(item.id).set(item.toJson());
   }
 
   /// Delete Menu Item
-  Future<void> deleteMenuItem(String id) async {
-    await menuRef.child(id).remove();
+  Future<void> deleteMenuItem(String hotelId, String id) async {
+    await _menuItemsRef(hotelId).doc(id).delete();
   }
 }

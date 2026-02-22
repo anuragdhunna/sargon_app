@@ -11,7 +11,8 @@ class AttendanceCalendarScreen extends StatefulWidget {
   const AttendanceCalendarScreen({super.key});
 
   @override
-  State<AttendanceCalendarScreen> createState() => _AttendanceCalendarScreenState();
+  State<AttendanceCalendarScreen> createState() =>
+      _AttendanceCalendarScreenState();
 }
 
 class _AttendanceCalendarScreenState extends State<AttendanceCalendarScreen> {
@@ -19,7 +20,6 @@ class _AttendanceCalendarScreenState extends State<AttendanceCalendarScreen> {
   late DateTime _selectedMonth;
   Map<DateTime, AttendanceStatus>? _monthlyData;
   bool _isLoading = true;
-  String? _userId;
 
   // Mock holidays (in a real app, this would come from a database)
   final Set<DateTime> _holidays = {
@@ -45,7 +45,6 @@ class _AttendanceCalendarScreenState extends State<AttendanceCalendarScreen> {
     if (authState is AuthVerified) {
       setState(() {
         _isLoading = true;
-        _userId = authState.userId;
       });
 
       final data = await _repository.getMonthlyAttendance(
@@ -73,11 +72,6 @@ class _AttendanceCalendarScreenState extends State<AttendanceCalendarScreen> {
       _selectedMonth = DateTime(_selectedMonth.year, _selectedMonth.month + 1);
     });
     _loadCalendar();
-  }
-
-  bool _isHoliday(DateTime date) {
-    return _holidays.any((h) =>
-        h.year == date.year && h.month == date.month && h.day == date.day);
   }
 
   @override
@@ -167,15 +161,9 @@ class _MonthNavigator extends StatelessWidget {
           ),
           Text(
             DateFormat('MMMM yyyy').format(selectedMonth),
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: onNext,
-          ),
+          IconButton(icon: const Icon(Icons.chevron_right), onPressed: onNext),
         ],
       ),
     );
@@ -195,12 +183,21 @@ class _SummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final presentDays = monthlyData.values.where((s) => s == AttendanceStatus.present).length;
-    final lateDays = monthlyData.values.where((s) => s == AttendanceStatus.late).length;
-    final absentDays = monthlyData.values.where((s) => s == AttendanceStatus.absent).length;
-    
-    final monthHolidays = holidays.where((h) =>
-        h.year == selectedMonth.year && h.month == selectedMonth.month).length;
+    final presentDays = monthlyData.values
+        .where((s) => s == AttendanceStatus.present)
+        .length;
+    final lateDays = monthlyData.values
+        .where((s) => s == AttendanceStatus.late)
+        .length;
+    final absentDays = monthlyData.values
+        .where((s) => s == AttendanceStatus.absent)
+        .length;
+
+    final monthHolidays = holidays
+        .where(
+          (h) => h.year == selectedMonth.year && h.month == selectedMonth.month,
+        )
+        .length;
 
     final attendanceRate = monthlyData.isEmpty
         ? 0.0
@@ -211,9 +208,9 @@ class _SummarySection extends StatelessWidget {
       children: [
         Text(
           'Monthly Summary',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Row(
@@ -327,10 +324,7 @@ class _SummaryCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 10,
-              color: color.withOpacity(0.8),
-            ),
+            style: TextStyle(fontSize: 10, color: color.withOpacity(0.8)),
           ),
         ],
       ),
@@ -350,14 +344,23 @@ class _CalendarGrid extends StatelessWidget {
   });
 
   bool _isHoliday(DateTime date) {
-    return holidays.any((h) =>
-        h.year == date.year && h.month == date.month && h.day == date.day);
+    return holidays.any(
+      (h) => h.year == date.year && h.month == date.month && h.day == date.day,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final firstDayOfMonth = DateTime(selectedMonth.year, selectedMonth.month, 1);
-    final lastDayOfMonth = DateTime(selectedMonth.year, selectedMonth.month + 1, 0);
+    final firstDayOfMonth = DateTime(
+      selectedMonth.year,
+      selectedMonth.month,
+      1,
+    );
+    final lastDayOfMonth = DateTime(
+      selectedMonth.year,
+      selectedMonth.month + 1,
+      0,
+    );
     final daysInMonth = lastDayOfMonth.day;
     final firstWeekday = firstDayOfMonth.weekday % 7; // 0 = Sunday
 
@@ -366,18 +369,20 @@ class _CalendarGrid extends StatelessWidget {
         // Weekday Headers
         Row(
           children: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-              .map((day) => Expanded(
-                    child: Center(
-                      child: Text(
-                        day,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade700,
-                          fontSize: 12,
-                        ),
+              .map(
+                (day) => Expanded(
+                  child: Center(
+                    child: Text(
+                      day,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey.shade700,
+                        fontSize: 12,
                       ),
                     ),
-                  ))
+                  ),
+                ),
+              )
               .toList(),
         ),
         const SizedBox(height: 8),
@@ -389,15 +394,20 @@ class _CalendarGrid extends StatelessWidget {
             child: Row(
               children: List.generate(7, (dayIndex) {
                 final dayNumber = weekIndex * 7 + dayIndex - firstWeekday + 1;
-                
+
                 if (dayNumber < 1 || dayNumber > daysInMonth) {
                   return const Expanded(child: SizedBox());
                 }
 
-                final date = DateTime(selectedMonth.year, selectedMonth.month, dayNumber);
+                final date = DateTime(
+                  selectedMonth.year,
+                  selectedMonth.month,
+                  dayNumber,
+                );
                 final status = monthlyData[date] ?? AttendanceStatus.absent;
                 final isHoliday = _isHoliday(date);
-                final isToday = DateTime.now().year == date.year &&
+                final isToday =
+                    DateTime.now().year == date.year &&
                     DateTime.now().month == date.month &&
                     DateTime.now().day == date.day;
 
@@ -433,7 +443,7 @@ class _DayCell extends StatelessWidget {
 
   Color _getBackgroundColor() {
     if (isHoliday) return Colors.blue.withOpacity(0.2);
-    
+
     switch (status) {
       case AttendanceStatus.present:
         return Colors.green.withOpacity(0.2);
@@ -449,7 +459,7 @@ class _DayCell extends StatelessWidget {
   Color _getBorderColor() {
     if (isToday) return Colors.blue;
     if (isHoliday) return Colors.blue.withOpacity(0.5);
-    
+
     switch (status) {
       case AttendanceStatus.present:
         return Colors.green.withOpacity(0.5);
@@ -469,10 +479,7 @@ class _DayCell extends StatelessWidget {
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: _getBackgroundColor(),
-        border: Border.all(
-          color: _getBorderColor(),
-          width: isToday ? 2 : 1,
-        ),
+        border: Border.all(color: _getBorderColor(), width: isToday ? 2 : 1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Center(
@@ -503,9 +510,9 @@ class _Legend extends StatelessWidget {
       children: [
         Text(
           'Legend',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Wrap(

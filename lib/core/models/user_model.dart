@@ -10,6 +10,7 @@ enum UserRole {
   maintenance,
   security,
   frontDesk,
+  superAdmin,
 }
 
 /// Extension to get display names for UserRole
@@ -32,6 +33,8 @@ extension UserRoleExtension on UserRole {
         return 'Security';
       case UserRole.frontDesk:
         return 'Front Desk';
+      case UserRole.superAdmin:
+        return 'Super Admin';
     }
   }
 }
@@ -63,7 +66,8 @@ class User extends BaseEntity {
   static const int schemaVersion = 1;
 
   const User({
-    required String id,
+    required super.id,
+    required super.hotelId,
     this.email,
     required this.name,
     required this.phoneNumber,
@@ -77,16 +81,12 @@ class User extends BaseEntity {
     DateTime? createdOn,
     DateTime? updatedAt,
     DateTime? updatedOn,
-    String? createdBy,
-    String? updatedBy,
-    bool isDeleted = false,
+    super.createdBy,
+    super.updatedBy,
+    super.isDeleted,
   }) : super(
-         id: id,
          createdOn: createdOn ?? createdAt,
          updatedOn: updatedOn ?? updatedAt,
-         createdBy: createdBy,
-         updatedBy: updatedBy,
-         isDeleted: isDeleted,
        );
 
   /// Getters for backward compatibility
@@ -110,6 +110,7 @@ class User extends BaseEntity {
   /// Create a copy with updated fields
   User copyWith({
     String? id,
+    String? hotelId,
     String? email,
     String? name,
     String? phoneNumber,
@@ -124,6 +125,7 @@ class User extends BaseEntity {
   }) {
     return User(
       id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
       email: email ?? this.email,
       name: name ?? this.name,
       phoneNumber: phoneNumber ?? this.phoneNumber,
@@ -133,8 +135,8 @@ class User extends BaseEntity {
       paymentType: paymentType ?? this.paymentType,
       dailyWage: dailyWage ?? this.dailyWage,
       monthlySalary: monthlySalary ?? this.monthlySalary,
-      createdOn: createdAt ?? this.createdOn,
-      updatedOn: updatedAt ?? this.updatedOn,
+      createdOn: createdAt ?? createdOn,
+      updatedOn: updatedAt ?? updatedOn,
       createdBy: createdBy,
       updatedBy: updatedBy,
       isDeleted: isDeleted,
@@ -142,6 +144,7 @@ class User extends BaseEntity {
   }
 
   /// Convert to JSON for Firebase
+  @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toAuditJson(),
@@ -162,6 +165,7 @@ class User extends BaseEntity {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String,
+      hotelId: json['hotelId'] as String? ?? 'unknown',
       email: json['email'] as String?,
       name: json['name'] as String,
       phoneNumber: json['phoneNumber'] as String,
@@ -196,6 +200,7 @@ class User extends BaseEntity {
   factory User.dummy() {
     return User(
       id: '1',
+      hotelId: 'persona_hotel',
       name: 'John Doe',
       email: 'john.doe@example.com',
       phoneNumber: '+1234567890',

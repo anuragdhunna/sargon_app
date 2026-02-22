@@ -134,7 +134,7 @@ class _ProcurementSettingsSheetState extends State<_ProcurementSettingsSheet> {
               'When enabled, all purchase orders must be approved by a manager before being sent to vendors.',
             ),
             value: _requiresApproval,
-            activeColor: AppDesign.primaryStart,
+            activeThumbColor: AppDesign.primaryStart,
             onChanged: (value) {
               setState(() => _requiresApproval = value);
               // TODO: Sync with AppSettings in Firebase

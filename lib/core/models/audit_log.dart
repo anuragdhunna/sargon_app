@@ -1,8 +1,9 @@
 import 'package:equatable/equatable.dart';
 
-/// Audit log entry for tracking all system actions
+/// Audit log entry for tracking all system actions per hotel
 class AuditLog extends Equatable {
   final String id;
+  final String hotelId;
   final DateTime timestamp;
   final String userId;
   final String userName;
@@ -15,6 +16,7 @@ class AuditLog extends Equatable {
 
   const AuditLog({
     required this.id,
+    required this.hotelId,
     required this.timestamp,
     required this.userId,
     required this.userName,
@@ -29,6 +31,7 @@ class AuditLog extends Equatable {
   @override
   List<Object?> get props => [
     id,
+    hotelId,
     timestamp,
     userId,
     userName,
@@ -43,6 +46,7 @@ class AuditLog extends Equatable {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'hotelId': hotelId,
       'timestamp': timestamp.toIso8601String(),
       'userId': userId,
       'userName': userName,
@@ -58,6 +62,7 @@ class AuditLog extends Equatable {
   factory AuditLog.fromJson(Map<String, dynamic> json) {
     return AuditLog(
       id: json['id'] as String,
+      hotelId: json['hotelId'] as String? ?? 'default',
       timestamp: DateTime.parse(json['timestamp'] as String),
       userId: json['userId'] as String,
       userName: json['userName'] as String,

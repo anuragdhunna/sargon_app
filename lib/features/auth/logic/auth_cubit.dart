@@ -40,7 +40,12 @@ class AuthCubit extends Cubit<AuthState> {
       final user = await _authService?.getCurrentUserProfile();
       if (user != null) {
         emit(
-          AuthVerified(role: user.role, userId: user.id, userName: user.name),
+          AuthVerified(
+            role: user.role,
+            userId: user.id,
+            userName: user.name,
+            hotelId: user.hotelId,
+          ),
         );
 
         // Run migrations and bootstrap defaults after authentication if user is Owner/Manager
@@ -48,7 +53,7 @@ class AuthCubit extends Cubit<AuthState> {
             (user.role == UserRole.owner || user.role == UserRole.manager)) {
           _migrationsRun = true;
           _runMigrationsInBackground();
-          _bootstrapDatabaseData();
+          _bootstrapDatabaseData(user);
         }
       }
     }
@@ -62,7 +67,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Bootstrap essential data (Rules, Tables, etc.) if they don't exist
-  void _bootstrapDatabaseData() async {
+  void _bootstrapDatabaseData(User user) async {
     final databaseService = DatabaseService();
     // Verify we have a real Firebase user before attempting to bootstrap
     if (_authService?.currentFirebaseUser == null) {
@@ -72,9 +77,10 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       debugPrint('🚀 Bootstrapping database defaults...');
-      await databaseService.initializeBillingDefaults();
-      await databaseService.initializeDummyTables();
-      await databaseService.initializeDummyRooms();
+      await databaseService.initializeBillingDefaults(user.hotelId);
+      await (databaseService as dynamic).initializeDummyOrders(
+        user.hotelId,
+      ); // Assuming it's added
       debugPrint('✅ Database bootstrapping complete');
     } catch (e) {
       debugPrint('❌ Bootstrapping error (likely role permission issue): $e');
@@ -88,6 +94,7 @@ class AuthCubit extends Cubit<AuthState> {
     required String name,
     required String phoneNumber,
     required UserRole role,
+    required String hotelId,
   }) async {
     emit(AuthLoading());
 
@@ -99,6 +106,7 @@ class AuthCubit extends Cubit<AuthState> {
           role: role,
           userId: 'mock_${email.hashCode}',
           userName: name,
+          hotelId: hotelId,
         ),
       );
       return;
@@ -110,6 +118,7 @@ class AuthCubit extends Cubit<AuthState> {
       name: name,
       phoneNumber: phoneNumber,
       role: role,
+      hotelId: hotelId,
     );
 
     if (result.success && result.user != null) {
@@ -118,6 +127,7 @@ class AuthCubit extends Cubit<AuthState> {
           role: result.user!.role,
           userId: result.user!.id,
           userName: result.user!.name,
+          hotelId: result.user!.hotelId,
         ),
       );
     } else {
@@ -136,11 +146,13 @@ class AuthCubit extends Cubit<AuthState> {
       // Fallback to mock sign in for development
       await Future.delayed(const Duration(seconds: 1));
       final role = _getRoleFromMockEmail(email);
+      final mockUserId = 'mock_${email.hashCode}';
       emit(
         AuthVerified(
           role: role,
-          userId: 'mock_${email.hashCode}',
+          userId: mockUserId,
           userName: _getUserNameForRole(role),
+          hotelId: 'test_hotel_$mockUserId',
         ),
       );
       return;
@@ -157,6 +169,7 @@ class AuthCubit extends Cubit<AuthState> {
           role: result.user!.role,
           userId: result.user!.id,
           userName: result.user!.name,
+          hotelId: result.user!.hotelId,
         ),
       );
     } else {
@@ -208,11 +221,13 @@ class AuthCubit extends Cubit<AuthState> {
     // Mock Logic
     if (otp == '111111') {
       final role = UserRole.waiter;
+      const mockUserId = 'mock_otp_user';
       emit(
         AuthVerified(
           role: role,
-          userId: 'mock_user',
+          userId: mockUserId,
           userName: _getUserNameForRole(role),
+          hotelId: 'test_hotel_$mockUserId',
         ),
       );
       return;
@@ -242,7 +257,7 @@ class AuthCubit extends Cubit<AuthState> {
         );
 
         if (loginResult.success) {
-          _bootstrapDatabaseData();
+          _bootstrapDatabaseData(loginResult.user!);
           return; // AuthVerified will be emitted by _onAuthStateChanged
         }
 
@@ -268,10 +283,11 @@ class AuthCubit extends Cubit<AuthState> {
             name: _getUserNameForRole(role),
             phoneNumber: '9876543210',
             role: role,
+            hotelId: 'persona_hotel',
           );
 
           if (regResult.success) {
-            _bootstrapDatabaseData();
+            _bootstrapDatabaseData(regResult.user!);
             return;
           } else {
             debugPrint(
@@ -283,11 +299,13 @@ class AuthCubit extends Cubit<AuthState> {
 
       // Fallback only as last resort (Warning: this will likely cause permission errors)
       debugPrint('⚠️ Warning: Proceeding with Mock Auth. DB access may fail.');
+      final personaUserId = 'persona_${role.name}';
       emit(
         AuthVerified(
           role: role,
-          userId: 'persona_${role.name}',
+          userId: personaUserId,
           userName: _getUserNameForRole(role),
+          hotelId: 'test_hotel_$personaUserId',
         ),
       );
     } catch (e) {
@@ -338,6 +356,8 @@ class AuthCubit extends Cubit<AuthState> {
 
   String _getUserNameForRole(UserRole role) {
     switch (role) {
+      case UserRole.superAdmin:
+        return 'Super Administrator';
       case UserRole.owner:
         return 'Hotel Owner';
       case UserRole.manager:

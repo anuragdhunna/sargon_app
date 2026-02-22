@@ -20,6 +20,8 @@ import '../widgets/order_menu_grid.dart';
 import '../widgets/order_taking_cart_sheet.dart';
 import '../widgets/order_guest_info.dart';
 import '../widgets/order_taking_fab.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 
 class OrderTakingScreen extends StatefulWidget {
   final String? tableId;
@@ -39,9 +41,13 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize data
-    context.read<TableCubit>().loadTables();
-    context.read<RoomCubit>().loadRooms();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthCubit>().state;
+      if (authState is AuthVerified) {
+        context.read<TableCubit>().loadTables(authState.hotelId);
+        context.read<RoomCubit>().loadRooms(authState.hotelId);
+      }
+    });
   }
 
   @override
@@ -53,11 +59,15 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => OrderTakingCubit(
-        settingsRepository: context.read<SettingsRepository>(),
-        initialTableId: widget.tableId,
-        initialRoomId: widget.roomId,
-      ),
+      create: (context) {
+        final authState = context.read<AuthCubit>().state;
+        return OrderTakingCubit(
+          settingsRepository: context.read<SettingsRepository>(),
+          hotelId: authState is AuthVerified ? authState.hotelId : '',
+          initialTableId: widget.tableId,
+          initialRoomId: widget.roomId,
+        );
+      },
       child: BlocBuilder<OrderTakingCubit, OrderTakingState>(
         builder: (context, state) {
           final cubit = context.read<OrderTakingCubit>();
@@ -305,13 +315,17 @@ class _OrderTakingScreenState extends State<OrderTakingScreen> {
       bookingId = activeBooking?.id;
     }
 
+    final authState = context.read<AuthCubit>().state;
+    final hotelId = (authState is AuthVerified) ? authState.hotelId : 'default';
+
     final order = Order(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
+      hotelId: hotelId,
       tableId: tableId,
       tableNumber: tableNumber,
       items: List.from(state.cart),
       status: OrderStatus.pending,
-      timestamp: DateTime.now(),
+      createdOn: DateTime.now(),
       paxCount: state.paxCount,
       priority: OrderPriority.normal,
       guestName: guestName ?? state.selectedCustomer?.name,

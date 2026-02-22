@@ -586,6 +586,7 @@ class PODetailScreen extends StatelessWidget {
         userId: authState.userId,
         userName: authState.userName,
         userRole: authState.role.name,
+        hotelId: authState.hotelId,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -624,6 +625,7 @@ class PODetailScreen extends StatelessWidget {
                   userId: authState.userId,
                   userName: authState.userName,
                   userRole: authState.role.name,
+                  hotelId: authState.hotelId,
                 );
               }
               Navigator.pop(dialogContext);
@@ -676,6 +678,7 @@ class PODetailScreen extends StatelessWidget {
                   userId: authState.userId,
                   userName: authState.userName,
                   userRole: authState.role.name,
+                  hotelId: authState.hotelId,
                   reason: reasonController.text.isNotEmpty
                       ? reasonController.text
                       : null,

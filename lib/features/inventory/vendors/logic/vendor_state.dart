@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:hotel_manager/core/models/inventory_models.dart';
 import 'package:hotel_manager/features/inventory/vendors/data/vendor_model.dart';
 
 /// Base state for vendor management

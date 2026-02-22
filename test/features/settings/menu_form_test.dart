@@ -6,9 +6,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:hotel_manager/features/settings/presentation/menu/menu_form_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_cubit.dart';
 import 'package:hotel_manager/features/inventory/stock/logic/inventory_state.dart';
-import 'package:hotel_manager/core/models/menu_item_model.dart';
-import 'package:hotel_manager/core/models/inventory_item_model.dart';
-
+import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/core/services/storage/image_storage_service.dart';
 
 class MockInventoryCubit extends MockCubit<InventoryState>
@@ -16,13 +16,17 @@ class MockInventoryCubit extends MockCubit<InventoryState>
 
 class MockImageStorageService extends Mock implements ImageStorageService {}
 
+class MockAuthCubit extends MockCubit<AuthState> implements AuthCubit {}
+
 void main() {
   late MockInventoryCubit mockInventoryCubit;
   late MockImageStorageService mockStorageService;
+  late MockAuthCubit mockAuthCubit;
 
   setUp(() {
     mockInventoryCubit = MockInventoryCubit();
     mockStorageService = MockImageStorageService();
+    mockAuthCubit = MockAuthCubit();
 
     // Set a large viewport to avoid "off-screen" tap issues
     final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -31,19 +35,35 @@ void main() {
 
     // Provide a default state
     when(() => mockInventoryCubit.state).thenReturn(const InventoryLoaded([]));
-    when(() => mockInventoryCubit.loadInventory()).thenAnswer((_) async {});
+    when(
+      () => mockInventoryCubit.loadInventory(any()),
+    ).thenAnswer((_) async {});
     when(
       () => mockInventoryCubit.stream,
     ).thenAnswer((_) => Stream.value(const InventoryLoaded([])));
+
+    // Provide a default state for AuthCubit
+    when(() => mockAuthCubit.state).thenReturn(
+      const AuthVerified(
+        role: UserRole.manager,
+        userId: 'test-user',
+        userName: 'Test User',
+        hotelId: 'test-hotel',
+      ),
+    );
   });
 
   Widget createWidgetUnderTest({
     required Future<void> Function(MenuItem) onSave,
   }) {
     return MaterialApp(
-      home: BlocProvider<InventoryCubit>.value(
-        value: mockInventoryCubit,
+      home: MultiBlocProvider(
+        providers: [
+          BlocProvider<InventoryCubit>.value(value: mockInventoryCubit),
+          BlocProvider<AuthCubit>.value(value: mockAuthCubit),
+        ],
         child: MenuFormScreen(
+          hotelId: 'test-hotel',
           onSave: onSave,
           storageService: mockStorageService,
         ),
@@ -119,6 +139,7 @@ void main() {
       // Mock inventory with one item that supports grams (kg)
       final item = InventoryItem(
         id: '1',
+        hotelId: 'test-hotel',
         name: 'Sugar',
         quantity: 10,
         unit: UnitType.kg,

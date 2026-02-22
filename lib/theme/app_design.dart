@@ -65,7 +65,7 @@ class AppDesign {
 
   static List<BoxShadow> shadowSm = [
     BoxShadow(
-      color: neutral900.withOpacity(0.05),
+      color: neutral900.withValues(alpha: 0.05),
       blurRadius: 2,
       offset: const Offset(0, 1),
     ),
@@ -73,7 +73,7 @@ class AppDesign {
 
   static List<BoxShadow> shadowMd = [
     BoxShadow(
-      color: neutral900.withOpacity(0.1),
+      color: neutral900.withValues(alpha: 0.1),
       blurRadius: 8,
       offset: const Offset(0, 4),
     ),
@@ -81,7 +81,7 @@ class AppDesign {
 
   static List<BoxShadow> shadowLg = [
     BoxShadow(
-      color: neutral900.withOpacity(0.15),
+      color: neutral900.withValues(alpha: 0.15),
       blurRadius: 16,
       offset: const Offset(0, 8),
     ),
@@ -89,7 +89,7 @@ class AppDesign {
 
   static List<BoxShadow> shadowXl = [
     BoxShadow(
-      color: neutral900.withOpacity(0.2),
+      color: neutral900.withValues(alpha: 0.2),
       blurRadius: 24,
       offset: const Offset(0, 12),
     ),
@@ -98,7 +98,7 @@ class AppDesign {
   /// Glow effect for interactive elements (reduced for subtlety)
   static List<BoxShadow> glowEffect(Color color) => [
     BoxShadow(
-      color: color.withOpacity(0.15), // Reduced from 0.3
+      color: color.withValues(alpha: 0.15), // Reduced from 0.3
       blurRadius: 8, // Reduced from 12
       spreadRadius: 1, // Reduced from 2
     ),
@@ -122,9 +122,12 @@ class AppDesign {
     List<BoxShadow>? shadows,
   }) {
     return BoxDecoration(
-      color: (color ?? Colors.white).withOpacity(0.1),
+      color: (color ?? Colors.white).withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(radiusLg),
-      border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.5),
+      border: Border.all(
+        color: Colors.white.withValues(alpha: 0.2),
+        width: 1.5,
+      ),
       boxShadow: shadows ?? shadowMd,
     );
   }

@@ -100,9 +100,6 @@ class ChecklistItem extends Equatable {
 }
 
 /// Checklist model
-///
-/// This model is synced with Firebase Realtime Database.
-/// Schema version: 1
 class Checklist extends BaseEntity {
   final String title;
   final String description;
@@ -118,11 +115,9 @@ class Checklist extends BaseEntity {
   final String? crossRoleReason;
   final Map<String, dynamic>? metadata;
 
-  // Schema version for migrations
-  static const int schemaVersion = 1;
-
   const Checklist({
-    required String id,
+    required super.id,
+    required super.hotelId,
     required this.title,
     required this.description,
     required this.type,
@@ -132,77 +127,21 @@ class Checklist extends BaseEntity {
     required this.items,
     this.isTimeBound = true,
     this.recurrence = RecurrencePattern.none,
-    DateTime? createdAt,
-    DateTime? createdOn,
-    String? createdBy,
     this.lastModifiedAt,
     this.completedBy,
     this.crossRoleReason,
     this.metadata,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool isDeleted = false,
-  }) : super(
-         id: id,
-         createdOn: createdOn ?? createdAt,
-         createdBy: createdBy,
-         updatedBy: updatedBy,
-         updatedOn: updatedOn,
-         isDeleted: isDeleted,
-       );
-
-  /// Getter for backward compatibility
-  DateTime get createdAt => createdOn ?? DateTime.now();
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
 
   double get completionPercentage {
     if (items.isEmpty) return 0;
     final completed = items.where((item) => item.isCompleted).length;
     return (completed / items.length) * 100;
-  }
-
-  bool get isFullyCompleted => items.every((item) => item.isCompleted);
-
-  Checklist copyWith({
-    String? id,
-    String? title,
-    String? description,
-    ChecklistType? type,
-    ChecklistStatus? status,
-    UserRole? assignedRole,
-    DateTime? dueDate,
-    List<ChecklistItem>? items,
-    bool? isTimeBound,
-    RecurrencePattern? recurrence,
-    DateTime? createdAt,
-    DateTime? lastModifiedAt,
-    String? completedBy,
-    String? crossRoleReason,
-    Map<String, dynamic>? metadata,
-    String? updatedBy,
-    DateTime? updatedOn,
-    bool? isDeleted,
-  }) {
-    return Checklist(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      type: type ?? this.type,
-      status: status ?? this.status,
-      assignedRole: assignedRole ?? this.assignedRole,
-      dueDate: dueDate ?? this.dueDate,
-      items: items ?? this.items,
-      isTimeBound: isTimeBound ?? this.isTimeBound,
-      recurrence: recurrence ?? this.recurrence,
-      createdOn: createdAt ?? this.createdOn,
-      createdBy: createdBy,
-      lastModifiedAt: lastModifiedAt ?? this.lastModifiedAt,
-      completedBy: completedBy ?? this.completedBy,
-      crossRoleReason: crossRoleReason ?? this.crossRoleReason,
-      metadata: metadata ?? this.metadata,
-      updatedBy: updatedBy ?? this.updatedBy,
-      updatedOn: updatedOn ?? this.updatedOn,
-      isDeleted: isDeleted ?? this.isDeleted,
-    );
   }
 
   @override
@@ -223,6 +162,44 @@ class Checklist extends BaseEntity {
     metadata,
   ];
 
+  Checklist copyWith({
+    String? id,
+    String? hotelId,
+    String? title,
+    String? description,
+    ChecklistType? type,
+    ChecklistStatus? status,
+    UserRole? assignedRole,
+    bool? isTimeBound,
+    RecurrencePattern? recurrence,
+    List<ChecklistItem>? items,
+    DateTime? lastModifiedAt,
+    String? completedBy,
+  }) {
+    return Checklist(
+      id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      assignedRole: assignedRole ?? this.assignedRole,
+      dueDate: dueDate,
+      items: items ?? this.items,
+      isTimeBound: isTimeBound ?? this.isTimeBound,
+      recurrence: recurrence ?? this.recurrence,
+      lastModifiedAt: lastModifiedAt ?? this.lastModifiedAt,
+      completedBy: completedBy ?? this.completedBy,
+      metadata: metadata,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
+    );
+  }
+
+  @override
   Map<String, dynamic> toJson() {
     return {
       ...super.toAuditJson(),
@@ -239,13 +216,13 @@ class Checklist extends BaseEntity {
       'completedBy': completedBy,
       'crossRoleReason': crossRoleReason,
       'metadata': metadata,
-      '_schemaVersion': schemaVersion,
     };
   }
 
   factory Checklist.fromJson(Map<String, dynamic> json) {
     return Checklist(
       id: json['id']?.toString() ?? '',
+      hotelId: json['hotelId'] as String? ?? 'default',
       title: json['title']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       type: ChecklistType.values.firstWhere(
@@ -285,6 +262,174 @@ class Checklist extends BaseEntity {
       metadata: json['metadata'] != null
           ? Map<String, dynamic>.from(json['metadata'] as Map)
           : null,
+      updatedBy: json['updatedBy'] as String?,
+      updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
+      isDeleted: json['isDeleted'] ?? false,
+    );
+  }
+}
+
+/// Incident priority enum
+enum IncidentPriority { low, medium, high, critical }
+
+/// Incident status enum
+enum IncidentStatus { open, inProgress, resolved }
+
+/// Extension for IncidentPriority
+extension IncidentPriorityExtension on IncidentPriority {
+  String get displayName {
+    switch (this) {
+      case IncidentPriority.low:
+        return 'Low';
+      case IncidentPriority.medium:
+        return 'Medium';
+      case IncidentPriority.high:
+        return 'High';
+      case IncidentPriority.critical:
+        return 'Critical';
+    }
+  }
+}
+
+/// Extension for IncidentStatus
+extension IncidentStatusExtension on IncidentStatus {
+  String get displayName {
+    switch (this) {
+      case IncidentStatus.open:
+        return 'Open';
+      case IncidentStatus.inProgress:
+        return 'In Progress';
+      case IncidentStatus.resolved:
+        return 'Resolved';
+    }
+  }
+}
+
+/// Incident model for issue reporting
+class Incident extends BaseEntity {
+  final String title;
+  final String description;
+  final String reportedBy;
+  final String? reportedByName;
+  final DateTime timestamp;
+  final IncidentPriority priority;
+  final IncidentStatus status;
+  final String? location;
+  final String? assignedTo;
+  final String? assignedToName;
+  final DateTime? resolvedAt;
+  final String? resolutionNotes;
+
+  const Incident({
+    required super.id,
+    required super.hotelId,
+    required this.title,
+    required this.description,
+    required this.reportedBy,
+    this.reportedByName,
+    required this.timestamp,
+    required this.priority,
+    required this.status,
+    this.location,
+    this.assignedTo,
+    this.assignedToName,
+    this.resolvedAt,
+    this.resolutionNotes,
+    super.createdBy,
+    super.createdOn,
+    super.updatedBy,
+    super.updatedOn,
+    super.isDeleted,
+  });
+
+  @override
+  List<Object?> get props => [
+    ...super.props,
+    title,
+    description,
+    reportedBy,
+    reportedByName,
+    timestamp,
+    priority,
+    status,
+    location,
+    assignedTo,
+    assignedToName,
+    resolvedAt,
+    resolutionNotes,
+  ];
+
+  Incident copyWith({
+    String? id,
+    String? hotelId,
+    IncidentStatus? status,
+    String? assignedTo,
+    String? resolutionNotes,
+  }) {
+    return Incident(
+      id: id ?? this.id,
+      hotelId: hotelId ?? this.hotelId,
+      title: title,
+      description: description,
+      reportedBy: reportedBy,
+      timestamp: timestamp,
+      priority: priority,
+      status: status ?? this.status,
+      assignedTo: assignedTo ?? this.assignedTo,
+      resolutionNotes: resolutionNotes ?? this.resolutionNotes,
+      createdBy: createdBy,
+      createdOn: createdOn,
+      updatedBy: updatedBy,
+      updatedOn: updatedOn,
+      isDeleted: isDeleted,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      ...super.toAuditJson(),
+      'title': title,
+      'description': description,
+      'reportedBy': reportedBy,
+      'reportedByName': reportedByName,
+      'timestamp': timestamp.toIso8601String(),
+      'priority': priority.name,
+      'status': status.name,
+      'location': location,
+      'assignedTo': assignedTo,
+      'assignedToName': assignedToName,
+      'resolvedAt': resolvedAt?.toIso8601String(),
+      'resolutionNotes': resolutionNotes,
+    };
+  }
+
+  factory Incident.fromJson(Map<String, dynamic> json) {
+    return Incident(
+      id: json['id'] as String,
+      hotelId: json['hotelId'] as String? ?? 'default',
+      title: json['title'] as String,
+      description: json['description'] as String,
+      reportedBy: json['reportedBy'] as String,
+      reportedByName: json['reportedByName'] as String?,
+      timestamp: BaseEntity.parseDateTime(json['timestamp']) ?? DateTime.now(),
+      priority: IncidentPriority.values.firstWhere(
+        (e) => e.name == json['priority'],
+        orElse: () => IncidentPriority.medium,
+      ),
+      status: IncidentStatus.values.firstWhere(
+        (e) => e.name == json['status'],
+        orElse: () => IncidentStatus.open,
+      ),
+      location: json['location'] as String?,
+      assignedTo: json['assignedTo'] as String?,
+      assignedToName: json['assignedToName'] as String?,
+      resolvedAt: BaseEntity.parseDateTime(json['resolvedAt']),
+      resolutionNotes: json['resolutionNotes'] as String?,
+      createdBy: json['createdBy'] as String?,
+      createdOn: BaseEntity.parseDateTime(
+        json['createdOn'] ?? json['timestamp'],
+      ),
       updatedBy: json['updatedBy'] as String?,
       updatedOn: BaseEntity.parseDateTime(json['updatedOn']),
       isDeleted: json['isDeleted'] ?? false,

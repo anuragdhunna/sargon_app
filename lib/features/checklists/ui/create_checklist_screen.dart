@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
+import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
@@ -185,9 +187,20 @@ class _CreateChecklistScreenState extends State<CreateChecklistScreen> {
                       return;
                     }
 
+                    final authState = context.read<AuthCubit>().state;
+                    if (authState is! AuthVerified) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Authentication required'),
+                        ),
+                      );
+                      return;
+                    }
+
                     final data = _formKey.currentState!.value;
                     final checklist = Checklist(
                       id: const Uuid().v4(),
+                      hotelId: authState.hotelId,
                       title: data['title'],
                       description: data['description'] ?? '',
                       type: data['type'],

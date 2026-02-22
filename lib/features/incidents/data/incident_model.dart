@@ -6,4 +6,4 @@
 /// @deprecated Use 'package:hotel_manager/core/models/incident_model.dart' instead.
 library;
 
-export 'package:hotel_manager/core/models/incident_model.dart';
+export 'package:hotel_manager/core/models/operations_models.dart';
