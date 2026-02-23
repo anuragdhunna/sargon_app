@@ -141,19 +141,12 @@ class MenuManagementScreen extends StatelessWidget {
 
     if (confirm == true && context.mounted) {
       final authState = context.read<AuthCubit>().state;
-      String userId = 'unknown';
-      String userName = 'Unknown User';
-      if (authState is AuthVerified) {
-        userId = authState.userId;
-        userName = authState.userName;
-      }
+      if (authState is! AuthVerified) return;
 
       try {
         await context.read<SettingsRepository>().deleteMenuItem(
+          authState.hotelId,
           item.id,
-          userId,
-          userName,
-          item.hotelId,
         );
       } catch (e) {
         if (context.mounted) {
@@ -202,12 +195,7 @@ class MenuManagementScreen extends StatelessWidget {
               final authState = context.read<AuthCubit>().state;
               if (authState is! AuthVerified) return;
 
-              await context.read<SettingsRepository>().saveMenuItem(
-                savedItem,
-                authState.userId,
-                authState.userName,
-                authState.hotelId,
-              );
+              await context.read<SettingsRepository>().saveMenuItem(savedItem);
             },
           ),
         ),

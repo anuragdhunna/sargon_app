@@ -9,6 +9,8 @@ class Hotel extends BaseEntity {
   final String? website;
   final String? logoUrl;
   final String? taxId;
+  final List<String> ownerIds; // IDs of owners who manage this hotel
+  final String status; // active | inactive
   final bool isChannelManagerEnabled;
   final Map<String, dynamic>? settings;
 
@@ -22,6 +24,8 @@ class Hotel extends BaseEntity {
     this.website,
     this.logoUrl,
     this.taxId,
+    this.ownerIds = const [],
+    this.status = 'active',
     this.isChannelManagerEnabled = false,
     this.settings,
     super.createdBy,
@@ -53,6 +57,8 @@ class Hotel extends BaseEntity {
     String? website,
     String? logoUrl,
     String? taxId,
+    List<String>? ownerIds,
+    String? status,
     bool? isChannelManagerEnabled,
     Map<String, dynamic>? settings,
   }) {
@@ -66,6 +72,8 @@ class Hotel extends BaseEntity {
       website: website ?? this.website,
       logoUrl: logoUrl ?? this.logoUrl,
       taxId: taxId ?? this.taxId,
+      ownerIds: ownerIds ?? this.ownerIds,
+      status: status ?? this.status,
       isChannelManagerEnabled:
           isChannelManagerEnabled ?? this.isChannelManagerEnabled,
       settings: settings ?? this.settings,
@@ -88,6 +96,8 @@ class Hotel extends BaseEntity {
       'website': website,
       'logoUrl': logoUrl,
       'taxId': taxId,
+      'ownerIds': ownerIds,
+      'status': status,
       'isChannelManagerEnabled': isChannelManagerEnabled,
       'settings': settings,
     };
@@ -104,6 +114,8 @@ class Hotel extends BaseEntity {
       website: json['website'] as String?,
       logoUrl: json['logoUrl'] as String?,
       taxId: json['taxId'] as String?,
+      ownerIds: List<String>.from(json['ownerIds'] ?? []),
+      status: json['status'] as String? ?? 'active',
       isChannelManagerEnabled:
           json['isChannelManagerEnabled'] as bool? ?? false,
       settings: json['settings'] as Map<String, dynamic>?,

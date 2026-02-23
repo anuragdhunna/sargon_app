@@ -1,44 +1,64 @@
-rules_version = '2';
+# Sargon App - Security Rules
+
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions for auditing
-    function isAuthenticated() {
+    // Helper functions
+    function isSignedIn() {
       return request.auth != null;
     }
-
-    function isOwner(userId) {
-      return request.auth.uid == userId;
+    
+    function isSuperAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superAdmin';
+    }
+    
+    function isOwner(hotelId) {
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'owner' &&
+        hotelId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hotelIds
+      );
+    }
+    
+    function hasHotelAccess(hotelId) {
+      return isSignedIn() && (
+        isSuperAdmin() || 
+        hotelId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hotelIds
+      );
     }
 
-    // Prevents manual modification of audit fields by the client
-    function isValidAuditUpdate() {
-      let auditFields = [
-        'createdBy', 'createdOn', 
-        'updatedBy', 'updatedOn', 
-        'deletedBy', 'deletedOn'
-      ];
-      // request.resource.data contains the new data
-      // resource.data contains the current data
-      
-      // Ensure the client doesn't try to overwrite these manually
-      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(auditFields);
+    // User Profiles
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId || isSuperAdmin();
+      allow write: if isSuperAdmin();
+      // Owners can create staff for their hotels as per app logic, but restrict here
+      allow update: if request.auth.uid == userId;
     }
 
-    // Enforce that the client provides their UID in the temporary _userId field
-    function hasRequiredUserId() {
-      return request.resource.data._userId == request.auth.uid;
+    // Hotels
+    match /hotels/{hotelId} {
+      allow read: if hasHotelAccess(hotelId);
+      allow write: if isSuperAdmin();
     }
 
-    match /{collection}/{document} {
-      allow read: if isAuthenticated();
-      
-      allow create: if isAuthenticated() && hasRequiredUserId();
-      
-      allow update: if isAuthenticated() && hasRequiredUserId() && isValidAuditUpdate();
-      
-      // We use soft delete, so 'delete' operation might be blocked or restricted
-      allow delete: if false; 
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow read: if isSuperAdmin() || isOwner(resource.data.hotelId);
+      allow create: if isSignedIn(); // Auditing is performed by services
+      allow update, delete: if false; // Audit logs are immutable
+    }
+
+    // Inventory, Orders, etc. (Tenant Isolated)
+    match /{path=**}/inventory/{itemId} {
+      allow read, write: if hasHotelAccess(resource.data.hotelId);
+    }
+    
+    match /{path=**}/orders/{orderId} {
+      allow read, write: if hasHotelAccess(resource.data.hotelId);
+    }
+
+    // Fallback for sub-collections within a hotel
+    match /hotels/{hotelId}/{document=**} {
+      allow read, write: if hasHotelAccess(hotelId);
     }
   }
 }

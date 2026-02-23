@@ -20,6 +20,7 @@ part 'database/database_loyalty.dart';
 part 'database/database_utils.dart';
 part 'database/database_settings.dart';
 part 'database/database_events.dart';
+part 'database/database_hotels.dart';
 
 /// Firebase Cloud Firestore service
 class DatabaseService implements IBillingDatabase {
@@ -255,6 +256,21 @@ class DatabaseService implements IBillingDatabase {
       DatabaseEvents(this).fetchEventPOs(hotelId, eventId);
   Future<List<TaxRule>> fetchEventTaxRules(String hotelId) =>
       DatabaseEvents(this).fetchEventTaxRules(hotelId);
+
+  // Hotels
+  Stream<List<Hotel>> streamAllHotels() =>
+      DatabaseHotels(this).streamAllHotels();
+  Future<List<Hotel>> getHotelsPaginated({
+    int limit = 10,
+    DocumentSnapshot? startAfter,
+  }) => DatabaseHotels(
+    this,
+  ).getHotelsPaginated(limit: limit, startAfter: startAfter);
+  Future<Hotel?> getHotel(String hotelId) =>
+      DatabaseHotels(this).getHotel(hotelId);
+  Future<void> saveHotel(Hotel hotel) => DatabaseHotels(this).saveHotel(hotel);
+  Future<void> deleteHotel(String hotelId) =>
+      DatabaseHotels(this).deleteHotel(hotelId);
 
   /// Initialize dummy orders for testing/demo (Stub for AuthCubit call)
   Future<void> initializeDummyOrders(String hotelId) async {

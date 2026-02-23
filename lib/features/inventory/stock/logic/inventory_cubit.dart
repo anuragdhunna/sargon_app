@@ -41,12 +41,10 @@ class InventoryCubit extends Cubit<InventoryState> {
 
       _auditService.log(
         hotelId: hotelId,
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
+        performedBy: userId,
+        performedByRole: userRole,
         action: AuditAction.create,
-        entity: 'inventory',
-        entityId: item.id,
+        targetUserId: item.id,
         description: 'Added new inventory item: ${item.name}',
       );
     } catch (e) {
@@ -72,12 +70,10 @@ class InventoryCubit extends Cubit<InventoryState> {
 
         _auditService.log(
           hotelId: hotelId,
-          userId: userId,
-          userName: userName,
-          userRole: userRole,
+          performedBy: userId,
+          performedByRole: userRole,
           action: AuditAction.update,
-          entity: 'inventory',
-          entityId: id,
+          targetUserId: id,
           description:
               'Updated stock for ${item.name}: ${diff > 0 ? '+' : ''}$diff ${item.unit.name}',
         );
@@ -105,15 +101,13 @@ class InventoryCubit extends Cubit<InventoryState> {
         );
         _auditService.log(
           hotelId: hotelId,
-          userId: userId,
-          userName: userName,
-          userRole: userRole,
+          performedBy: userId,
+          performedByRole: userRole,
           action: AuditAction.receive,
-          entity: 'inventory',
-          entityId: inventoryItemId,
+          targetUserId: inventoryItemId,
           description:
               'Received stock for ${item.name}: +$quantity ${item.unit.name} via $grnNumber',
-          metadata: {'grnNumber': grnNumber, 'quantityReceived': quantity},
+          newData: {'grnNumber': grnNumber, 'quantityReceived': quantity},
         );
       }
     } catch (e) {

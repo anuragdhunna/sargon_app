@@ -240,10 +240,8 @@ class _ServiceChargeCard extends StatelessWidget {
     if (confirmed == true && context.mounted) {
       final auth = context.read<AuthCubit>().state as AuthVerified;
       await context.read<SettingsRepository>().deleteServiceChargeRule(
-        rule.id,
-        auth.userId,
-        auth.userName,
         auth.hotelId,
+        rule.id,
       );
     }
   }

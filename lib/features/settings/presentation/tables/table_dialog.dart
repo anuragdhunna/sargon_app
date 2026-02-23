@@ -47,15 +47,8 @@ class _TableDialogState extends State<TableDialog> {
   Future<void> _save() async {
     if (_formKey.currentState!.validate()) {
       final authState = context.read<AuthCubit>().state;
-      String userId = 'unknown';
-      String userName = 'Unknown User';
-      String hotelId = 'default';
-
-      if (authState is AuthVerified) {
-        userId = authState.userId;
-        userName = authState.userName;
-        hotelId = authState.hotelId;
-      }
+      if (authState is! AuthVerified) return;
+      final hotelId = authState.hotelId;
 
       final table = TableEntity(
         id: widget.existingTable?.id ?? const Uuid().v4(),
@@ -68,12 +61,7 @@ class _TableDialogState extends State<TableDialog> {
       );
 
       try {
-        await context.read<SettingsRepository>().saveTable(
-          table,
-          userId,
-          userName,
-          hotelId,
-        );
+        await context.read<SettingsRepository>().saveTable(table);
         if (mounted) Navigator.of(context).pop();
       } catch (e) {
         ScaffoldMessenger.of(

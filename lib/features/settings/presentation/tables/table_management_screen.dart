@@ -172,22 +172,13 @@ class _TableManagementContent extends StatelessWidget {
 
     if (confirm == true && context.mounted) {
       final authState = context.read<AuthCubit>().state;
-      String userId = 'unknown';
-      String userName = 'Unknown User';
-      String hotelId = 'default';
 
       if (authState is AuthVerified) {
-        userId = authState.userId;
-        userName = authState.userName;
-        hotelId = authState.hotelId;
+        await context.read<SettingsRepository>().deleteTable(
+          authState.hotelId,
+          table.id,
+        );
       }
-
-      await context.read<SettingsRepository>().deleteTable(
-        table.id,
-        userId,
-        userName,
-        hotelId,
-      );
     }
   }
 }

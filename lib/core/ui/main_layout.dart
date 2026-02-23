@@ -6,12 +6,14 @@ import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
 import 'package:hotel_manager/core/models/user_model.dart';
 import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
+import 'package:hotel_manager/features/dashboard/ui/super_admin_dashboard_screen.dart';
 import 'package:hotel_manager/features/loyalty/presentation/screens/loyalty_management_screen.dart';
 import 'package:hotel_manager/features/offers/presentation/screens/offer_management_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/customer_analytics_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/inventory/stock/presentation/inventory_screen.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/owner_management_screen.dart';
 import 'package:hotel_manager/features/orders/presentation/order_taking/ui/order_taking_screen.dart';
 import 'package:hotel_manager/features/orders/presentation/kitchen/ui/kitchen_screen.dart';
 import 'package:hotel_manager/features/orders/presentation/order_history/ui/order_history_screen.dart';
@@ -132,14 +134,28 @@ class MainLayout extends StatelessWidget {
 
   List<NavDestination> _getDestinationsForRole(UserRole role) {
     switch (role) {
+      case UserRole.superAdmin:
       case UserRole.owner:
       case UserRole.manager:
         return [
-          const NavDestination(
-            icon: Icons.dashboard,
-            label: 'Dashboard',
-            route: DashboardScreen.routeName,
-          ),
+          if (role == UserRole.superAdmin)
+            const NavDestination(
+              icon: Icons.dashboard,
+              label: 'Super Admin',
+              route: SuperAdminDashboardScreen.routeName,
+            ),
+          if (role == UserRole.superAdmin)
+            const NavDestination(
+              icon: Icons.business_center,
+              label: 'Owners',
+              route: OwnerManagementScreen.routeName,
+            ),
+          if (role != UserRole.superAdmin)
+            const NavDestination(
+              icon: Icons.dashboard,
+              label: 'Dashboard',
+              route: DashboardScreen.routeName,
+            ),
           const NavDestination(
             icon: Icons.table_chart,
             label: 'Floor View',
@@ -303,12 +319,19 @@ class MainLayout extends StatelessWidget {
             route: AttendanceScreen.routeName,
           ),
         ];
-      default:
+      case UserRole.maintenance:
+      case UserRole.security:
+      case UserRole.staff:
         return const [
           NavDestination(
-            icon: Icons.dashboard,
-            label: 'Dashboard',
-            route: DashboardScreen.routeName,
+            icon: Icons.checklist,
+            label: 'My Tasks',
+            route: ChecklistListScreen.routeName,
+          ),
+          NavDestination(
+            icon: Icons.access_time,
+            label: 'Attendance',
+            route: AttendanceScreen.routeName,
           ),
         ];
     }

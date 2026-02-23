@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide User;
+import '../models/models.dart';
+import '../services/audit_service.dart';
 import '../models/base_entity.dart';
+import '../models/user_model.dart';
 
 /// Generic repository for Firestore operations with built-in auditing support.
 /// All child repositories should extend this class.
@@ -8,12 +11,15 @@ abstract class BaseFirestoreRepository<T extends BaseEntity> {
   final FirebaseFirestore firestore;
   final String collectionPath;
   final FirebaseAuth auth;
+  final IAuditService auditService;
 
   BaseFirestoreRepository({
     required this.collectionPath,
+    IAuditService? auditService,
     FirebaseFirestore? firestore,
     FirebaseAuth? auth,
-  }) : firestore = firestore ?? FirebaseFirestore.instance,
+  }) : auditService = auditService ?? AuditService(),
+       firestore = firestore ?? FirebaseFirestore.instance,
        auth = auth ?? FirebaseAuth.instance;
 
   CollectionReference<Map<String, dynamic>> get collection =>
@@ -79,6 +85,27 @@ abstract class BaseFirestoreRepository<T extends BaseEntity> {
       query = query.where('hotelId', isEqualTo: hotelId);
     }
     return query;
+  }
+
+  /// Simplified logging helper for repositories.
+  /// Automatically uses the current session performer if not provided.
+  Future<void> logAction({
+    User? performer,
+    required AuditAction action,
+    required String description,
+    String? targetUserId,
+    Map<String, dynamic>? previousData,
+    Map<String, dynamic>? newData,
+  }) async {
+    await auditService.logUserAction(
+      performer: performer,
+      action: action,
+      description: description,
+      targetUserId: targetUserId,
+      hotelId: performer?.hotelId,
+      previousData: previousData,
+      newData: newData,
+    );
   }
 
   /// Child classes must implement this to convert Firestore data to [T].

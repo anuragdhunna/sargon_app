@@ -122,6 +122,7 @@ class RoleGuard {
   /// Get the default route for a role (where they should land after login)
   static String getDefaultRoute(UserRole role) {
     switch (role) {
+      case UserRole.superAdmin:
       case UserRole.owner:
       case UserRole.manager:
       case UserRole.frontDesk:
@@ -132,8 +133,11 @@ class RoleGuard {
         return KitchenScreen.routeName;
       case UserRole.housekeeping:
         return ChecklistListScreen.routeName;
-      default:
-        return DashboardScreen.routeName;
+      case UserRole.maintenance:
+      case UserRole.security:
+      case UserRole.staff:
+        return ChecklistListScreen
+            .routeName; // Default fallback for generic staff
     }
   }
 }

@@ -110,12 +110,10 @@ class GoodsReceiptCubit extends Cubit<GoodsReceiptState> {
 
       _auditService.log(
         hotelId: hotelId,
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
+        performedBy: userId,
+        performedByRole: userRole,
         action: AuditAction.receive,
-        entity: 'goods_receipt',
-        entityId: grn.id,
+        targetUserId: grn.id,
         description:
             'Received goods ${grn.grnNumber} ${poNumber != null ? '(against $poNumber)' : ''} from ${vendorName ?? 'Unknown Vendor'} with ${lineItems.length} items',
       );

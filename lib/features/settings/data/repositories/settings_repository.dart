@@ -1,16 +1,18 @@
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
-import 'package:hotel_manager/core/services/audit_service.dart';
+import 'package:hotel_manager/core/repositories/base_firestore_repository.dart';
 
-class SettingsRepository {
+class SettingsRepository extends BaseFirestoreRepository<TaxRule> {
   final DatabaseService _databaseService;
-  final AuditService _auditService;
 
   SettingsRepository({
     required DatabaseService databaseService,
-    required AuditService auditService,
+    super.auditService,
   }) : _databaseService = databaseService,
-       _auditService = auditService;
+       super(collectionPath: 'settings/tax_rules');
+
+  @override
+  TaxRule fromJson(Map<String, dynamic> json) => TaxRule.fromJson(json);
 
   // --- Tax Rules ---
 
@@ -18,25 +20,16 @@ class SettingsRepository {
     return _databaseService.streamTaxRules(hotelId);
   }
 
-  Future<void> saveTaxRule(
-    TaxRule rule,
-    String userId,
-    String userName,
-    String hotelId,
-  ) async {
+  Future<void> saveTaxRule(TaxRule rule, {User? performer}) async {
     await _databaseService.saveTaxRule(rule);
 
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.update,
-      entity: 'tax_rule',
-      entityId: rule.id,
+      targetUserId: rule.id,
       description:
           'Updated tax rule: ${rule.name} (${rule.getEffectiveTax()}%)',
-      metadata: {
+      newData: {
         'cgst': rule.cgstPercent,
         'sgst': rule.sgstPercent,
         'igst': rule.igstPercent,
@@ -45,21 +38,16 @@ class SettingsRepository {
   }
 
   Future<void> deleteTaxRule(
-    String taxRuleId,
-    String userId,
-    String userName,
     String hotelId,
-  ) async {
+    String taxRuleId, {
+    User? performer,
+  }) async {
     await _databaseService.deleteTaxRule(hotelId, taxRuleId);
 
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.delete,
-      entity: 'tax_rule',
-      entityId: taxRuleId,
+      targetUserId: taxRuleId,
       description: 'Deleted tax rule: $taxRuleId',
     );
   }
@@ -71,42 +59,31 @@ class SettingsRepository {
   }
 
   Future<void> saveServiceChargeRule(
-    ServiceChargeRule rule,
-    String userId,
-    String userName,
-    String hotelId,
-  ) async {
+    ServiceChargeRule rule, {
+    User? performer,
+  }) async {
     await _databaseService.saveServiceChargeRule(rule);
 
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.update,
-      entity: 'service_charge_rule',
-      entityId: rule.id,
+      targetUserId: rule.id,
       description: 'Updated service charge: ${rule.name} (${rule.percent}%)',
-      metadata: {'percent': rule.percent},
+      newData: {'percent': rule.percent},
     );
   }
 
   Future<void> deleteServiceChargeRule(
-    String id,
-    String userId,
-    String userName,
     String hotelId,
-  ) async {
+    String id, {
+    User? performer,
+  }) async {
     await _databaseService.deleteServiceChargeRule(hotelId, id);
 
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.delete,
-      entity: 'service_charge_rule',
-      entityId: id,
+      targetUserId: id,
       description: 'Deleted service charge: $id',
     );
   }
@@ -117,43 +94,29 @@ class SettingsRepository {
     return _databaseService.streamTables(hotelId);
   }
 
-  Future<void> saveTable(
-    TableEntity table,
-    String userId,
-    String userName,
-    String hotelId,
-  ) async {
+  Future<void> saveTable(TableEntity table, {User? performer}) async {
     await _databaseService.saveTable(table);
 
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.update,
-      entity: 'table',
-      entityId: table.id,
+      targetUserId: table.id,
       description: 'Updated table: ${table.name} (${table.tableCode})',
-      metadata: {'capacity': table.maxCapacity},
+      newData: {'capacity': table.maxCapacity},
     );
   }
 
   Future<void> deleteTable(
-    String tableId,
-    String userId,
-    String userName,
     String hotelId,
-  ) async {
+    String tableId, {
+    User? performer,
+  }) async {
     await _databaseService.deleteTable(hotelId, tableId);
 
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.delete,
-      entity: 'table',
-      entityId: tableId,
+      targetUserId: tableId,
       description: 'Deleted table: $tableId',
     );
   }
@@ -163,41 +126,27 @@ class SettingsRepository {
   Stream<List<MenuItem>> streamMenuItems(String hotelId) =>
       _databaseService.streamMenuItems(hotelId);
 
-  Future<void> saveMenuItem(
-    MenuItem item,
-    String userId,
-    String userName,
-    String hotelId,
-  ) async {
+  Future<void> saveMenuItem(MenuItem item, {User? performer}) async {
     await _databaseService.saveMenuItem(item);
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.update,
-      entity: 'menu_item',
-      entityId: item.id,
+      targetUserId: item.id,
       description: 'Updated menu item: ${item.name}',
-      metadata: {'price': item.price, 'category': item.category.name},
+      newData: {'price': item.price, 'category': item.category.name},
     );
   }
 
   Future<void> deleteMenuItem(
-    String itemId,
-    String userId,
-    String userName,
     String hotelId,
-  ) async {
+    String itemId, {
+    User? performer,
+  }) async {
     await _databaseService.deleteMenuItem(hotelId, itemId);
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: userId,
-      userName: userName,
-      userRole: 'admin',
+    await logAction(
+      performer: performer,
       action: AuditAction.delete,
-      entity: 'menu_item',
-      entityId: itemId,
+      targetUserId: itemId,
       description: 'Deleted menu item $itemId',
     );
   }

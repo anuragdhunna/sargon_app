@@ -46,15 +46,8 @@ class _TaxRuleDialogState extends State<TaxRuleDialog> {
   Future<void> _save() async {
     if (_formKey.currentState!.validate()) {
       final authState = context.read<AuthCubit>().state;
-      String userId = 'unknown';
-      String userName = 'Unknown User';
-      String hotelId = 'default';
-
-      if (authState is AuthVerified) {
-        userId = authState.userId;
-        userName = authState.userName;
-        hotelId = authState.hotelId;
-      }
+      if (authState is! AuthVerified) return;
+      final hotelId = authState.hotelId;
 
       final cgst = double.tryParse(_cgstController.text) ?? 0.0;
       final sgst = double.tryParse(_sgstController.text) ?? 0.0;
@@ -69,12 +62,7 @@ class _TaxRuleDialogState extends State<TaxRuleDialog> {
       );
 
       try {
-        await context.read<SettingsRepository>().saveTaxRule(
-          rule,
-          userId,
-          userName,
-          hotelId,
-        );
+        await context.read<SettingsRepository>().saveTaxRule(rule);
         if (mounted) Navigator.of(context).pop();
       } catch (e) {
         ScaffoldMessenger.of(
@@ -160,20 +148,12 @@ class _TaxRuleDialogState extends State<TaxRuleDialog> {
 
                     if (confirm == true && context.mounted) {
                       final authState = context.read<AuthCubit>().state;
-                      String userId = 'unknown';
-                      String userName = 'Unknown User';
-                      String hotelId = 'default';
-                      if (authState is AuthVerified) {
-                        userId = authState.userId;
-                        userName = authState.userName;
-                        hotelId = authState.hotelId;
-                      }
+                      if (authState is! AuthVerified) return;
+                      final hotelId = authState.hotelId;
 
                       await context.read<SettingsRepository>().deleteTaxRule(
-                        widget.existingRule!.id,
-                        userId,
-                        userName,
                         hotelId,
+                        widget.existingRule!.id,
                       );
                       if (context.mounted) Navigator.pop(context);
                     }

@@ -1,8 +1,10 @@
+import '../constants/app_constants.dart';
 import 'base_entity.dart';
 
 /// User roles in the hotel management system
 enum UserRole {
   owner,
+  staff,
   manager,
   chef,
   waiter,
@@ -19,6 +21,8 @@ extension UserRoleExtension on UserRole {
     switch (this) {
       case UserRole.owner:
         return 'Owner';
+      case UserRole.staff:
+        return 'Staff';
       case UserRole.manager:
         return 'Manager';
       case UserRole.chef:
@@ -55,6 +59,7 @@ class User extends BaseEntity {
   final String phoneNumber;
   final UserRole role;
   final UserStatus status;
+  final List<String> hotelIds; // Multi-tenant access
   final String? avatarUrl;
 
   // Payment fields
@@ -67,12 +72,14 @@ class User extends BaseEntity {
 
   const User({
     required super.id,
-    required super.hotelId,
+    super.hotelId = AppConstants
+        .kDefaultHotelId, // Default for staff, but owners use hotelIds
     this.email,
     required this.name,
     required this.phoneNumber,
     required this.role,
     this.status = UserStatus.active,
+    this.hotelIds = const [],
     this.avatarUrl,
     this.paymentType = PaymentType.monthlySalary,
     this.dailyWage,
@@ -116,6 +123,7 @@ class User extends BaseEntity {
     String? phoneNumber,
     UserRole? role,
     UserStatus? status,
+    List<String>? hotelIds,
     String? avatarUrl,
     PaymentType? paymentType,
     double? dailyWage,
@@ -131,6 +139,7 @@ class User extends BaseEntity {
       phoneNumber: phoneNumber ?? this.phoneNumber,
       role: role ?? this.role,
       status: status ?? this.status,
+      hotelIds: hotelIds ?? this.hotelIds,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       paymentType: paymentType ?? this.paymentType,
       dailyWage: dailyWage ?? this.dailyWage,
@@ -153,6 +162,7 @@ class User extends BaseEntity {
       'phoneNumber': phoneNumber,
       'role': role.name,
       'status': status.name,
+      'hotelIds': hotelIds,
       'avatarUrl': avatarUrl,
       'paymentType': paymentType.name,
       'dailyWage': dailyWage,
@@ -165,7 +175,7 @@ class User extends BaseEntity {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'] as String,
-      hotelId: json['hotelId'] as String? ?? 'unknown',
+      hotelId: json['hotelId'] as String? ?? AppConstants.kDefaultHotelId,
       email: json['email'] as String?,
       name: json['name'] as String,
       phoneNumber: json['phoneNumber'] as String,
@@ -177,6 +187,7 @@ class User extends BaseEntity {
         (e) => e.name == json['status'],
         orElse: () => UserStatus.active,
       ),
+      hotelIds: List<String>.from(json['hotelIds'] ?? []),
       avatarUrl: json['avatarUrl'] as String?,
       paymentType: PaymentType.values.firstWhere(
         (e) => e.name == json['paymentType'],
@@ -200,7 +211,7 @@ class User extends BaseEntity {
   factory User.dummy() {
     return User(
       id: '1',
-      hotelId: 'persona_hotel',
+      hotelId: AppConstants.kDefaultHotelId,
       name: 'John Doe',
       email: 'john.doe@example.com',
       phoneNumber: '+1234567890',

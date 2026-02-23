@@ -57,6 +57,8 @@ dependencies:
   path_provider: ^2.1.5
   firebase_storage: ^12.4.10
   table_calendar: ^3.2.0
+  flutter_secure_storage: ^9.2.4
+  genui: ^0.7.0
 
 dev_dependencies:
   flutter_test:

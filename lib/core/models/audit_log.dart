@@ -1,81 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-/// Audit log entry for tracking all system actions per hotel
-class AuditLog extends Equatable {
-  final String id;
-  final String hotelId;
-  final DateTime timestamp;
-  final String userId;
-  final String userName;
-  final String userRole;
-  final AuditAction action;
-  final String entity; // 'checklist', 'attendance', 'room_booking', 'user'
-  final String entityId;
-  final String description;
-  final Map<String, dynamic>? metadata;
-
-  const AuditLog({
-    required this.id,
-    required this.hotelId,
-    required this.timestamp,
-    required this.userId,
-    required this.userName,
-    required this.userRole,
-    required this.action,
-    required this.entity,
-    required this.entityId,
-    required this.description,
-    this.metadata,
-  });
-
-  @override
-  List<Object?> get props => [
-    id,
-    hotelId,
-    timestamp,
-    userId,
-    userName,
-    userRole,
-    action,
-    entity,
-    entityId,
-    description,
-    metadata,
-  ];
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'hotelId': hotelId,
-      'timestamp': timestamp.toIso8601String(),
-      'userId': userId,
-      'userName': userName,
-      'userRole': userRole,
-      'action': action.name,
-      'entity': entity,
-      'entityId': entityId,
-      'description': description,
-      if (metadata != null) 'metadata': metadata,
-    };
-  }
-
-  factory AuditLog.fromJson(Map<String, dynamic> json) {
-    return AuditLog(
-      id: json['id'] as String,
-      hotelId: json['hotelId'] as String? ?? 'default',
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      userId: json['userId'] as String,
-      userName: json['userName'] as String,
-      userRole: json['userRole'] as String,
-      action: AuditAction.values.firstWhere((e) => e.name == json['action']),
-      entity: json['entity'] as String,
-      entityId: json['entityId'] as String,
-      description: json['description'] as String,
-      metadata: json['metadata'] as Map<String, dynamic>?,
-    );
-  }
-}
-
+/// Audit action types
 enum AuditAction {
   create,
   update,
@@ -91,39 +16,91 @@ enum AuditAction {
   receive,
   createPO,
   cancelPO,
+  roleChange,
+  statusChange,
+  hotelAssignment,
+  other,
 }
 
-extension AuditActionExtension on AuditAction {
-  String get displayName {
-    switch (this) {
-      case AuditAction.create:
-        return 'Created';
-      case AuditAction.update:
-        return 'Updated';
-      case AuditAction.delete:
-        return 'Deleted';
-      case AuditAction.complete:
-        return 'Completed';
-      case AuditAction.regularize:
-        return 'Regularized';
-      case AuditAction.approve:
-        return 'Approved';
-      case AuditAction.reject:
-        return 'Rejected';
-      case AuditAction.login:
-        return 'Logged In';
-      case AuditAction.logout:
-        return 'Logged Out';
-      case AuditAction.checkIn:
-        return 'Checked In';
-      case AuditAction.checkOut:
-        return 'Checked Out';
-      case AuditAction.receive:
-        return 'Received Goods';
-      case AuditAction.createPO:
-        return 'Created PO';
-      case AuditAction.cancelPO:
-        return 'Cancelled PO';
-    }
+/// Industry-standard Audit Log entry
+class AuditLog extends Equatable {
+  final String id;
+  final String actionType; // Equivalent to action.name
+  final String performedBy; // User ID of the performer
+  final String performedByRole;
+  final String? targetUserId; // UID of the user affected (if applicable)
+  final String? hotelId; // Target hotelId (if applicable)
+  final Map<String, dynamic>? previousData;
+  final Map<String, dynamic>? newData;
+  final DateTime timestamp;
+  final String description;
+
+  const AuditLog({
+    required this.id,
+    required this.actionType,
+    required this.performedBy,
+    required this.performedByRole,
+    this.targetUserId,
+    this.hotelId,
+    this.previousData,
+    this.newData,
+    required this.timestamp,
+    required this.description,
+  });
+
+  // Compatibility getters for legacy code
+  String get userId => performedBy;
+  String get userRole => performedByRole;
+  AuditAction get action => AuditAction.values.firstWhere(
+    (e) => e.name == actionType,
+    orElse: () => AuditAction.other,
+  );
+  String get entity => hotelId ?? 'system';
+  String get entityId => targetUserId ?? 'none';
+  Map<String, dynamic>? get metadata => newData ?? previousData;
+  String get userName => 'User $performedBy'; // Placeholder
+
+  @override
+  List<Object?> get props => [
+    id,
+    actionType,
+    performedBy,
+    performedByRole,
+    targetUserId,
+    hotelId,
+    previousData,
+    newData,
+    timestamp,
+    description,
+  ];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'actionType': actionType,
+      'performedBy': performedBy,
+      'performedByRole': performedByRole,
+      'targetUserId': targetUserId,
+      'hotelId': hotelId,
+      'previousData': previousData,
+      'newData': newData,
+      'timestamp': timestamp.toIso8601String(),
+      'description': description,
+    };
+  }
+
+  factory AuditLog.fromJson(Map<String, dynamic> json) {
+    return AuditLog(
+      id: json['id'] as String,
+      actionType: json['actionType'] as String,
+      performedBy: json['performedBy'] as String,
+      performedByRole: json['performedByRole'] as String? ?? 'unknown',
+      targetUserId: json['targetUserId'] as String?,
+      hotelId: json['hotelId'] as String?,
+      previousData: json['previousData'] as Map<String, dynamic>?,
+      newData: json['newData'] as Map<String, dynamic>?,
+      timestamp: DateTime.parse(json['timestamp'] as String),
+      description: json['description'] as String,
+    );
   }
 }

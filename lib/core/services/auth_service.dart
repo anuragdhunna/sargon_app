@@ -1,4 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:hotel_manager/core/constants/app_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -69,10 +70,10 @@ class AuthService {
       // Update display name
       await firebaseUser.updateDisplayName(name);
 
-      // Create user profile in Realtime Database
+      // Create user profile in Firestore
       final user = User(
         id: firebaseUser.uid,
-        hotelId: hotelId,
+        hotelIds: [hotelId], // Initial hotel
         email: email,
         name: name,
         phoneNumber: phoneNumber,
@@ -125,7 +126,7 @@ class AuthService {
 
         user = User(
           id: firebaseUser.uid,
-          hotelId: 'unknown', // Fallback for auto-created profiles
+          hotelIds: const [], // Fallback
           email: email,
           name: firebaseUser.displayName ?? email.split('@').first,
           phoneNumber: firebaseUser.phoneNumber ?? '',
@@ -285,10 +286,10 @@ class AuthService {
       // Update display name on secondary auth instance
       await firebaseUser.updateDisplayName(name);
 
-      // Create user profile in Realtime Database using primary database reference
+      // Create user profile in Firestore
       final user = User(
         id: firebaseUser.uid,
-        hotelId: hotelId,
+        hotelIds: [hotelId],
         email: email,
         name: name,
         phoneNumber: phoneNumber,
@@ -314,6 +315,75 @@ class AuthService {
       return AuthResult.error(message);
     } catch (e) {
       debugPrint('❌ Create staff error: $e');
+      return AuthResult.error('An unexpected error occurred: $e');
+    }
+  }
+
+  /// Create an owner account (superAdmin only)
+  ///
+  /// This creates a Firebase Auth account with the provided password
+  /// and stores the user profile in the database.
+  Future<AuthResult> createOwnerAccount({
+    required String email,
+    required String name,
+    required String phoneNumber,
+    required String password,
+    List<String> hotelIds = const [],
+  }) async {
+    try {
+      // Create a secondary app instance to avoid logging out current user
+      FirebaseApp secondaryApp;
+      try {
+        secondaryApp = Firebase.app('SecondaryApp');
+      } catch (e) {
+        secondaryApp = await Firebase.initializeApp(
+          name: 'SecondaryApp',
+          options: Firebase.app().options,
+        );
+      }
+
+      final secondaryAuth = fb.FirebaseAuth.instanceFor(app: secondaryApp);
+
+      // Create Firebase Auth account for new owner
+      final credential = await secondaryAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final firebaseUser = credential.user;
+      if (firebaseUser == null) {
+        return AuthResult.error('Failed to create owner account');
+      }
+
+      await firebaseUser.updateDisplayName(name);
+
+      // Create user profile in Firestore
+      final user = User(
+        id: firebaseUser.uid,
+        hotelIds: hotelIds, // May be empty if not assigned yet
+        email: email,
+        name: name,
+        phoneNumber: phoneNumber,
+        role: UserRole.owner,
+        status: UserStatus.active,
+        createdOn: DateTime.now(),
+      );
+
+      await _usersRef.doc(firebaseUser.uid).set(user.toJson());
+
+      // Sign out the newly created user in the secondary app instance
+      await secondaryAuth.signOut();
+
+      debugPrint(
+        '✅ Owner account created without logging out super admin: ${user.name}',
+      );
+      return AuthResult.success(user);
+    } on fb.FirebaseAuthException catch (e) {
+      final message = _getAuthErrorMessage(e.code);
+      debugPrint('❌ Create owner error: $message');
+      return AuthResult.error(message);
+    } catch (e) {
+      debugPrint('❌ Create owner error: $e');
       return AuthResult.error('An unexpected error occurred: $e');
     }
   }
@@ -365,8 +435,7 @@ class AuthService {
 
           final user = User(
             id: firebaseUser.uid,
-            hotelId:
-                'persona_hotel', // Seed accounts are for the persona tenant
+            hotelIds: [AppConstants.kDefaultHotelId],
             email: account['email'] as String,
             name: account['name'] as String,
             phoneNumber: '',

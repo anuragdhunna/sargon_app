@@ -233,17 +233,18 @@ class BillingCubit extends Cubit<BillingState> {
     );
 
     // Audit Log
-    await _auditService.log(
-      hotelId: hotelId,
-      userId: 'system',
-      userName: 'Billing System',
-      userRole: 'finance',
+    await _auditService.logUserAction(
+      performer: const User(
+        id: 'system',
+        name: 'System',
+        phoneNumber: '',
+        role: UserRole.staff,
+      ), // Fallback to system for automated bills
       action: AuditAction.create,
-      entity: 'bill',
-      entityId: bill.id,
+      targetUserId: bill.id,
       description:
           'System generated bill for Table $tableId. Total: ₹${bill.grandTotal}',
-      metadata: bill.toJson(),
+      newData: bill.toJson(),
     );
 
     return bill.id;
@@ -334,14 +335,12 @@ class BillingCubit extends Cubit<BillingState> {
     // Audit Log
     await _auditService.log(
       hotelId: hotelId,
-      userId: userId,
-      userName: 'Staff',
-      userRole: 'finance',
+      performedBy: userId,
+      performedByRole: 'finance',
       action: AuditAction.update,
-      entity: 'bill_discount',
-      entityId: billId,
+      targetUserId: billId,
       description: 'Applied discount ${offer.name} to bill $billId',
-      metadata: newBillDiscount.toJson(),
+      newData: newBillDiscount.toJson(),
     );
   }
 
@@ -459,15 +458,13 @@ class BillingCubit extends Cubit<BillingState> {
     // Audit Log
     await _auditService.log(
       hotelId: hotelId,
-      userId: 'system',
-      userName: 'Billing System',
-      userRole: 'finance',
+      performedBy: 'system',
+      performedByRole: 'finance',
       action: AuditAction.update,
-      entity: 'payment',
-      entityId: updatedBill.id,
+      targetUserId: updatedBill.id,
       description:
           'Payment of ₹$amount received via ${method.name} for Bill $billId',
-      metadata: payment.toJson(),
+      newData: payment.toJson(),
     );
   }
 
@@ -561,12 +558,10 @@ class BillingCubit extends Cubit<BillingState> {
     // Audit Log
     await _auditService.log(
       hotelId: hotelId,
-      userId: 'system',
-      userName: 'Billing System',
-      userRole: 'finance',
+      performedBy: 'system',
+      performedByRole: 'finance',
       action: AuditAction.update,
-      entity: 'folio',
-      entityId: bookingId,
+      targetUserId: bookingId,
       description: 'Folio $bookingId settled via ${method.name}',
     );
   }

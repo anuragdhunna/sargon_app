@@ -44,3 +44,32 @@ extension DatabaseUsers on DatabaseService {
     await _usersRef().doc(userId).delete();
   }
 }
+
+extension DatabaseOwners on DatabaseService {
+  /// Stream all owners in a hotel
+  Stream<List<User>> streamOwners(String hotelId) {
+    return firestore
+        .collection('users')
+        .where('hotelId', isEqualTo: hotelId)
+        .where('role', isEqualTo: UserRole.owner.name)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            return User.fromJson(doc.data());
+          }).toList();
+        });
+  }
+
+  /// Stream ALL owners (for Super Admin)
+  Stream<List<User>> streamAllOwners() {
+    return firestore
+        .collection('users')
+        .where('role', isEqualTo: UserRole.owner.name)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            return User.fromJson(doc.data());
+          }).toList();
+        });
+  }
+}

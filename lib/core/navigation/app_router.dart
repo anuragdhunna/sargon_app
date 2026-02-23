@@ -21,6 +21,9 @@ import 'package:hotel_manager/features/orders/presentation/order_taking/ui/order
 import 'package:hotel_manager/features/orders/presentation/order_history/ui/order_history_screen.dart';
 import 'package:hotel_manager/features/performance/ui/employee_performance_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/user_management_screen.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/owner_management_screen.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/create_owner_screen.dart';
+import 'package:hotel_manager/features/staff_mgmt/ui/edit_owner_screen.dart';
 import 'package:hotel_manager/features/staff_mgmt/ui/customer_analytics_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/rooms_screen.dart';
 import 'package:hotel_manager/features/rooms/ui/booking_history_screen.dart';
@@ -139,6 +142,21 @@ GoRouter createRouter(AuthCubit authCubit) {
           GoRoute(
             path: UserManagementScreen.routeName,
             builder: (context, state) => const UserManagementScreen(),
+          ),
+          GoRoute(
+            path: OwnerManagementScreen.routeName,
+            builder: (context, state) => const OwnerManagementScreen(),
+          ),
+          GoRoute(
+            path: CreateOwnerScreen.routeName,
+            builder: (context, state) => const CreateOwnerScreen(),
+          ),
+          GoRoute(
+            path: EditOwnerScreen.routeName,
+            builder: (context, state) {
+              final owner = state.extra as User;
+              return EditOwnerScreen(owner: owner);
+            },
           ),
           GoRoute(
             path: CustomerAnalyticsScreen.routeName,

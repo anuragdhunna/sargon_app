@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:hotel_manager/core/constants/app_constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hotel_manager/core/models/user_model.dart';
 import 'package:hotel_manager/core/services/auth_service.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/core/services/migration_service.dart';
+import 'package:hotel_manager/core/services/session/session_service.dart';
 import 'auth_state.dart';
 
 /// Authentication Cubit
@@ -17,12 +19,17 @@ import 'auth_state.dart';
 /// - Mock login for development/testing
 class AuthCubit extends Cubit<AuthState> {
   final AuthService? _authService;
+  final SessionService _sessionService;
   StreamSubscription? _authStateSubscription;
   bool _migrationsRun = false; // Track if migrations have been executed
 
-  AuthCubit({AuthService? authService})
+  AuthCubit({AuthService? authService, required SessionService sessionService})
     : _authService = authService,
+      _sessionService = sessionService,
       super(AuthInitial()) {
+    // Initial hydration/loading check
+    _checkInitialSession();
+
     // Listen to auth state changes if service is available
     if (_authService != null) {
       _authStateSubscription = _authService.authStateChanges.listen(
@@ -31,20 +38,51 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Check for existing local session on startup
+  void _checkInitialSession() {
+    if (_sessionService.hasActiveSession) {
+      final user = _sessionService.currentUser!;
+      emit(
+        AuthVerified(
+          role: user.role,
+          userId: user.id,
+          userName: user.name,
+          hotelId: user.hotelId,
+          user: user,
+        ),
+      );
+    }
+  }
+
   /// Handle Firebase auth state changes
   Future<void> _onAuthStateChanged(dynamic firebaseUser) async {
     if (firebaseUser == null) {
+      await _sessionService.clearSession();
       emit(AuthInitial());
     } else {
       // User is signed in, try to get profile
       final user = await _authService?.getCurrentUserProfile();
       if (user != null) {
+        // Enforce hotel mapping for Owners
+        if (user.role == UserRole.owner && user.hotelIds.isEmpty) {
+          await _authService?.signOut();
+          await _sessionService.clearSession();
+          emit(
+            const AuthError(
+              'Account not active. No hotel mapped to your owner profile.',
+            ),
+          );
+          return;
+        }
+
+        await _sessionService.setSession(user);
         emit(
           AuthVerified(
             role: user.role,
             userId: user.id,
             userName: user.name,
             hotelId: user.hotelId,
+            user: user,
           ),
         );
 
@@ -122,12 +160,14 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     if (result.success && result.user != null) {
+      await _sessionService.setSession(result.user!);
       emit(
         AuthVerified(
           role: result.user!.role,
           userId: result.user!.id,
           userName: result.user!.name,
           hotelId: result.user!.hotelId,
+          user: result.user!,
         ),
       );
     } else {
@@ -164,12 +204,28 @@ class AuthCubit extends Cubit<AuthState> {
     );
 
     if (result.success && result.user != null) {
+      final user = result.user!;
+
+      // Enforce hotel mapping for Owners
+      if (user.role == UserRole.owner && user.hotelIds.isEmpty) {
+        await _authService.signOut();
+        await _sessionService.clearSession();
+        emit(
+          const AuthError(
+            'Account not active. No hotel mapped to your owner profile.',
+          ),
+        );
+        return;
+      }
+
+      await _sessionService.setSession(user);
       emit(
         AuthVerified(
           role: result.user!.role,
           userId: result.user!.id,
           userName: result.user!.name,
           hotelId: result.user!.hotelId,
+          user: result.user!,
         ),
       );
     } else {
@@ -283,7 +339,7 @@ class AuthCubit extends Cubit<AuthState> {
             name: _getUserNameForRole(role),
             phoneNumber: '9876543210',
             role: role,
-            hotelId: 'persona_hotel',
+            hotelId: AppConstants.kDefaultHotelId,
           );
 
           if (regResult.success) {
@@ -300,12 +356,21 @@ class AuthCubit extends Cubit<AuthState> {
       // Fallback only as last resort (Warning: this will likely cause permission errors)
       debugPrint('⚠️ Warning: Proceeding with Mock Auth. DB access may fail.');
       final personaUserId = 'persona_${role.name}';
+      final personaUser = User(
+        id: personaUserId,
+        name: _getUserNameForRole(role),
+        phoneNumber: '',
+        role: role,
+        hotelId: 'test_hotel_$personaUserId',
+      );
+      await _sessionService.setSession(personaUser);
       emit(
         AuthVerified(
           role: role,
           userId: personaUserId,
-          userName: _getUserNameForRole(role),
-          hotelId: 'test_hotel_$personaUserId',
+          userName: personaUser.name,
+          hotelId: personaUser.hotelId,
+          user: personaUser,
         ),
       );
     } catch (e) {
@@ -321,6 +386,7 @@ class AuthCubit extends Cubit<AuthState> {
   /// Sign out current user
   void logout() async {
     try {
+      await _sessionService.clearSession();
       await _authService?.signOut();
     } catch (e) {
       // Ignore errors during logout
@@ -345,12 +411,14 @@ class AuthCubit extends Cubit<AuthState> {
 
   UserRole _getRoleFromMockEmail(String email) {
     final emailLower = email.toLowerCase();
+    if (emailLower.contains('superadmin')) return UserRole.superAdmin;
     if (emailLower.contains('owner')) return UserRole.owner;
     if (emailLower.contains('manager')) return UserRole.manager;
     if (emailLower.contains('chef')) return UserRole.chef;
     if (emailLower.contains('waiter')) return UserRole.waiter;
     if (emailLower.contains('housekeeping')) return UserRole.housekeeping;
     if (emailLower.contains('frontdesk')) return UserRole.frontDesk;
+    if (emailLower.contains('staff')) return UserRole.staff;
     return UserRole.waiter;
   }
 
@@ -360,6 +428,8 @@ class AuthCubit extends Cubit<AuthState> {
         return 'Super Administrator';
       case UserRole.owner:
         return 'Hotel Owner';
+      case UserRole.staff:
+        return 'Staff Member';
       case UserRole.manager:
         return 'Hotel Manager';
       case UserRole.frontDesk:

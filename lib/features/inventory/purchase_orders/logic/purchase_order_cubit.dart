@@ -112,12 +112,10 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
 
       _auditService.log(
         hotelId: hotelId,
-        userId: userId,
-        userName: userName,
-        userRole: userRole,
+        performedBy: userId,
+        performedByRole: userRole,
         action: AuditAction.createPO,
-        entity: 'purchase_order',
-        entityId: po.id,
+        targetUserId: po.id,
         description:
             'Created PO ${po.poNumber} ($status) for vendor $vendorName with ${lineItems.length} items',
       );
@@ -149,12 +147,10 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
 
         _auditService.log(
           hotelId: hotelId,
-          userId: userId,
-          userName: userName,
-          userRole: userRole,
+          performedBy: userId,
+          performedByRole: userRole,
           action: AuditAction.update,
-          entity: 'purchase_order',
-          entityId: poId,
+          targetUserId: poId,
           description:
               'Cancelled PO ${updatedPO.poNumber}${reason != null ? ' - Reason: $reason' : ''}',
         );
@@ -237,12 +233,10 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
 
         _auditService.log(
           hotelId: hotelId,
-          userId: userId,
-          userName: userName,
-          userRole: userRole,
+          performedBy: userId,
+          performedByRole: userRole,
           action: AuditAction.update,
-          entity: 'purchase_order',
-          entityId: poId,
+          targetUserId: poId,
           description: 'Updated status of PO ${updatedPO.poNumber} to $status',
         );
       }
@@ -279,12 +273,10 @@ class PurchaseOrderCubit extends Cubit<PurchaseOrderState> {
 
           _auditService.log(
             hotelId: hotelId,
-            userId: userId,
-            userName: userName,
-            userRole: userRole,
+            performedBy: userId,
+            performedByRole: userRole,
             action: AuditAction.update,
-            entity: 'purchase_order',
-            entityId: poId,
+            targetUserId: poId,
             description:
                 'Cancelled item ${item.itemName} in PO ${updatedPO.poNumber}',
           );

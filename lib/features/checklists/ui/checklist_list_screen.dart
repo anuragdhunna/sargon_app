@@ -171,11 +171,6 @@ class _ChecklistCard extends StatelessWidget {
               if (authState is! AuthVerified) return;
 
               final currentUserRole = authState.role;
-              final isCrossRole =
-                  currentUserRole != checklist.assignedRole &&
-                  currentUserRole !=
-                      UserRole
-                          .owner; // Owner can do anything without reason? Maybe not.
               // Let's say Owner also needs to give reason if doing Housekeeping task, for audit.
               // Or maybe Owner is exempt. The prompt says "Cross-role completion reason".
               // Let's enforce it for everyone if roles don't match.
