@@ -4,6 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/component/inputs/app_dropdown.dart';
+import 'package:hotel_manager/component/inputs/app_phone_field.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
@@ -14,6 +15,9 @@ import 'package:hotel_manager/core/models/models.dart';
 import 'package:intl/intl.dart';
 
 import 'package:hotel_manager/features/staff_mgmt/ui/widgets/add_customer_dialog.dart';
+import 'package:hotel_manager/features/rooms/ui/widgets/booking_form_widgets.dart';
+
+part 'create_booking_dialog_methods.dart';
 
 /// Enhanced booking dialog with ID proofs and guest management
 class CreateBookingDialog extends StatefulWidget {
@@ -164,12 +168,9 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
                       Row(
                         children: [
                           Expanded(
-                            child: AppTextField(
+                            child: AppPhoneField(
                               name: 'guestPhone',
                               label: 'Phone Number',
-                              hint: '+91 9876543210',
-                              keyboardType: TextInputType.phone,
-                              validator: FormBuilderValidators.required(),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -584,160 +585,5 @@ class _CreateBookingDialogState extends State<CreateBookingDialog> {
         ),
       ),
     );
-  }
-
-  void _confirmBooking() async {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final data = _formKey.currentState!.value;
-      final authState = context.read<AuthCubit>().state;
-
-      if (authState is! AuthVerified) return;
-
-      final paidAmount =
-          double.tryParse(data['paidAmount']?.toString() ?? '0') ?? 0.0;
-
-      String? finalCustomerId = _selectedCustomer?.id;
-      if (finalCustomerId == null) {
-        // Create new customer for new booking
-        final newCustomerId = 'cust_${DateTime.now().millisecondsSinceEpoch}';
-        final newCustomer = Customer(
-          hotelId: widget.room.hotelId,
-          id: newCustomerId,
-          name: data['guestName'],
-          phone: data['guestPhone'],
-          email: data['guestEmail'],
-          idProofType: data['idProofType'],
-          idProofNumber: data['idProofNumber'],
-        );
-        await context.read<CustomerCubit>().saveCustomer(newCustomer);
-        finalCustomerId = newCustomerId;
-      }
-
-      await context.read<RoomCubit>().createBooking(
-        hotelId: widget.room.hotelId,
-        roomId: widget.room.id,
-        guestName: data['guestName'],
-        guestPhone: data['guestPhone'],
-        guestEmail: data['guestEmail'],
-        checkIn: data['checkIn'],
-        checkOut: data['checkOut'],
-        totalAmount: _calculateTotal(),
-        bookedByUserId: authState.userId,
-        bookedByUserName: authState.userName,
-        bookedByUserRole: authState.role.name,
-        idProofType: data['idProofType'],
-        idProofNumber: data['idProofNumber'],
-        numberOfGuests:
-            int.tryParse(data['numberOfGuests']?.toString() ?? '1') ?? 1,
-        accompanyingPersons: _accompanyingPersons,
-        customerId: finalCustomerId,
-        idProofImageUrl: _idProofImageUrl,
-        paidAmount: paidAmount,
-        paymentMethod: data['paymentMethod'],
-        paymentReference: data['paymentReference'],
-      );
-
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Booking confirmed!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    }
-  }
-
-  int _getNights() {
-    if (_checkInDate == null || _checkOutDate == null) return 1;
-    final diff = _checkOutDate!.difference(_checkInDate!).inDays;
-    return diff > 0 ? diff : 1;
-  }
-
-  double _calculateTotal() {
-    return widget.room.pricePerNight * _getNights();
-  }
-
-  void _addPersonDialog() {
-    final nameController = TextEditingController();
-    final relationController = TextEditingController();
-    final idController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Guest Details'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Full Name'),
-            ),
-            TextField(
-              controller: relationController,
-              decoration: const InputDecoration(labelText: 'Relation'),
-            ),
-            TextField(
-              controller: idController,
-              decoration: const InputDecoration(labelText: 'ID Proof Number'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (nameController.text.isNotEmpty) {
-                setState(() {
-                  _accompanyingPersons.add({
-                    'name': nameController.text,
-                    'relation': relationController.text,
-                    'id': idController.text,
-                  });
-                });
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _onCustomerSelected(Customer? customer) {
-    if (customer != null) {
-      setState(() {
-        _selectedCustomer = customer;
-        _formKey.currentState?.fields['guestName']?.didChange(customer.name);
-        _formKey.currentState?.fields['guestPhone']?.didChange(customer.phone);
-        _formKey.currentState?.fields['guestEmail']?.didChange(customer.email);
-        _formKey.currentState?.fields['idProofType']?.didChange(
-          customer.idProofType,
-        );
-        _formKey.currentState?.fields['idProofNumber']?.didChange(
-          customer.idProofNumber,
-        );
-      });
-    }
-  }
-
-  void _showAddCustomerDialog(BuildContext context) async {
-    final newCustomer = await showDialog<Customer>(
-      context: context,
-      builder: (_) => BlocProvider.value(
-        value: context.read<CustomerCubit>(),
-        child: const AddCustomerDialog(),
-      ),
-    );
-
-    if (newCustomer != null && mounted) {
-      _onCustomerSelected(newCustomer);
-    }
   }
 }

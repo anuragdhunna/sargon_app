@@ -15,7 +15,8 @@ class SuperAdminDashboardScreen extends StatefulWidget {
 }
 
 class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> {
-  bool _isLoading = false; // Set to true if GenUI is actively initializing
+  final bool _isLoading =
+      false; // Set to true if GenUI is actively initializing
 
   @override
   void initState() {

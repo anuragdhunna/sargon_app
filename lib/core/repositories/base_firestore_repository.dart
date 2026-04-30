@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide User;
 import '../models/models.dart';
 import '../services/audit_service.dart';
-import '../models/base_entity.dart';
-import '../models/user_model.dart';
 
 /// Generic repository for Firestore operations with built-in auditing support.
 /// All child repositories should extend this class.

@@ -13,6 +13,7 @@ class Hotel extends BaseEntity {
   final String status; // active | inactive
   final bool isChannelManagerEnabled;
   final Map<String, dynamic>? settings;
+  final List<String> enabledFeatures;
 
   const Hotel({
     required super.id,
@@ -28,6 +29,7 @@ class Hotel extends BaseEntity {
     this.status = 'active',
     this.isChannelManagerEnabled = false,
     this.settings,
+    this.enabledFeatures = const [],
     super.createdBy,
     super.createdOn,
     super.updatedBy,
@@ -47,6 +49,7 @@ class Hotel extends BaseEntity {
     taxId,
     isChannelManagerEnabled,
     settings,
+    enabledFeatures,
   ];
 
   Hotel copyWith({
@@ -61,6 +64,7 @@ class Hotel extends BaseEntity {
     String? status,
     bool? isChannelManagerEnabled,
     Map<String, dynamic>? settings,
+    List<String>? enabledFeatures,
   }) {
     return Hotel(
       id: id,
@@ -77,6 +81,7 @@ class Hotel extends BaseEntity {
       isChannelManagerEnabled:
           isChannelManagerEnabled ?? this.isChannelManagerEnabled,
       settings: settings ?? this.settings,
+      enabledFeatures: enabledFeatures ?? this.enabledFeatures,
       createdBy: createdBy,
       createdOn: createdOn,
       updatedBy: updatedBy,
@@ -100,6 +105,7 @@ class Hotel extends BaseEntity {
       'status': status,
       'isChannelManagerEnabled': isChannelManagerEnabled,
       'settings': settings,
+      'enabledFeatures': enabledFeatures,
     };
   }
 
@@ -119,6 +125,7 @@ class Hotel extends BaseEntity {
       isChannelManagerEnabled:
           json['isChannelManagerEnabled'] as bool? ?? false,
       settings: json['settings'] as Map<String, dynamic>?,
+      enabledFeatures: List<String>.from(json['enabledFeatures'] ?? []),
       createdBy: json['createdBy'] as String?,
       createdOn: BaseEntity.parseDateTime(json['createdOn']),
       updatedBy: json['updatedBy'] as String?,

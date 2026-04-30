@@ -190,7 +190,7 @@ When modifying code, apply these expert-level practices:
     - Cubits must accept `hotelId` in their initialization or loading methods (e.g., `loadOrders(String hotelId)`).
     - Database services must propagate `hotelId` to all path-building methods.
 - **Soft Deletes**: Standardized soft delete mechanism across all Firestore-backed entities.
-- **Security Rules**: Field-level protection ensures audit fields can only be modified by the backend or under strict validation.
+- **Security Rules**: Industry-level Firebase Security Rules implemented for Firestore. Features multi-tenant isolation, role-based access control (RBAC), and helper functions for efficient validation.
 
 ---
 
@@ -205,7 +205,8 @@ When modifying code, apply these expert-level practices:
 | **PremiumButton** | `component/buttons/premium_button.dart` | Primary, Secondary, Outline, Danger buttons | `label`, `onPressed`, `isLoading`, `icon` |
 | **AppCard** | `component/cards/app_card.dart` | Consistent card wrapper | `child`, `padding`, `elevation` |
 | **AppTextField** | `component/inputs/app_text_field.dart` | Styled text input | `controller`, `label`, `hint`, `validator` |
-| **AppDropdown** | `component/inputs/app_dropdown.dart` | Dropdown selector | `items`, `value`, `onChanged` |
+| **AppDropdown** | `component/inputs/app_dropdown.dart` | Dropdown selector with optional FormBuilder support | `items`, `value`, `onChanged`, `name` (optional) |
+| **AppPhoneField** | `component/inputs/app_phone_field.dart` | Standardized phone input with country picker | `controller`, `label`, `validator` |
 | **CustomSnackbar** | Direct static call | Success, Error, Warning toasts | `CustomSnackbar.showSuccess(context, msg)` |
 
 ### 🔀 Reusable Dialogs & Modals

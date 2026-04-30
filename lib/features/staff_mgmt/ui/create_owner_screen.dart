@@ -249,7 +249,7 @@ class _CreateOwnerScreenState extends State<CreateOwnerScreen> {
         }
 
         return DropdownButtonFormField<String>(
-          value: _selectedExistingHotelId,
+          initialValue: _selectedExistingHotelId,
           decoration: InputDecoration(
             labelText: 'Select Hotel',
             border: OutlineInputBorder(

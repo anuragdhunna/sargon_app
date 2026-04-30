@@ -7,6 +7,7 @@ import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hotel_manager/core/services/auth_service.dart';
+import 'package:hotel_manager/core/constants/app_features.dart';
 
 class EditOwnerScreen extends StatefulWidget {
   static const String routeName = '/edit-owner';
@@ -25,6 +26,7 @@ class _EditOwnerScreenState extends State<EditOwnerScreen> {
 
   bool _isLoading = false;
   String? _selectedHotelId;
+  List<String>? _selectedFeatures;
   late bool _isActive;
 
   @override
@@ -68,6 +70,15 @@ class _EditOwnerScreenState extends State<EditOwnerScreen> {
             hotelId: _selectedHotelId!,
             ownerId: widget.owner.id,
           );
+
+          if (_selectedFeatures != null) {
+            final hotel = await databaseService.getHotel(_selectedHotelId!);
+            if (hotel != null) {
+              await databaseService.saveHotel(
+                hotel.copyWith(enabledFeatures: _selectedFeatures!),
+              );
+            }
+          }
 
           // Update user hotelIds list
           if (!updatedOwner.hotelIds.contains(_selectedHotelId)) {
@@ -140,7 +151,7 @@ class _EditOwnerScreenState extends State<EditOwnerScreen> {
                   title: const Text('Active Account'),
                   value: _isActive,
                   onChanged: (val) => setState(() => _isActive = val),
-                  activeColor: AppDesign.primaryStart,
+                  activeThumbColor: AppDesign.primaryStart,
                 ),
                 const SizedBox(height: AppDesign.space6),
                 Text('Assign Hotel', style: AppDesign.titleLarge),
@@ -166,28 +177,91 @@ class _EditOwnerScreenState extends State<EditOwnerScreen> {
                     if (_selectedHotelId != null &&
                         !hotels.any((h) => h.id == _selectedHotelId)) {
                       _selectedHotelId = null;
+                      _selectedFeatures = null;
+                    } else if (_selectedHotelId != null &&
+                        _selectedFeatures == null) {
+                      try {
+                        final h = hotels.firstWhere(
+                          (h) => h.id == _selectedHotelId,
+                        );
+                        _selectedFeatures = List.from(h.enabledFeatures);
+                      } catch (_) {}
                     }
 
-                    return DropdownButtonFormField<String>(
-                      value: _selectedHotelId,
-                      decoration: InputDecoration(
-                        labelText: 'Select Hotel',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppDesign.radiusMd,
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          initialValue: _selectedHotelId,
+                          decoration: InputDecoration(
+                            labelText: 'Select Hotel',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppDesign.radiusMd,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: AppDesign.neutral50,
                           ),
+                          items: hotels.map((h) {
+                            return DropdownMenuItem(
+                              value: h.id,
+                              child: Text(h.name),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedHotelId = val;
+                              if (val != null) {
+                                try {
+                                  final h = hotels.firstWhere(
+                                    (h) => h.id == val,
+                                  );
+                                  _selectedFeatures = List.from(
+                                    h.enabledFeatures,
+                                  );
+                                } catch (_) {
+                                  _selectedFeatures = [];
+                                }
+                              } else {
+                                _selectedFeatures = null;
+                              }
+                            });
+                          },
                         ),
-                        filled: true,
-                        fillColor: AppDesign.neutral50,
-                      ),
-                      items: hotels.map((h) {
-                        return DropdownMenuItem(
-                          value: h.id,
-                          child: Text(h.name),
-                        );
-                      }).toList(),
-                      onChanged: (val) =>
-                          setState(() => _selectedHotelId = val),
+                        if (_selectedHotelId != null &&
+                            _selectedFeatures != null) ...[
+                          const SizedBox(height: AppDesign.space6),
+                          Text('Hotel Features', style: AppDesign.titleLarge),
+                          const SizedBox(height: AppDesign.space2),
+                          ...AppFeatures.allFeatures.map((feature) {
+                            return CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(AppFeatures.getFeatureName(feature)),
+                              value: _selectedFeatures!.contains(feature),
+                              activeColor: AppDesign.primaryStart,
+                              onChanged: (val) {
+                                setState(() {
+                                  if (val == true) {
+                                    _selectedFeatures!.add(feature);
+                                    _selectedFeatures =
+                                        AppFeatures.withEnforcedDependencies(
+                                          _selectedFeatures!,
+                                        );
+                                  } else {
+                                    _selectedFeatures!.remove(feature);
+                                    _selectedFeatures =
+                                        AppFeatures.withEnforcedRemovals(
+                                          _selectedFeatures!,
+                                          feature,
+                                        );
+                                  }
+                                });
+                              },
+                            );
+                          }),
+                        ],
+                      ],
                     );
                   },
                 ),

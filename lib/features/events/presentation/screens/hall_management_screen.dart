@@ -203,10 +203,7 @@ class _FeatureCard extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: AppDesign.neutral50,
           child: Icon(
-            IconData(
-              feature.iconCode ?? Icons.star.codePoint,
-              fontFamily: 'MaterialIcons',
-            ),
+            _getIconForCode(feature.iconCode),
             color: AppDesign.primaryStart,
           ),
         ),
@@ -227,6 +224,19 @@ class _FeatureCard extends StatelessWidget {
         onTap: () => _showFeatureDialog(context, feature),
       ),
     );
+  }
+
+  IconData _getIconForCode(int? code) {
+    if (code == null) return Icons.star;
+    // Map common icon codes back to their static IconData representations
+    // required for flutter web tree-shaking
+    if (code == Icons.music_note.codePoint) return Icons.music_note;
+    if (code == Icons.celebration.codePoint) return Icons.celebration;
+    if (code == Icons.event_seat.codePoint) return Icons.event_seat;
+    if (code == Icons.lightbulb.codePoint) return Icons.lightbulb;
+    if (code == Icons.camera_alt.codePoint) return Icons.camera_alt;
+    if (code == Icons.restaurant.codePoint) return Icons.restaurant;
+    return Icons.star;
   }
 
   void _showFeatureDialog(BuildContext context, HallFeature feature) {

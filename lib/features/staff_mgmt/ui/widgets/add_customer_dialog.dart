@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
 import 'package:hotel_manager/component/inputs/app_dropdown.dart';
+import 'package:hotel_manager/component/inputs/app_phone_field.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/theme/app_design.dart';
@@ -71,13 +72,7 @@ class _AddCustomerDialogState extends State<AddCustomerDialog> {
                         validator: FormBuilderValidators.required(),
                       ),
                       const SizedBox(height: 16),
-                      AppTextField(
-                        name: 'phone',
-                        label: 'Phone Number',
-                        hint: '+91 9876543210',
-                        keyboardType: TextInputType.phone,
-                        validator: FormBuilderValidators.required(),
-                      ),
+                      AppPhoneField(name: 'phone', label: 'Phone Number'),
                       const SizedBox(height: 16),
                       AppTextField(
                         name: 'email',

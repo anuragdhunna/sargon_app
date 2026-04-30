@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/dialogs/confirmation_dialog.dart';
 import 'package:hotel_manager/features/auth/logic/auth_cubit.dart';
 import 'package:hotel_manager/features/auth/logic/auth_state.dart';
-import 'package:hotel_manager/core/models/user_model.dart';
+import 'package:hotel_manager/core/models/models.dart';
+import 'package:hotel_manager/core/services/database_service.dart';
+import 'package:hotel_manager/core/constants/app_features.dart';
 import 'package:hotel_manager/features/dashboard/ui/dashboard_screen.dart';
 import 'package:hotel_manager/features/dashboard/ui/super_admin_dashboard_screen.dart';
 import 'package:hotel_manager/features/loyalty/presentation/screens/loyalty_management_screen.dart';
@@ -36,13 +38,169 @@ class MainLayout extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDesktop = MediaQuery.of(context).size.width > 800;
 
-    // Get current role
+    // Get current auth state
     final authState = context.read<AuthCubit>().state;
     final UserRole role = (authState is AuthVerified)
         ? authState.role
         : UserRole.owner;
+    final String hotelId = (authState is AuthVerified) ? authState.hotelId : '';
+    final isSuperAdmin = role == UserRole.superAdmin;
 
-    final destinations = _getDestinationsForRole(role);
+    if (isSuperAdmin) {
+      final destinations = _getDestinationsForRole(role);
+      return _buildScaffold(context, destinations, location, isDesktop);
+    }
+
+    if (hotelId.isEmpty) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return StreamBuilder<Hotel?>(
+      stream: context.read<DatabaseService>().streamHotel(hotelId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final hotel = snapshot.data;
+        final enabledFeatures = hotel?.enabledFeatures ?? [];
+
+        if (hotel == null || enabledFeatures.isEmpty) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.block, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No features are enabled for this hotel. Please contact support.',
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthCubit>().logout();
+                      context.go(LoginScreen.routeName);
+                    },
+                    child: const Text('Logout'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final allDestinations = _getDestinationsForRole(role);
+        final filteredDestinations = _filterDestinations(
+          allDestinations,
+          enabledFeatures,
+          role,
+        );
+
+        if (filteredDestinations.isEmpty) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.block, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text('Your role has no accessible features here.'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<AuthCubit>().logout();
+                      context.go(LoginScreen.routeName);
+                    },
+                    child: const Text('Logout'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return _buildScaffold(
+          context,
+          filteredDestinations,
+          location,
+          isDesktop,
+        );
+      },
+    );
+  }
+
+  List<NavDestination> _filterDestinations(
+    List<NavDestination> items,
+    List<String> features,
+    UserRole role,
+  ) {
+    if (role == UserRole.superAdmin) return items;
+    return items.where((item) {
+      final featureKey = _getFeatureKeyForRoute(item.route);
+      if (featureKey == null) return true; // Keep base items if unmapped
+      return features.contains(featureKey);
+    }).toList();
+  }
+
+  String? _getFeatureKeyForRoute(String route) {
+    if (route.startsWith(DashboardScreen.routeName)) {
+      return AppFeatures.dashboard;
+    }
+    if (route.startsWith(TableDashboardScreen.routeName)) {
+      return AppFeatures.floorView;
+    }
+    if (route.startsWith(UserManagementScreen.routeName)) {
+      return AppFeatures.staff;
+    }
+    if (route.startsWith(CustomerAnalyticsScreen.routeName)) {
+      return AppFeatures.customers;
+    }
+    if (route.startsWith(RoomsScreen.routeName)) return AppFeatures.rooms;
+    if (route.startsWith('/events')) return AppFeatures.events;
+    if (route.startsWith(InventoryScreen.routeName)) {
+      return AppFeatures.inventory;
+    }
+    if (route.startsWith(OrderTakingScreen.routeName)) {
+      return AppFeatures.orders;
+    }
+    if (route.startsWith(KitchenScreen.routeName)) return AppFeatures.kds;
+    if (route.startsWith(OrderHistoryScreen.routeName)) {
+      return AppFeatures.orderHistory;
+    }
+    if (route.startsWith(ChecklistListScreen.routeName)) {
+      return AppFeatures.checklists;
+    }
+    if (route.startsWith(AttendanceScreen.routeName)) {
+      return AppFeatures.attendance;
+    }
+    if (route.startsWith(IncidentManagementScreen.routeName)) {
+      return AppFeatures.incidents;
+    }
+    if (route.startsWith(EmployeePerformanceScreen.routeName)) {
+      return AppFeatures.performance;
+    }
+    if (route.startsWith(AuditLogScreen.routeName)) {
+      return AppFeatures.auditLogs;
+    }
+    if (route.startsWith(OfferManagementScreen.routeName)) {
+      return AppFeatures.offers;
+    }
+    if (route.startsWith(LoyaltyManagementScreen.routeName)) {
+      return AppFeatures.loyalty;
+    }
+    if (route.startsWith(KdsAnalyticsScreen.routeName)) return AppFeatures.kds;
+    return null;
+  }
+
+  Widget _buildScaffold(
+    BuildContext context,
+    List<NavDestination> destinations,
+    String location,
+    bool isDesktop,
+  ) {
     final selectedIndex = _getSelectedIndex(location, destinations);
 
     return Scaffold(

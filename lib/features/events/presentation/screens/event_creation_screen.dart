@@ -9,7 +9,11 @@ import '../../../../component/inputs/app_text_field.dart';
 import '../../../../component/inputs/app_phone_field.dart';
 import '../../../../core/models/models.dart';
 import '../../../../component/cards/app_card.dart';
+import '../../../../component/inputs/app_dropdown.dart';
 import '../../logic/event_cubit.dart';
+import '../widgets/event_form_widgets.dart';
+
+part 'event_creation_screen_methods.dart';
 
 class EventCreationScreen extends StatefulWidget {
   final PrivateEvent? event;
@@ -150,10 +154,35 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
                   _buildTimePickers(),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Hall Selection'),
-                  _buildHallSelector(state.halls),
+                  HallSelector(
+                    halls: state.halls,
+                    selectedHallIds: _selectedHallIds,
+                    onSelectionChanged: (id, selected) {
+                      setState(() {
+                        if (selected) {
+                          _selectedHallIds.add(id);
+                        } else {
+                          _selectedHallIds.remove(id);
+                        }
+                      });
+                      _checkAvailability();
+                    },
+                  ),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Menu Selection'),
-                  _buildMenuSelector(state.menuItems),
+                  MenuSelector(
+                    items: state.menuItems,
+                    selectedMenuItemIds: _selectedMenuItemIds,
+                    onSelectionChanged: (id, selected) {
+                      setState(() {
+                        if (selected) {
+                          _selectedMenuItemIds.add(id);
+                        } else {
+                          _selectedMenuItemIds.remove(id);
+                        }
+                      });
+                    },
+                  ),
                   const SizedBox(height: 24),
                   _buildSectionTitle('Pricing & Guests'),
                   Row(
@@ -168,11 +197,9 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: DropdownButtonFormField<PricingCategory>(
+                        child: AppDropdown<PricingCategory>(
+                          label: 'Pricing Model',
                           initialValue: _pricingCategory,
-                          decoration: const InputDecoration(
-                            labelText: 'Pricing Model',
-                          ),
                           items: PricingCategory.values
                               .map(
                                 (c) => DropdownMenuItem(
@@ -193,30 +220,27 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
                   const SizedBox(height: 16),
                   BlocBuilder<EventCubit, EventState>(
                     builder: (context, state) {
-                      final taxRules = state.eventTaxRules.isNotEmpty
-                          ? state.eventTaxRules
-                          : [
-                              TaxRule(
-                                id: 'gst5',
-                                hotelId: context.hotelId,
-                                name: 'GST 5%',
-                                cgstPercent: 2.5,
-                                sgstPercent: 2.5,
-                              ),
-                              TaxRule(
-                                id: 'gst18',
-                                hotelId: context.hotelId,
-                                name: 'GST 18%',
-                                cgstPercent: 9,
-                                sgstPercent: 9,
-                              ),
-                            ];
+                      final taxRules = state.eventTaxRules;
 
-                      return DropdownButtonFormField<String>(
+                      if (taxRules.isEmpty) {
+                        return Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppDesign.neutral100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'No tax rules configured. Please add one in Settings > Taxes.',
+                            style: AppDesign.bodySmall.copyWith(
+                              color: AppDesign.neutral600,
+                            ),
+                          ),
+                        );
+                      }
+
+                      return AppDropdown<String>(
+                        label: 'Initial Tax Rule',
                         initialValue: _selectedTaxRuleId,
-                        decoration: const InputDecoration(
-                          labelText: 'Initial Tax Rule',
-                        ),
                         items: taxRules
                             .map(
                               (r) => DropdownMenuItem(
@@ -253,7 +277,14 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
                   _buildSectionTitle('Additional Services'),
                   _buildDynamicFeaturesSection(state),
                   const SizedBox(height: 24),
-                  _buildQuoteEstimator(),
+                  QuoteEstimator(
+                    pax: int.tryParse(_paxController.text) ?? 0,
+                    basePrice:
+                        double.tryParse(_basePriceController.text) ?? 0.0,
+                    perPaxRate:
+                        double.tryParse(_perPaxRateController.text) ?? 0.0,
+                    category: _pricingCategory,
+                  ),
                   const SizedBox(height: 32),
                   Row(
                     children: [
@@ -286,29 +317,100 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
     );
   }
 
-  Widget _buildMenuSelector(List<MenuItem> items) {
-    if (items.isEmpty) return const Text('No menu items available.');
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: items.map((item) {
-        final isSelected = _selectedMenuItemIds.contains(item.id);
-        return FilterChip(
-          label: Text(item.name),
-          selected: isSelected,
-          onSelected: (selected) {
-            setState(() {
-              if (selected) {
-                _selectedMenuItemIds.add(item.id);
-              } else {
-                _selectedMenuItemIds.remove(item.id);
-              }
-            });
-          },
-          selectedColor: Colors.orange.withValues(alpha: 0.2),
-          checkmarkColor: Colors.orange,
-        );
-      }).toList(),
+  Widget _buildDynamicFeaturesSection(EventState state) {
+    // 1. Get all features available in selected halls
+    final availableFeatureIds = state.halls
+        .where((h) => _selectedHallIds.contains(h.id))
+        .expand((h) => h.featureIds)
+        .toSet();
+
+    if (availableFeatureIds.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Text('No additional features available for selected halls.'),
+      );
+    }
+
+    final features = state.hallFeatures
+        .where((f) => availableFeatureIds.contains(f.id))
+        .toList();
+
+    return AppCard(
+      child: Column(
+        children: features.map((feature) {
+          final selectionIndex = _featureSelections.indexWhere(
+            (s) => s.featureId == feature.id,
+          );
+          final isSelected =
+              selectionIndex != -1 &&
+              _featureSelections[selectionIndex].isSelected;
+          final arrangement = selectionIndex != -1
+              ? _featureSelections[selectionIndex].arrangement ?? 'customer'
+              : 'customer';
+
+          return Column(
+            children: [
+              if (features.indexOf(feature) != 0) const Divider(height: 32),
+              SwitchListTile(
+                value: isSelected,
+                onChanged: (val) {
+                  setState(() {
+                    if (selectionIndex != -1) {
+                      _featureSelections[selectionIndex] =
+                          _featureSelections[selectionIndex].copyWith(
+                            isSelected: val,
+                          );
+                    } else {
+                      _featureSelections.add(
+                        EventFeatureSelection(
+                          featureId: feature.id,
+                          isSelected: val,
+                          arrangement: 'customer',
+                        ),
+                      );
+                    }
+                  });
+                },
+                title: Text(feature.name, style: AppDesign.bodyLarge),
+                subtitle: Text(
+                  feature.description ??
+                      (isSelected ? 'Requested' : 'Not Required'),
+                  style: AppDesign.bodySmall,
+                ),
+                activeThumbColor: AppDesign.primaryStart,
+                contentPadding: EdgeInsets.zero,
+              ),
+              if (isSelected) ...[
+                const SizedBox(height: 8),
+                AppDropdown<String>(
+                  label: 'Arranged By',
+                  initialValue: arrangement,
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'customer',
+                      child: Text('Customer'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'management',
+                      child: Text('Management'),
+                    ),
+                  ],
+                  onChanged: (val) {
+                    setState(() {
+                      if (selectionIndex != -1) {
+                        _featureSelections[selectionIndex] =
+                            _featureSelections[selectionIndex].copyWith(
+                              arrangement: val,
+                            );
+                      }
+                    });
+                  },
+                ),
+              ],
+            ],
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -411,351 +513,5 @@ class _EventCreationScreenState extends State<EventCreationScreen> {
     context.read<EventCubit>().saveEvent(event);
     if (!context.mounted) return;
     context.pop();
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: AppDesign.titleMedium.copyWith(
-          fontWeight: FontWeight.bold,
-          color: AppDesign.primaryStart,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDatePicker() {
-    return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context,
-          initialDate: _selectedDate,
-          firstDate: DateTime.now(),
-          lastDate: DateTime.now().add(const Duration(days: 365)),
-        );
-        if (picked != null && mounted) {
-          setState(() => _selectedDate = picked);
-          _checkAvailability();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppDesign.neutral200),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_today, color: AppDesign.primaryStart),
-            const SizedBox(width: 12),
-            Text(
-              DateFormat('EEEE, MMM dd, yyyy').format(_selectedDate),
-              style: AppDesign.bodyLarge,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTimePickers() {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildTimeTile(
-            'Start',
-            _startTime,
-            (t) => setState(() => _startTime = t),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildTimeTile(
-            'End',
-            _endTime,
-            (t) => setState(() => _endTime = t),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimeTile(
-    String label,
-    TimeOfDay time,
-    Function(TimeOfDay) onSelect,
-  ) {
-    return InkWell(
-      onTap: () async {
-        final picked = await showTimePicker(
-          context: context,
-          initialTime: time,
-        );
-        if (picked != null) {
-          onSelect(picked);
-          _checkAvailability();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppDesign.neutral200),
-        ),
-        child: Column(
-          children: [
-            Text(label, style: AppDesign.bodySmall),
-            const SizedBox(height: 4),
-            Text(
-              time.format(context),
-              style: AppDesign.titleMedium.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHallSelector(List<Hall> halls) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: halls.map((hall) {
-        final isSelected = _selectedHallIds.contains(hall.id);
-        return FilterChip(
-          label: Text('${hall.name} (${hall.capacity} pax)'),
-          selected: isSelected,
-          onSelected: (selected) {
-            setState(() {
-              if (selected) {
-                _selectedHallIds.add(hall.id);
-              } else {
-                _selectedHallIds.remove(hall.id);
-              }
-            });
-            _checkAvailability();
-          },
-          selectedColor: AppDesign.primaryStart.withValues(alpha: 0.2),
-          checkmarkColor: AppDesign.primaryStart,
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildConflictWarning() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.red),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Conflict Detected: Selected halls already booked for this time.',
-              style: AppDesign.bodyMedium.copyWith(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuoteEstimator() {
-    final pax = int.tryParse(_paxController.text) ?? 0;
-    final basePrice = double.tryParse(_basePriceController.text) ?? 0.0;
-    final perPaxRate = double.tryParse(_perPaxRateController.text) ?? 0.0;
-
-    double subtotal = 0;
-    if (_pricingCategory == PricingCategory.package) {
-      subtotal = basePrice;
-    } else if (_pricingCategory == PricingCategory.perPax) {
-      subtotal = pax * perPaxRate;
-    } else if (_pricingCategory == PricingCategory.hybrid) {
-      subtotal = basePrice + (pax * perPaxRate);
-    }
-
-    return AppCard(
-      color: Colors.blue.withValues(alpha: 0.05),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.calculate_outlined, color: Colors.blue),
-              const SizedBox(width: 8),
-              Text(
-                'Live Quote Estimator',
-                style: AppDesign.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade900,
-                ),
-              ),
-            ],
-          ),
-          const Divider(),
-          if (_pricingCategory == PricingCategory.package ||
-              _pricingCategory == PricingCategory.hybrid)
-            _buildEstimatorRow('Base Package', basePrice),
-          if (_pricingCategory == PricingCategory.perPax ||
-              _pricingCategory == PricingCategory.hybrid)
-            _buildEstimatorRow(
-              'Guest Charge ($pax x ₹$perPaxRate)',
-              pax * perPaxRate,
-            ),
-          const Divider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Estimated Subtotal',
-                style: AppDesign.bodyLarge.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                '₹${subtotal.toStringAsFixed(2)}',
-                style: AppDesign.titleMedium.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue.shade900,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '* Taxes and add-ons will be calculated during billing.',
-            style: AppDesign.bodySmall.copyWith(fontStyle: FontStyle.italic),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEstimatorRow(String label, double amount) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: AppDesign.bodyMedium),
-          Text('₹${amount.toStringAsFixed(2)}', style: AppDesign.bodyMedium),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDynamicFeaturesSection(EventState state) {
-    // 1. Get all features available in selected halls
-    final availableFeatureIds = state.halls
-        .where((h) => _selectedHallIds.contains(h.id))
-        .expand((h) => h.featureIds)
-        .toSet();
-
-    if (availableFeatureIds.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 8),
-        child: Text('No additional features available for selected halls.'),
-      );
-    }
-
-    final features = state.hallFeatures
-        .where((f) => availableFeatureIds.contains(f.id))
-        .toList();
-
-    return AppCard(
-      child: Column(
-        children: features.map((feature) {
-          final selectionIndex = _featureSelections.indexWhere(
-            (s) => s.featureId == feature.id,
-          );
-          final isSelected =
-              selectionIndex != -1 &&
-              _featureSelections[selectionIndex].isSelected;
-          final arrangement = selectionIndex != -1
-              ? _featureSelections[selectionIndex].arrangement ?? 'customer'
-              : 'customer';
-
-          return Column(
-            children: [
-              if (features.indexOf(feature) != 0) const Divider(height: 32),
-              SwitchListTile(
-                value: isSelected,
-                onChanged: (val) {
-                  setState(() {
-                    if (selectionIndex != -1) {
-                      _featureSelections[selectionIndex] =
-                          _featureSelections[selectionIndex].copyWith(
-                            isSelected: val,
-                          );
-                    } else {
-                      _featureSelections.add(
-                        EventFeatureSelection(
-                          featureId: feature.id,
-                          isSelected: val,
-                          arrangement: 'customer',
-                        ),
-                      );
-                    }
-                  });
-                },
-                title: Text(feature.name, style: AppDesign.bodyLarge),
-                subtitle: Text(
-                  feature.description ??
-                      (isSelected ? 'Requested' : 'Not Required'),
-                  style: AppDesign.bodySmall,
-                ),
-                activeThumbColor: AppDesign.primaryStart,
-                contentPadding: EdgeInsets.zero,
-              ),
-              if (isSelected) ...[
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  initialValue: arrangement,
-                  decoration: const InputDecoration(
-                    labelText: 'Arranged By',
-                    prefixIcon: Icon(Icons.person_outline),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'customer',
-                      child: Text('Customer'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'management',
-                      child: Text('Management'),
-                    ),
-                  ],
-                  onChanged: (val) {
-                    setState(() {
-                      if (selectionIndex != -1) {
-                        _featureSelections[selectionIndex] =
-                            _featureSelections[selectionIndex].copyWith(
-                              arrangement: val,
-                            );
-                      }
-                    });
-                  },
-                ),
-              ],
-            ],
-          );
-        }).toList(),
-      ),
-    );
   }
 }

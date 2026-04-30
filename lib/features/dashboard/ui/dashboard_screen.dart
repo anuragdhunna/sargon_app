@@ -10,6 +10,7 @@ import 'package:hotel_manager/theme/app_design.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:hotel_manager/features/dashboard/ui/widgets/dashboard_components.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -167,35 +168,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
           mainAxisSpacing: 16,
           childAspectRatio: 2.2,
           children: [
-            _KPIItem(
+            DashboardKpiItem(
               label: 'Open Tables',
               value: '${data.openTables}',
               icon: Icons.table_bar,
               color: Colors.orange,
               onTap: () => context.go('/tables'),
             ),
-            _KPIItem(
+            DashboardKpiItem(
               label: 'Open Bills',
               value: '${data.openBills}',
               icon: Icons.receipt_long,
               color: Colors.blue,
               onTap: () => context.go('/order-history'),
             ),
-            _KPIItem(
+            DashboardKpiItem(
               label: 'Active Orders',
               value: '${data.activeOrders}',
               icon: Icons.shopping_basket,
               color: Colors.green,
               onTap: () => context.go('/kitchen'),
             ),
-            _KPIItem(
+            DashboardKpiItem(
               label: 'Kitchen Delays',
               value: '${data.kitchenDelays}',
               icon: Icons.timer,
               color: Colors.red,
               onTap: () => context.go('/kitchen'),
             ),
-            _KPIItem(
+            DashboardKpiItem(
               label: 'Room Pending',
               value: '₹${data.billToRoomTotal.toStringAsFixed(0)}',
               icon: Icons.meeting_room,
@@ -241,27 +242,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Text('Sales Snapshot (Today)', style: AppDesign.titleLarge),
           const SizedBox(height: 16),
-          _SalesRow(
+          DashboardSalesRow(
             label: 'Gross Sales',
             value: currencyFormat.format(data.grossSales),
             isHeader: true,
           ),
           const Divider(),
-          _SalesRow(
+          DashboardSalesRow(
             label: 'Net Sales',
             value: currencyFormat.format(data.netSales),
             color: Colors.green,
           ),
-          _SalesRow(
+          DashboardSalesRow(
             label: 'Total Discounts',
             value: currencyFormat.format(data.totalDiscounts),
             color: Colors.red,
           ),
-          _SalesRow(
+          DashboardSalesRow(
             label: 'GST Collected',
             value: currencyFormat.format(data.gstCollected),
           ),
-          _SalesRow(
+          DashboardSalesRow(
             label: 'Service Charge',
             value: currencyFormat.format(data.serviceChargeCollected),
           ),
@@ -269,8 +270,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _MetricMini(label: 'Total Bills', value: '${data.billsCount}'),
-              _MetricMini(
+              DashboardMetricMini(
+                label: 'Total Bills',
+                value: '${data.billsCount}',
+              ),
+              DashboardMetricMini(
                 label: 'Avg Bill',
                 value: currencyFormat.format(data.avgBillValue),
               ),
@@ -290,7 +294,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Text('Billing & Payments', style: AppDesign.titleLarge),
             const SizedBox(height: 16),
-            _BillingStatusItem(
+            DashboardBillingStatusItem(
               label: 'Unpaid Bills',
               count: data.unpaidBillsCount,
               color: Colors.orange,
@@ -301,25 +305,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             ),
             const SizedBox(height: 8),
-            _PaymentSplitRow(
+            DashboardPaymentSplitRow(
               icon: Icons.money,
               label: 'Cash',
               value: data.cashTotal,
               color: Colors.green,
             ),
-            _PaymentSplitRow(
+            DashboardPaymentSplitRow(
               icon: Icons.credit_card,
               label: 'Card',
               value: data.cardTotal,
               color: Colors.blue,
             ),
-            _PaymentSplitRow(
+            DashboardPaymentSplitRow(
               icon: Icons.qr_code,
               label: 'Online/UPI',
               value: data.onlineTotal,
               color: Colors.purple,
             ),
-            _PaymentSplitRow(
+            DashboardPaymentSplitRow(
               icon: Icons.hotel,
               label: 'Bill to Room',
               value: data.billToRoomTotal,
@@ -341,7 +345,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                child: _StatusBox(
+                child: DashboardStatusBox(
                   label: 'Cooking',
                   value: '${data.ordersCooking}',
                   color: Colors.blue,
@@ -350,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _StatusBox(
+                child: DashboardStatusBox(
                   label: 'Ready',
                   value: '${data.ordersReady}',
                   color: Colors.green,
@@ -359,7 +363,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _StatusBox(
+                child: DashboardStatusBox(
                   label: 'Delayed Items',
                   value: '${data.delayedItems}',
                   color: Colors.red,
@@ -368,7 +372,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: _StatusBox(
+                child: DashboardStatusBox(
                   label: 'VIP/Rush',
                   value: '${data.vipRushOrders}',
                   color: Colors.orange,
@@ -432,258 +436,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               },
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _KPIItem extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _KPIItem({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppDesign.radiusLg),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppDesign.titleLarge.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SalesRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color? color;
-  final bool isHeader;
-
-  const _SalesRow({
-    required this.label,
-    required this.value,
-    this.color,
-    this.isHeader = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
-              fontSize: isHeader ? 18 : 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MetricMini extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _MetricMini({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      ],
-    );
-  }
-}
-
-class _BillingStatusItem extends StatelessWidget {
-  final String label;
-  final int count;
-  final Color color;
-
-  const _BillingStatusItem({
-    required this.label,
-    required this.count,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(color: color, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            '$count',
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PaymentSplitRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final double value;
-  final Color color;
-
-  const _PaymentSplitRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 12)),
-          const Spacer(),
-          Text(
-            '₹${value.toStringAsFixed(0)}',
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusBox extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _StatusBox({
-    required this.label,
-    required this.value,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.1)),
-        ),
-        child: Column(
-          children: [
-            Text(
-              value,
-              style: AppDesign.titleLarge.copyWith(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: color.withOpacity(0.7),
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

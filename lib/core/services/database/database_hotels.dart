@@ -10,6 +10,14 @@ extension DatabaseHotels on DatabaseService {
     });
   }
 
+  /// Stream a specific hotel by ID
+  Stream<Hotel?> streamHotel(String hotelId) {
+    return firestore.collection('hotels').doc(hotelId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return Hotel.fromJson(doc.data()!);
+    });
+  }
+
   /// Get paginated hotels
   Future<List<Hotel>> getHotelsPaginated({
     int limit = 10,

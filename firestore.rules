@@ -1,64 +1,102 @@
-# Sargon App - Security Rules
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
+    // ==========================================
+    // HELPER FUNCTIONS
+    // ==========================================
+    
+    // Check if the user is authenticated
     function isSignedIn() {
       return request.auth != null;
     }
     
+    // Get the user's data from the users collection
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    // Get the user's role
+    function getRole() {
+      return getUserData().role;
+    }
+    
+    // Check if the user has a specific role
+    function hasRole(role) {
+      return isSignedIn() && getRole() == role;
+    }
+    
+    // Check if the user is a Super Admin
     function isSuperAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superAdmin';
+      return hasRole('superAdmin');
     }
     
-    function isOwner(hotelId) {
-      return isSignedIn() && (
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'owner' &&
-        hotelId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hotelIds
-      );
+    // Check if the user is an Owner
+    function isOwner() {
+      return hasRole('owner');
     }
-    
-    function hasHotelAccess(hotelId) {
+
+
+    // Check if the user belongs to a specific hotel
+    // We check both the active hotelId field and the hotelIds list
+    function belongsToHotel(hotelId) {
+      let data = getUserData();
       return isSignedIn() && (
         isSuperAdmin() || 
-        hotelId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.hotelIds
+        data.hotelId == hotelId ||
+        (data.hotelIds != null && hotelId in data.hotelIds)
       );
     }
 
-    // User Profiles
+    // ==========================================
+    // COLLECTION RULES
+    // ==========================================
+
+    // --- Users Collection ---
     match /users/{userId} {
-      allow read: if request.auth.uid == userId || isSuperAdmin();
-      allow write: if isSuperAdmin();
-      // Owners can create staff for their hotels as per app logic, but restrict here
-      allow update: if request.auth.uid == userId;
-    }
-
-    // Hotels
-    match /hotels/{hotelId} {
-      allow read: if hasHotelAccess(hotelId);
-      allow write: if isSuperAdmin();
-    }
-
-    // Audit Logs
-    match /audit_logs/{logId} {
-      allow read: if isSuperAdmin() || isOwner(resource.data.hotelId);
-      allow create: if isSignedIn(); // Auditing is performed by services
-      allow update, delete: if false; // Audit logs are immutable
-    }
-
-    // Inventory, Orders, etc. (Tenant Isolated)
-    match /{path=**}/inventory/{itemId} {
-      allow read, write: if hasHotelAccess(resource.data.hotelId);
+      // Users can read any profile (needed for staff lists, attributions, etc.)
+      // but only if authenticated.
+      allow read: if isSignedIn();
+      
+      // Users can only update their own profile. 
+      // Super Admins can manage all users.
+      allow create: if isSignedIn(); // Allow self-registration
+      allow update: if isSuperAdmin() || request.auth.uid == userId;
+      allow delete: if isSuperAdmin();
     }
     
-    match /{path=**}/orders/{orderId} {
-      allow read, write: if hasHotelAccess(resource.data.hotelId);
+    // --- Hotels Collection ---
+    match /hotels/{hotelId} {
+      // Hotel document can be read by anyone belonging to it
+      allow read: if belongsToHotel(hotelId);
+      
+      // Only Super Admin can manage hotel root documents
+      allow write: if isSuperAdmin();
+      
+      // --- Hotel Sub-collections (The core of multi-tenancy) ---
+      // This includes: orders, rooms, tables, inventory, bills, etc.
+      match /{allSubcollections=**} {
+        allow read, write: if belongsToHotel(hotelId);
+      }
     }
-
-    // Fallback for sub-collections within a hotel
-    match /hotels/{hotelId}/{document=**} {
-      allow read, write: if hasHotelAccess(hotelId);
+    
+    // --- Audit Logs (Root level) ---
+    match /audit_logs/{logId} {
+      // Audit logs are visible to Super Admins or Owners of the respective hotel
+      allow read: if isSuperAdmin() || (isOwner() && belongsToHotel(resource.data.hotelId));
+      
+      // Any authenticated user can create an audit log (via secure services)
+      allow create: if isSignedIn();
+      
+      // Audit logs are immutable
+      allow update, delete: if false;
+    }
+    
+    // --- Global Fallback ---
+    // Deny all by default, except for Super Admin
+    match /{document=**} {
+      allow read, write: if isSuperAdmin();
     }
   }
 }
