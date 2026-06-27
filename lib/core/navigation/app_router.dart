@@ -46,6 +46,9 @@ import 'package:hotel_manager/features/events/presentation/screens/event_billing
 import 'package:hotel_manager/features/events/presentation/screens/event_reporting_screen.dart';
 import 'package:hotel_manager/features/events/presentation/screens/event_calendar_screen.dart';
 import 'package:hotel_manager/features/notifications/presentation/notification_screen.dart';
+import 'package:hotel_manager/features/customer_ordering/presentation/screens/cart_screen.dart';
+import 'package:hotel_manager/features/customer_ordering/presentation/screens/order_confirmation_screen.dart';
+import 'package:hotel_manager/features/customer_ordering/presentation/screens/menu_screen.dart';
 import 'package:hotel_manager/core/models/models.dart';
 
 /// Auth state notifier for GoRouter refresh
@@ -130,6 +133,10 @@ GoRouter createRouter(AuthCubit authCubit) {
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/otp', builder: (context, state) => const OtpScreen()),
+      // Customer ordering routes (public - no authentication required)
+      GoRoute(path: '/customer/menu', builder: (context, state) => const MenuScreen()),
+      GoRoute(path: '/customer/cart', builder: (context, state) => const CartScreen()),
+      GoRoute(path: '/customer/order-confirmation', builder: (context, state) => const OrderConfirmationScreen()),
       ShellRoute(
         builder: (context, state, child) {
           return MainLayout(location: state.uri.toString(), child: child);

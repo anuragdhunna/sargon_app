@@ -93,6 +93,7 @@ Before creating a new file, check if the functionality belongs to an existing mo
 | **loyalty** | Point earning and tier management | Active |
 | **customers** | CRM, analytics, spending history | Active |
 | **events** | Private Event Management, halls, POs, incidents | **Active**: Quote estimator, hall-wise occupancy, real-time sync |
+| **customer_ordering** | Customer-facing menu browsing and self-ordering via QR code or web | **New**: Menu browsing, cart management, order placement, KDS integration, table assignment |
 
 ### Order Module Features (Production-Ready)
 - **Order Taking**: Refactored to Clean Architecture with dedicated `OrderTakingCubit`. Features responsive menu grid, category filtering, search, and reactive cart management.
@@ -103,6 +104,20 @@ Before creating a new file, check if the functionality belongs to an existing mo
 - **Order Merging**: Auto-merges items for pending orders on same table (industry standard).
 - **Course Intelligence**: Granular management of Starters, Mains, Desserts, and Drinks.
 - **Pax Intelligence**: Guest count tracking per order for analytics and seating optimization.
+
+### Customer Ordering Module Features (New)
+- **Menu Browsing**: Customers can view menu items by category with images, descriptions, and prices
+- **Cart Management**: Add/remove items, specify quantities, add special instructions/notes
+- **QR Code & Web Access**: Access menu via QR code on tables or web URL for takeaway/delivery
+- **Order Placement**: Submit orders directly to kitchen without waiter intervention
+- **Table Assignment**: Orders linked to specific table via QR code or selected manually for walk-in
+- **KDS Integration**: Orders appear instantly on Kitchen Display System for preparation
+- **Order Tracking**: Customers can track order status via order number or token (optional)
+- **Customization Support**: Handle modifications, allergies, and special dietary requests
+- **Promotion Codes**: Apply valid discount/promotion codes to orders
+- **Order Merging**: Auto-merges items for pending orders on same table (if applicable)
+- **Guest Count Tracking**: Track number of customers per order for analytics
+- **Order Notes**: Support for special requests (e.g., "Birthday", "Rush order", "Allergy alert")
 
 ---
 

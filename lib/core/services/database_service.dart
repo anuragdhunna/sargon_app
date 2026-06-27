@@ -78,6 +78,17 @@ class DatabaseService implements IBillingDatabase {
     String tableId,
     TableStatus status,
   ) => DatabaseTables(this).updateTableStatus(hotelId, tableId, status);
+
+  /// Save or Update Order
+  Future<void> saveOrder(Order order) => DatabaseOrders(this).saveOrder(order);
+
+  /// Update order status
+  Future<void> updateOrderStatus(
+    String hotelId,
+    String orderId,
+    OrderStatus status,
+  ) => DatabaseOrders(this).updateOrderStatus(hotelId, orderId, status);
+
   @override
   Future<RoomFolio?> getFolioByBookingId(String hotelId, String bookingId) =>
       DatabaseBilling(this).getFolioByBookingId(hotelId, bookingId);
