@@ -1,0 +1,70 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Room Service & Folio Settlement Lifecycle",
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "full-stay",
+        "label": "Check-in to Check-out",
+        "focus": ["checkin", "folio", "room_order", "kds", "post_folio", "checkout", "cleaning"],
+        "note": "Complete guest lodging lifecycle with bill-to-room dining integration."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "pms", "label": "Front Desk & PMS" },
+    { "id": "dining", "label": "Room Service & Kitchen" },
+    { "id": "core", "label": "Folio & Financial Ledger" },
+    { "id": "hk", "label": "Housekeeping Lifecycle", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "checkin_phase", "label": "Stay Intake", "fromCol": 0, "toCol": 1 },
+    { "id": "stay_phase", "label": "In-Stay Dining", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "checkout_phase", "label": "Departure", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "pms_group", "label": "Front Desk Operations", "lane": "pms", "fromCol": 0, "toCol": 1 },
+    { "id": "dining_group", "label": "In-Room Dining", "lane": "dining", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "hk_group", "label": "Room Sanitization", "lane": "hk", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["checkin", "folio", "room_order", "kds", "post_folio", "checkout", "cleaning"],
+  "nodes": [
+    { "id": "checkin", "lane": "pms", "col": 0, "type": "frontend", "label": "GuestCheckinDialog", "sublabel": "Phone & ID Capture", "width": 132 },
+    { "id": "folio", "lane": "core", "col": 1, "type": "database", "label": "RoomFolio", "sublabel": "Active Booking Ledger", "tag": "hotelId isolated", "width": 132 },
+    { "id": "room_order", "lane": "dining", "col": 2, "type": "frontend", "label": "RoomServiceOrder", "sublabel": "Select Menu Items", "width": 132 },
+    { "id": "kds", "lane": "dining", "col": 3, "type": "backend", "label": "KitchenScreen", "sublabel": "Prepare & Dispatch", "tag": "Delivered to Room", "width": 132 },
+    { "id": "post_folio", "lane": "core", "col": 3, "type": "messagebus", "label": "Post To Folio", "sublabel": "Bill-to-Room Charge", "width": 132 },
+    { "id": "checkout", "lane": "pms", "col": 4, "type": "frontend", "label": "CheckoutScreen", "sublabel": "Final Invoice & Pay", "width": 132 },
+    { "id": "cleaning", "lane": "hk", "col": 5, "type": "database", "label": "Room Cleaning", "sublabel": "Status to Available", "width": 132 }
+  ],
+  "edges": [
+    { "id": "checkin-folio", "from": "checkin", "to": "folio", "label": "init folio", "variant": "emphasis" },
+    { "id": "folio-order", "from": "folio", "to": "room_order", "variant": "default" },
+    { "id": "order-kds", "from": "room_order", "to": "kds", "label": "fire ticket", "variant": "emphasis" },
+    { "id": "kds-post", "from": "kds", "to": "post_folio", "label": "charge room", "variant": "default" },
+    { "id": "post-checkout", "from": "post_folio", "to": "checkout", "label": "aggregate charges", "variant": "emphasis" },
+    { "id": "checkout-clean", "from": "checkout", "to": "cleaning", "label": "auto-checklist", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Unified Guest Billing",
+      "items": [
+        "Room service dining orders automatically link to the guest's active booking folio",
+        "Single master invoice issued upon checkout with itemized food & beverage charges"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Turnover Automation",
+      "items": [
+        "Guest checkout flags room status as Dirty and creates housekeeping assignment",
+        "Sanitization checklist completion returns room to Available inventory"
+      ]
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/component/inputs/app_phone_field.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
@@ -114,12 +115,11 @@ class _CreateOwnerScreenState extends State<CreateOwnerScreen> {
                     enabled: !isLoading,
                   ),
                   const SizedBox(height: AppDesign.space3),
-                  AppTextField(
+                  AppPhoneField(
                     controller: _phoneController,
                     label: 'Phone Number',
-                    hintText: 'Enter phone number',
-                    keyboardType: TextInputType.phone,
-                    validator: (v) => v!.isEmpty ? 'Required' : null,
+                    hint: 'Enter phone number',
+                    validator: (v) => v == null || v.isEmpty ? 'Required' : null,
                     enabled: !isLoading,
                   ),
 

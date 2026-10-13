@@ -196,9 +196,10 @@ class CustomerOrderCubit extends Cubit<CustomerOrderState> {
         }),
       );
 
-      // Create the order
+      // Create the order with generated ID if empty
+      final orderId = 'order_${DateTime.now().millisecondsSinceEpoch}';
       final order = Order(
-        id: '',
+        id: orderId,
         hotelId: state.hotelId,
         tableId: state.selectedTableId ?? 'walk_in', // TODO: Handle walk-in/table-less orders
         tableNumber: state.selectedTableId ?? 'Walk-in',
@@ -239,7 +240,7 @@ class CustomerOrderCubit extends Cubit<CustomerOrderState> {
 
       emit(state.copyWith(
         status: CustomerOrderStatus.success,
-        placedOrderId: order.id,
+        placedOrderId: orderId,
       ));
     } catch (e) {
       emit(state.copyWith(

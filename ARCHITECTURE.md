@@ -86,13 +86,13 @@ Before creating a new file, check if the functionality belongs to an existing mo
 | **orders** | Order taking, order history, KDS sync | **Enhanced**: Order merging for same table, overall order notes, responsive 3-column grid, real-time order history with KDS status |
 | **performance** | Staff performance metrics | Active |
 | **rooms** | Room management and status | **Refactored** (Cubit -> Repository pattern) |
-| **staff_mgmt** | Staff profiles and management | Active |
+| **staff_mgmt** | Staff profiles and customer analytics | **Refactored**: Modular analytics screen & dialogs, standardized `AppPhoneField` |
 | **table_mgmt** | Table seating, status, groups, pax intelligence | Active |
-| **billing** | Invoicing, taxes, offers, and payments | **Enhanced**: Dynamic tax/service charge, offer application, loyalty redemption |
+| **billing** | Invoicing, taxes, offers, and payments | **Enhanced**: Dynamic tax/service charge, offer application, loyalty redemption, `BillingSettlementProcessor` |
 | **offers** | Discount management, happy hours | Active |
 | **loyalty** | Point earning and tier management | Active |
 | **customers** | CRM, analytics, spending history | Active |
-| **events** | Private Event Management, halls, POs, incidents | **Active**: Quote estimator, hall-wise occupancy, real-time sync |
+| **events** | Private Event Management, halls, POs, incidents | **Refactored**: Modular screen (< 400 lines) with dedicated staff, vendor PO, incident, and pricing widgets |
 | **customer_ordering** | Customer-facing menu browsing and self-ordering via QR code or web | **New**: Menu browsing, cart management, order placement, KDS integration, table assignment |
 
 ### Order Module Features (Production-Ready)
@@ -352,3 +352,24 @@ Before committing ANY feature:
 - [ ] Updated ARCHITECTURE.md if introducing new patterns
 
 ---
+
+## 11. 🧠 Agent Skills Ecosystem (`.agents/skills/`)
+
+The workspace is configured with auto-invocable agent skills located in `.agents/skills/`:
+- **Superpowers (14 skills)**: `systematic-debugging`, `test-driven-development`, `writing-plans`, `executing-plans`, `verification-before-completion`, `subagent-driven-development`, `brainstorming`, `dispatching-parallel-agents`, `finishing-a-development-branch`, `requesting-code-review`, `receiving-code-review`, `using-git-worktrees`, `using-superpowers`, `writing-skills`.
+- **Ponytail (6 skills)**: `ponytail`, `ponytail-review`, `ponytail-audit`, `ponytail-debt`, `ponytail-gain`, `ponytail-help` (Minimalist, zero-bloat senior dev engineering).
+- **Prompt Master**: `prompt-master` (Targeted prompt engineering and token-efficient prompt synthesis).
+- **MarkItDown**: `markitdown` (Document and multi-modal extraction/conversion to Markdown).
+- **Graphify**: `graphify` (Knowledge graph AST codebase analysis and community navigation).
+
+Skills are governed by `.agents/rules/auto_skills.md` and automatically invoked based on matching development context.
+
+---
+
+## 12. 📚 Module Knowledge Base & System Maps (`docs/modules/`)
+
+For in-depth module-by-module documentation, multi-entrypoint workflows, and visual graphs:
+- **Master Knowledge Index**: [docs/modules/INDEX.md](file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/docs/modules/INDEX.md)
+- **Multi-Entrypoint Logic Linkage**: [docs/modules/LOGIC_LINKAGE_MATRIX.md](file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/docs/modules/LOGIC_LINKAGE_MATRIX.md)
+- **Codebase Issues Registry**: [docs/modules/ISSUES_AND_MISMATCHES.md](file:///Users/anuragdhunna/Downloads/Workspaces/sargon_app/docs/modules/ISSUES_AND_MISMATCHES.md)
+- **Interactive System Maps**: Located in `docs/diagrams/` (`order_lifecycle.html`, `room_service_lifecycle.html`, `event_booking_lifecycle.html`).

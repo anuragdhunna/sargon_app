@@ -1,3 +1,4 @@
+import 'package:hotel_manager/component/inputs/app_phone_field.dart';
 import 'package:hotel_manager/core/utils/build_context_ext.dart';
 import '../../../inventory_index.dart';
 
@@ -83,14 +84,9 @@ class _CreateVendorDialogState extends State<CreateVendorDialog> {
                     value == null || value.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 16),
-              TextFormField(
+              AppPhoneField(
                 controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Phone Number *',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Required' : null,
+                label: 'Phone Number *',
               ),
             ],
           ),

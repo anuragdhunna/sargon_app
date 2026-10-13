@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Sargon Multi-Screen Order Lifecycle Workflow",
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "order-to-pay",
+        "label": "Order to Payment",
+        "focus": ["pos", "cart", "dbs", "kds", "ready", "billing", "pay", "clean"],
+        "note": "Complete dining flow from menu order taking to KDS, bill settlement, and table cleaning."
+      },
+      {
+        "id": "kitchen-sla",
+        "label": "Kitchen & SLA",
+        "focus": ["cart", "dbs", "kds", "sla", "ready"],
+        "note": "Real-time kitchen course firing and delay monitoring."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "entry", "label": "POS & Waiter Terminal" },
+    { "id": "guest", "label": "Guest Self-Ordering" },
+    { "id": "core", "label": "State & Persistence Layer" },
+    { "id": "kitchen", "label": "Kitchen Display & Operations" },
+    { "id": "settlement", "label": "Billing & Housekeeping", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "ordering", "label": "Capture", "fromCol": 0, "toCol": 1 },
+    { "id": "preparation", "label": "Kitchen Prep", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "settlement_phase", "label": "Settlement", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "entry_group", "label": "Order Entrypoints", "lane": "entry", "fromCol": 0, "toCol": 1 },
+    { "id": "kitchen_group", "label": "Kitchen Display System", "lane": "kitchen", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "billing_group", "label": "Settlement & Turnover", "lane": "settlement", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["pos", "cart", "dbs", "kds", "ready", "billing", "pay", "clean"],
+  "nodes": [
+    { "id": "pos", "lane": "entry", "col": 0, "type": "frontend", "label": "OrderTakingScreen", "sublabel": "Waiter / POS", "width": 132 },
+    { "id": "qr", "lane": "guest", "col": 0, "type": "external", "label": "CustomerQR", "sublabel": "Guest Web App", "width": 132 },
+    { "id": "cart", "lane": "entry", "col": 1, "type": "frontend", "label": "OrderTakingCubit", "sublabel": "Cart & auto-merge", "width": 132 },
+    { "id": "dbs", "lane": "core", "col": 1, "type": "backend", "label": "DatabaseService", "sublabel": "Firestore /orders", "tag": "hotelId isolated", "width": 132 },
+    { "id": "kds", "lane": "kitchen", "col": 2, "type": "frontend", "label": "KitchenScreen", "sublabel": "Fire course & prep", "tag": "SLA tracked", "width": 132 },
+    { "id": "sla", "lane": "core", "col": 3, "type": "messagebus", "label": "SLA Monitor", "sublabel": "15 min delay alert", "width": 132 },
+    { "id": "ready", "lane": "kitchen", "col": 3, "type": "backend", "label": "Ready & Served", "sublabel": "Food delivered", "width": 132 },
+    { "id": "billing", "lane": "settlement", "col": 4, "type": "frontend", "label": "BillingCubit", "sublabel": "Taxes & Offers", "width": 132 },
+    { "id": "pay", "lane": "core", "col": 4, "type": "backend", "label": "Payment Tender", "sublabel": "Cash / Card / UPI", "width": 132 },
+    { "id": "clean", "lane": "settlement", "col": 5, "type": "database", "label": "Cleaning Checklist", "sublabel": "Table to Available", "width": 132 }
+  ],
+  "edges": [
+    { "id": "pos-cart", "from": "pos", "to": "cart", "variant": "default" },
+    { "id": "qr-cart", "from": "qr", "to": "cart", "variant": "dashed" },
+    { "id": "cart-dbs", "from": "cart", "to": "dbs", "label": "saveOrder", "variant": "emphasis" },
+    { "id": "dbs-kds", "from": "dbs", "to": "kds", "label": "stream ticket", "variant": "emphasis" },
+    { "id": "kds-sla", "from": "kds", "to": "sla", "variant": "default" },
+    { "id": "kds-ready", "from": "kds", "to": "ready", "label": "serve course", "variant": "emphasis" },
+    { "id": "ready-billing", "from": "ready", "to": "billing", "label": "generate bill", "variant": "emphasis" },
+    { "id": "billing-pay", "from": "billing", "to": "pay", "variant": "default" },
+    { "id": "pay-clean", "from": "pay", "to": "clean", "label": "auto-cleaning", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Multi-Channel Architecture",
+      "items": [
+        "Orders from POS, Room Service, or QR self-ordering merge into the same table ticket",
+        "Real-time Firestore streams update KDS and floor plan simultaneously"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Automated Lifecycle",
+      "items": [
+        "Bill settlement automatically triggers table cleaning state",
+        "Housekeeping checklist completion resets table to Available"
+      ]
+    }
+  ]
+}

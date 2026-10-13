@@ -21,6 +21,7 @@ part 'database/database_utils.dart';
 part 'database/database_settings.dart';
 part 'database/database_events.dart';
 part 'database/database_hotels.dart';
+part 'database/database_seed.dart';
 
 /// Firebase Cloud Firestore service
 class DatabaseService implements IBillingDatabase {
@@ -283,9 +284,7 @@ class DatabaseService implements IBillingDatabase {
   Future<void> deleteHotel(String hotelId) =>
       DatabaseHotels(this).deleteHotel(hotelId);
 
-  /// Initialize dummy orders for testing/demo (Stub for AuthCubit call)
-  Future<void> initializeDummyOrders(String hotelId) async {
-    // Current implementation is a stub to prevent NoSuchMethodError
-    return;
-  }
+  /// Seed all entity collections with demo data when empty.
+  Future<void> initializeDummyData(String hotelId) =>
+      DatabaseSeed(this).initializeDummyData(hotelId);
 }

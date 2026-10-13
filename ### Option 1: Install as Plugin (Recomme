@@ -1,0 +1,30 @@
+### Option 1: Install as Plugin (Recommended)
+
+The easiest way to use this repo - install as a Claude Code plugin:
+
+```
+# Add this repo as a marketplace /plugin marketplace add https://github.com/affaan-m/ECC # Install the plugin /plugin install ecc@ecc
+```
+
+Or add directly to your ~/.claude/settings.json:
+
+```
+~/.claude/settings.json
+```
+
+
+```
+{ "extraKnownMarketplaces": { "ecc": { "source": { "source": "github", "repo": "affaan-m/ECC" } } }, "enabledPlugins": { "ecc@ecc": true } }
+```
+
+This gives you instant access to all commands, agents, skills, and hooks.
+Note: The Claude Code plugin system does not support distributing rules via plugins ([upstream limitation](https://code.claude.com/docs/en/plugins-reference)). You need to install rules manually:
+
+```
+rules
+```
+
+
+```
+# Clone the repo first git clone https://github.com/affaan-m/ECC.git cd ECC # Option A: User-level rules (applies to all projects) mkdir -p ~/.claude/rules/ecc cp -r rules/common ~/.claude/rules/ecc/ cp -r rules/typescript ~/.claude/rules/ecc/ # pick your stack cp -r rules/python ~/.claude/rules/ecc/ cp -r rules/golang ~/.claude/rules/ecc/ cp -r rules/php ~/.claude/rules/ecc/ # Option B: Project-level rules (applies to current project only) mkdir -p .claude/rules/ecc cp -r rules/common .claude/rules/ecc/ cp -r rules/typescript .claude/rules/ecc/ # pick your stack
+```

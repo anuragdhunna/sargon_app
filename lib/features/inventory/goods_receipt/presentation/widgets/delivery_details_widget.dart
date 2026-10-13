@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hotel_manager/component/cards/app_card.dart';
+import 'package:hotel_manager/component/inputs/app_phone_field.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/theme/app_design.dart';
 
@@ -26,24 +26,15 @@ class DeliveryDetailsWidget extends StatelessWidget {
           const SizedBox(height: AppDesign.space3),
           AppTextField(
             controller: nameController,
-            labelText: 'Delivery Person Name',
-            hintText: 'Enter name',
+            label: 'Delivery Person Name',
+            hint: 'Enter name',
             prefixIcon: Icons.person,
           ),
           const SizedBox(height: AppDesign.space3),
-          AppTextField(
+          AppPhoneField(
             controller: phoneController,
-            labelText: 'Delivery Person Phone',
-            hintText: '10-digit phone number',
-            prefixIcon: Icons.phone,
-            keyboardType: TextInputType.phone,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              LengthLimitingTextInputFormatter(10),
-            ],
-            validator: (v) => (v != null && v.isNotEmpty && v.length != 10)
-                ? 'Phone number must be exactly 10 digits'
-                : null,
+            label: 'Delivery Person Phone',
+            hint: '10-digit phone number',
           ),
         ],
       ),

@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Private Event & Banquet Booking Lifecycle",
+    "animation": "trace",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "event-pipeline",
+        "label": "Inquiry to Settlement",
+        "focus": ["inquiry", "quote", "deposit", "vendor_po", "execution", "settlement"],
+        "note": "Banquet hall booking, live quote dynamic calculation, vendor POs, and final reconciliation."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "sales", "label": "Sales & Event Wizard" },
+    { "id": "quote_lane", "label": "Live Financial Estimator" },
+    { "id": "ops", "label": "Event Day Operations & Vendors" },
+    { "id": "settle_lane", "label": "Deposit & Final Invoicing", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "planning_phase", "label": "Inquiry & Hall Selection", "fromCol": 0, "toCol": 1 },
+    { "id": "prep_phase", "label": "Vendor Sync & Deposit", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "close_phase", "label": "Execution & Settlement", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "sales_group", "label": "Event Planning", "lane": "sales", "fromCol": 0, "toCol": 1 },
+    { "id": "ops_group", "label": "Supply Chain & Operations", "lane": "ops", "fromCol": 2, "toCol": 4, "variant": "emphasis" },
+    { "id": "finance_group", "label": "Deposit Settlement", "lane": "settle_lane", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["inquiry", "quote", "deposit", "vendor_po", "execution", "settlement"],
+  "nodes": [
+    { "id": "inquiry", "lane": "sales", "col": 0, "type": "frontend", "label": "CreateEventScreen", "sublabel": "Multi-Hall Selection", "width": 132 },
+    { "id": "quote", "lane": "quote_lane", "col": 1, "type": "backend", "label": "LiveQuoteCard", "sublabel": "Base Rent + Pax + Decor", "tag": "Instant estimate", "width": 132 },
+    { "id": "deposit", "lane": "sales", "col": 2, "type": "frontend", "label": "Advance Deposit", "sublabel": "Status to Confirmed", "width": 132 },
+    { "id": "vendor_po", "lane": "ops", "col": 3, "type": "messagebus", "label": "Vendor POSync", "sublabel": "DJ / Decor / Lighting", "width": 132 },
+    { "id": "execution", "lane": "ops", "col": 4, "type": "frontend", "label": "EventDetailScreen", "sublabel": "Incident & Damage Logs", "width": 132 },
+    { "id": "settlement", "lane": "settle_lane", "col": 5, "type": "database", "label": "Event Settlement", "sublabel": "Reconcile Deposit & Tax", "width": 132 }
+  ],
+  "edges": [
+    { "id": "inquiry-quote", "from": "inquiry", "to": "quote", "label": "calculate quote", "variant": "emphasis" },
+    { "id": "quote-deposit", "from": "quote", "to": "deposit", "label": "accept quote", "variant": "default" },
+    { "id": "deposit-po", "from": "deposit", "to": "vendor_po", "label": "issue POs", "variant": "emphasis" },
+    { "id": "po-exec", "from": "vendor_po", "to": "execution", "label": "event day", "variant": "default" },
+    { "id": "exec-settle", "from": "execution", "to": "settlement", "label": "final invoice", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Conflict-Free Multi-Hall Booking",
+      "items": [
+        "Real-time availability validation prevents overlapping event schedules",
+        "Dynamic quotation engine accounts for pax catering tiered pricing"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Cost & Incident Reconciliation",
+      "items": [
+        "External vendor purchase orders directly bill against the banquet account",
+        "Operational or damage incidents automatically offset against the refundable deposit"
+      ]
+    }
+  ]
+}

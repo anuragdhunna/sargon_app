@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/component/inputs/app_phone_field.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
@@ -138,10 +139,9 @@ class _EditOwnerScreenState extends State<EditOwnerScreen> {
                       val == null || val.isEmpty ? 'Required' : null,
                 ),
                 const SizedBox(height: AppDesign.space4),
-                AppTextField(
+                AppPhoneField(
                   controller: _phoneController,
                   label: 'Phone Number',
-                  keyboardType: TextInputType.phone,
                   validator: (val) =>
                       val == null || val.isEmpty ? 'Required' : null,
                 ),

@@ -1,4 +1,4 @@
-export 'data/inventory_model.dart';
+export 'package:hotel_manager/core/models/models.dart';
 export 'logic/inventory_cubit.dart';
 export 'logic/inventory_state.dart';
 export 'presentation/inventory_screen.dart';

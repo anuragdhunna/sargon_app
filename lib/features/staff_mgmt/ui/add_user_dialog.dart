@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hotel_manager/component/buttons/premium_button.dart';
+import 'package:hotel_manager/component/inputs/app_phone_field.dart';
 import 'package:hotel_manager/component/inputs/app_text_field.dart';
 import 'package:hotel_manager/core/services/auth_service.dart';
 import 'package:hotel_manager/features/staff_mgmt/data/user_model.dart';
@@ -151,12 +152,10 @@ class _AddUserDialogState extends State<AddUserDialog> {
                       ]),
                     ),
                     const SizedBox(height: 16),
-                    AppTextField(
+                    AppPhoneField(
                       name: 'phone',
                       label: 'Phone Number',
                       hint: '+91 98765 43210',
-                      prefixIcon: Icons.phone_outlined,
-                      keyboardType: TextInputType.phone,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(),
                         FormBuilderValidators.minLength(10),

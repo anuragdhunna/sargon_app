@@ -115,10 +115,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       debugPrint('🚀 Bootstrapping database defaults...');
-      await databaseService.initializeBillingDefaults(user.hotelId);
-      await (databaseService as dynamic).initializeDummyOrders(
-        user.hotelId,
-      ); // Assuming it's added
+      await databaseService.initializeDummyData(user.hotelId);
       debugPrint('✅ Database bootstrapping complete');
     } catch (e) {
       debugPrint('❌ Bootstrapping error (likely role permission issue): $e');

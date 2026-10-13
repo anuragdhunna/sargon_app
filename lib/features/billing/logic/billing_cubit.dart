@@ -5,12 +5,14 @@ import 'package:hotel_manager/core/models/models.dart';
 import 'package:hotel_manager/core/services/database/interfaces/billing_database.dart';
 import 'package:hotel_manager/core/services/database_service.dart';
 import 'package:hotel_manager/core/services/audit_service.dart';
+import 'package:hotel_manager/features/billing/logic/billing_settlement_processor.dart';
 import 'package:hotel_manager/features/billing/logic/billing_state.dart';
 import 'package:hotel_manager/features/billing/logic/discount_calculator.dart';
 
 class BillingCubit extends Cubit<BillingState> {
   final IBillingDatabase _databaseService;
   final AuditService _auditService;
+  final BillingSettlementProcessor _settlementProcessor;
   List<Bill> _bills = [];
   List<TaxRule> _taxRules = [];
   List<ServiceChargeRule> _scRules = [];
@@ -23,8 +25,11 @@ class BillingCubit extends Cubit<BillingState> {
   BillingCubit({
     required IBillingDatabase databaseService,
     AuditService? auditService,
+    BillingSettlementProcessor? settlementProcessor,
   }) : _databaseService = databaseService,
        _auditService = auditService ?? AuditService(),
+       _settlementProcessor =
+           settlementProcessor ?? const BillingSettlementProcessor(),
        super(BillingInitial());
 
   Future<void> loadBillingData({required String hotelId}) async {
@@ -213,7 +218,12 @@ class BillingCubit extends Cubit<BillingState> {
 
     // If it's a room bill, attach to folio
     if (bookingId != null) {
-      await _attachBillToFolio(bookingId, bill, hotelId);
+      await _settlementProcessor.attachBillToFolio(
+        databaseService: _databaseService,
+        hotelId: hotelId,
+        bookingId: bookingId,
+        bill: bill,
+      );
     }
 
     // Update order statuses to billed
@@ -385,45 +395,11 @@ class BillingCubit extends Cubit<BillingState> {
 
     // If fully paid, award loyalty points
     if (totalPaid >= updatedBill.grandTotal && updatedBill.customerId != null) {
-      try {
-        final db =
-            _databaseService
-                as DatabaseService; // Cast to access loyalty methods
-        final points = (updatedBill.grandTotal / 100).floor();
-        if (points > 0) {
-          // Fetch current loyalty info or start fresh
-          final customer = await db.getCustomer(
-            hotelId,
-            updatedBill.customerId!,
-          );
-          if (customer != null) {
-            final currentLoyalty =
-                customer.loyaltyInfo ??
-                const LoyaltyInfo(
-                  tierId: 'bronze',
-                  totalPoints: 0,
-                  availablePoints: 0,
-                  lifetimeSpend: 0,
-                );
-
-            final newLoyalty = currentLoyalty.copyWith(
-              totalPoints: currentLoyalty.totalPoints + points,
-              availablePoints: currentLoyalty.availablePoints + points,
-              lifetimeSpend:
-                  currentLoyalty.lifetimeSpend + updatedBill.grandTotal,
-            );
-
-            final updatedCustomer = customer.copyWith(loyaltyInfo: newLoyalty);
-
-            await db.saveCustomer(updatedCustomer);
-            debugPrint(
-              'Loyalty points awarded: $points to customer ${updatedBill.customerId}',
-            );
-          }
-        }
-      } catch (e) {
-        debugPrint('Error awarding loyalty points: $e');
-      }
+      await _settlementProcessor.awardLoyaltyPoints(
+        databaseService: _databaseService,
+        hotelId: hotelId,
+        bill: updatedBill,
+      );
     }
 
     // If fully paid or billed to room, handle downstream updates
@@ -431,7 +407,12 @@ class BillingCubit extends Cubit<BillingState> {
         method == PaymentMethod.billToRoom) {
       // If billed to room, attach to folio
       if (method == PaymentMethod.billToRoom && bookingId != null) {
-        await _attachBillToFolio(bookingId, updatedBill, hotelId);
+        await _settlementProcessor.attachBillToFolio(
+          databaseService: _databaseService,
+          hotelId: hotelId,
+          bookingId: bookingId,
+          bill: updatedBill,
+        );
       }
 
       // Update order statuses
@@ -468,37 +449,6 @@ class BillingCubit extends Cubit<BillingState> {
     );
   }
 
-  Future<void> _attachBillToFolio(
-    String bookingId,
-    Bill bill,
-    String hotelId,
-  ) async {
-    final existingFolio = await _databaseService.getFolioByBookingId(
-      hotelId,
-      bookingId,
-    );
-
-    RoomFolio folio;
-    if (existingFolio != null) {
-      final updatedBillIds = [...existingFolio.billIds, bill.id];
-      folio = existingFolio.copyWith(
-        billIds: updatedBillIds,
-        totalAmount: existingFolio.totalAmount + bill.grandTotal,
-      );
-    } else {
-      folio = RoomFolio(
-        id: 'folio_${DateTime.now().millisecondsSinceEpoch}',
-        hotelId: hotelId,
-        roomId: bill.roomId ?? 'unknown',
-        bookingId: bookingId,
-        billIds: [bill.id],
-        totalAmount: bill.grandTotal,
-      );
-    }
-
-    await _databaseService.saveFolio(folio);
-  }
-
   /// Settle all charges in a folio
   Future<void> settleFolio({
     required String bookingId,
@@ -506,63 +456,17 @@ class BillingCubit extends Cubit<BillingState> {
     required PaymentMethod method,
     String? reference,
   }) async {
-    final folio = await _databaseService.getFolioByBookingId(
-      hotelId,
-      bookingId,
-    );
-    if (folio == null) return;
-
     final currentState = state;
     if (currentState is! BillingLoaded) return;
 
-    // Get all bills linked to this folio that are not 'paid'
-    final billsToSettle = currentState.bills
-        .where(
-          (b) =>
-              folio.billIds.contains(b.id) &&
-              b.paymentStatus != PaymentStatus.paid,
-        )
-        .toList();
-
-    for (final bill in billsToSettle) {
-      final payment = BillPayment(
-        id: 'pay_${DateTime.now().millisecondsSinceEpoch}_${bill.id}',
-        amount: bill.remainingBalance,
-        method: method,
-        timestamp: DateTime.now(),
-        reference: reference ?? 'Folio Settlement',
-      );
-
-      final updatedBill = bill.copyWith(
-        payments: [...bill.payments, payment],
-        paymentStatus: PaymentStatus.paid,
-        closedAt: DateTime.now(),
-      );
-
-      await _databaseService.saveBill(updatedBill);
-
-      // Update order statuses to paid
-      for (final orderId in bill.orderIds) {
-        await _databaseService.updateOrderPaymentStatus(
-          hotelId,
-          orderId,
-          PaymentStatus.paid,
-        );
-      }
-    }
-
-    // Update folio status
-    final updatedFolio = folio.copyWith(paymentStatus: PaymentStatus.paid);
-    await _databaseService.saveFolio(updatedFolio);
-
-    // Audit Log
-    await _auditService.log(
+    await _settlementProcessor.settleFolio(
+      databaseService: _databaseService,
+      auditService: _auditService,
       hotelId: hotelId,
-      performedBy: 'system',
-      performedByRole: 'finance',
-      action: AuditAction.update,
-      targetUserId: bookingId,
-      description: 'Folio $bookingId settled via ${method.name}',
+      bookingId: bookingId,
+      method: method,
+      bills: currentState.bills,
+      reference: reference,
     );
   }
 
